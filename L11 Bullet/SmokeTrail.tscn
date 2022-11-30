@@ -1,0 +1,21 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://L11 Bullet/SmokeTrail.gd" type="Script" id=1]
+
+[sub_resource type="Curve" id=2]
+_data = [ Vector2( 0, 1 ), 0.0, 0.0, 0, 0, Vector2( 1, 0 ), 0.0, 0.0, 0, 0 ]
+
+[sub_resource type="Gradient" id=1]
+interpolation_mode = 2
+offsets = PoolRealArray( 0, 0.513072, 0.826797, 0.915033, 1 )
+colors = PoolColorArray( 1, 1, 1, 0, 0, 0, 0, 1, 0.183658, 0.183658, 0.183658, 1, 1, 0.75, 0, 1, 0.980469, 0.897729, 0.649509, 1 )
+
+[node name="Line2D" type="Line2D"]
+position = Vector2( -115.145, 91 )
+scale = Vector2( 0.891114, 1 )
+points = PoolVector2Array( 407.518, 153, 520.86, 221, 639.812, 227, 804, 156, 980.958, 93, 1157.14, 232, 1190.81, 442, 873.228, 496, 501.782, 481, 398.541, 399, 318.865, 344, 174.103, 323, 142.681, 205, 251.534, 168, 290.81, 53, 433.329, -26, 616.246, 50 )
+width = 20.0
+width_curve = SubResource( 2 )
+default_color = Color( 0.482353, 0.603922, 0.807843, 1 )
+gradient = SubResource( 1 )
+script = ExtResource( 1 )

@@ -1,0 +1,97 @@
+[gd_scene load_steps=10 format=2]
+
+[ext_resource path="res://L02 Viewport/MeshRotation.gd" type="Script" id=1]
+[ext_resource path="res://icon.png" type="Texture" id=2]
+[ext_resource path="res://L03 GDScript/MySprite.gd" type="Script" id=3]
+[ext_resource path="res://default_env.tres" type="Environment" id=4]
+
+[sub_resource type="CubeMesh" id=1]
+
+[sub_resource type="SpatialMaterial" id=2]
+albedo_texture = ExtResource( 2 )
+uv1_offset = Vector3( -1.028, 3.951, 0 )
+uv1_triplanar = true
+
+[sub_resource type="PlaneMesh" id=3]
+
+[sub_resource type="ViewportTexture" id=6]
+resource_local_to_scene = false
+viewport_path = NodePath("ViewportContainer2/Viewport2")
+
+[sub_resource type="SpatialMaterial" id=5]
+resource_local_to_scene = true
+flags_transparent = true
+albedo_texture = SubResource( 6 )
+
+[node name="2Din3D" type="Spatial"]
+script = ExtResource( 1 )
+
+[node name="Camera" type="Camera" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 4.73277 )
+
+[node name="OmniLight" type="OmniLight" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.52227, 2.92841, -1.52391 )
+
+[node name="OmniLight2" type="OmniLight" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.60819, -1.10066, 2.24394 )
+
+[node name="MeshInstance" type="MeshInstance" parent="."]
+layers = 3
+mesh = SubResource( 1 )
+skeleton = NodePath("../..")
+material/0 = SubResource( 2 )
+
+[node name="MeshTextured" type="MeshInstance" parent="."]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 2.21957, -3.42292 )
+mesh = SubResource( 3 )
+skeleton = NodePath("../..")
+material/0 = SubResource( 5 )
+
+[node name="ViewportContainer" type="ViewportContainer" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -510.0
+margin_top = 150.0
+margin_right = -360.0
+margin_bottom = 300.0
+
+[node name="Viewport" type="Viewport" parent="ViewportContainer"]
+size = Vector2( 150, 150 )
+handle_input_locally = false
+render_target_v_flip = true
+render_target_update_mode = 3
+
+[node name="MySprite" type="Sprite" parent="ViewportContainer/Viewport"]
+position = Vector2( 75, 75 )
+rotation = 6207.07
+texture = ExtResource( 2 )
+script = ExtResource( 3 )
+
+[node name="ViewportContainer2" type="ViewportContainer" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = 365.0
+margin_top = 150.0
+margin_right = 515.0
+margin_bottom = 300.0
+
+[node name="Viewport2" type="Viewport" parent="ViewportContainer2"]
+size = Vector2( 150, 150 )
+transparent_bg = true
+handle_input_locally = false
+render_target_v_flip = true
+render_target_update_mode = 3
+
+[node name="MySprite" type="Sprite" parent="ViewportContainer2/Viewport2"]
+position = Vector2( 64, 64 )
+rotation = 6207.07
+texture = ExtResource( 2 )
+centered = false
+script = ExtResource( 3 )
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = ExtResource( 4 )

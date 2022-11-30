@@ -1,0 +1,691 @@
+[gd_scene load_steps=31 format=2]
+
+[ext_resource path="res://L10 Animation Blending/ColorRect.gd" type="Script" id=1]
+[ext_resource path="res://L0 Basic Guide/entry.tscn" type="PackedScene" id=2]
+[ext_resource path="res://L10 Animation Blending/entry.tres" type="TileSet" id=3]
+[ext_resource path="res://L10 Animation Blending/enemy.tres" type="SpriteFrames" id=4]
+[ext_resource path="res://L10 Animation Blending/entry.gd" type="Script" id=5]
+[ext_resource path="res://default_env.tres" type="Environment" id=6]
+[ext_resource path="res://L10 Animation Blending/mySprite.gd" type="Script" id=7]
+[ext_resource path="res://assets/2d_animation_frog_spritesheet_gray.png" type="Texture" id=8]
+[ext_resource path="res://icon.png" type="Texture" id=9]
+[ext_resource path="res://L10 Animation Blending/player.gd" type="Script" id=10]
+[ext_resource path="res://L10 Animation Blending/animatedtexture.tres" type="Texture" id=11]
+[ext_resource path="res://L10 Animation Blending/Sprite-by-statemachine.gd" type="Script" id=12]
+[ext_resource path="res://L10 Animation Blending/bullet.gd" type="Script" id=13]
+[ext_resource path="res://L10 Animation Blending/Sprite-by-transition.gd" type="Script" id=14]
+[ext_resource path="res://L10 Animation Blending/animationnodeblendtree.tres" type="AnimationNodeBlendTree" id=15]
+[ext_resource path="res://L0 Basic Guide/Circle.gd" type="Script" id=16]
+
+[sub_resource type="Animation" id=3]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/path = NodePath("CanvasLayer/player_relocated2/Sprite-by-transition:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ 0 ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("CanvasLayer/player_relocated2/Sprite-by-transition:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Vector2( 0, 0 ) ]
+}
+tracks/2/type = "bezier"
+tracks/2/path = NodePath("CanvasLayer/player_relocated2/Sprite-by-transition:scale:x")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"points": PoolRealArray( -1, -0.25, 0, 0.25, 0 ),
+"times": PoolRealArray( 0 )
+}
+tracks/3/type = "bezier"
+tracks/3/path = NodePath("CanvasLayer/player_relocated2/Sprite-by-transition:scale:y")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"points": PoolRealArray( 1, -0.25, 0, 0.25, 0 ),
+"times": PoolRealArray( 0 )
+}
+tracks/4/type = "value"
+tracks/4/path = NodePath("CanvasLayer/player_relocated2/Sprite-by-transition:scale")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Vector2( -1, 1 ) ]
+}
+tracks/5/type = "value"
+tracks/5/path = NodePath("CanvasLayer/player_relocated3/Sprite-by-statemachine:frame")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/keys = {
+"times": PoolRealArray(  ),
+"transitions": PoolRealArray(  ),
+"update": 1,
+"values": [  ]
+}
+
+[sub_resource type="Animation" id=26]
+resource_name = "bullet"
+
+[sub_resource type="Animation" id=4]
+resource_name = "fog jump"
+length = 0.8
+tracks/0/type = "value"
+tracks/0/path = NodePath("CanvasLayer/player_relocated/Sprite-by-animationplayer:frame")
+tracks/0/interp = 2
+tracks/0/loop_wrap = false
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1, 1, 1 ),
+"update": 0,
+"values": [ 0, 1, 2, 3, 4, 5, 6, 7 ]
+}
+
+[sub_resource type="Animation" id=25]
+resource_name = "idle"
+
+[sub_resource type="Animation" id=24]
+resource_name = "idle-sm"
+length = 0.001
+tracks/0/type = "value"
+tracks/0/path = NodePath("CanvasLayer/player_relocated3/Sprite-by-statemachine:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.001 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ 0, 0 ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("CanvasLayer/player_relocated3/Sprite-by-statemachine:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Vector2( 0, 0 ) ]
+}
+tracks/2/type = "bezier"
+tracks/2/path = NodePath("CanvasLayer/player_relocated3/Sprite-by-statemachine:scale:x")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"points": PoolRealArray( 1, -0.25, 0, 0.25, 0 ),
+"times": PoolRealArray( 0 )
+}
+tracks/3/type = "bezier"
+tracks/3/path = NodePath("CanvasLayer/player_relocated3/Sprite-by-statemachine:scale:y")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"points": PoolRealArray( 1, -0.25, 0, 0.25, 0 ),
+"times": PoolRealArray( 0 )
+}
+tracks/4/type = "value"
+tracks/4/path = NodePath("CanvasLayer/player_relocated3/Sprite-by-statemachine:scale")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Vector2( 1, 1 ) ]
+}
+
+[sub_resource type="Animation" id=20]
+resource_name = "idle-trans"
+length = 0.001
+tracks/0/type = "value"
+tracks/0/path = NodePath("CanvasLayer/player_relocated2/Sprite-by-transition:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.001 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ 0, 0 ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("CanvasLayer/player_relocated2/Sprite-by-transition:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Vector2( 0, 0 ) ]
+}
+tracks/2/type = "bezier"
+tracks/2/path = NodePath("CanvasLayer/player_relocated2/Sprite-by-transition:scale:x")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"points": PoolRealArray( 1, -0.25, 0, 0.25, 0 ),
+"times": PoolRealArray( 0 )
+}
+tracks/3/type = "bezier"
+tracks/3/path = NodePath("CanvasLayer/player_relocated2/Sprite-by-transition:scale:y")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"points": PoolRealArray( 1, -0.25, 0, 0.25, 0 ),
+"times": PoolRealArray( 0 )
+}
+tracks/4/type = "value"
+tracks/4/path = NodePath("CanvasLayer/player_relocated2/Sprite-by-transition:scale")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Vector2( 1, 1 ) ]
+}
+
+[sub_resource type="Animation" id=18]
+resource_name = "jump_left_aniplayer"
+length = 0.8
+step = 0.01
+tracks/0/type = "value"
+tracks/0/path = NodePath("CanvasLayer/player_relocated/Sprite-by-animationplayer:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1, 1, 1, 1 ),
+"update": 1,
+"values": [ 0, 1, 2, 2, 3, 4, 5, 6, 7 ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("CanvasLayer/player_relocated/Sprite-by-animationplayer:position")
+tracks/1/interp = 0
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1, 1 ),
+"update": 1,
+"values": [ Vector2( 0, 0 ), Vector2( 0, -2 ), Vector2( -10, -8 ), Vector2( -50, -30 ), Vector2( -80, -10 ), Vector2( -87, 1 ), Vector2( -85, 0 ) ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("CanvasLayer/player_relocated/Sprite-by-animationplayer:scale")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0, 0.8 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ Vector2( 1, 1 ), Vector2( 1, 1 ) ]
+}
+
+[sub_resource type="Animation" id=21]
+resource_name = "jump_left_sm"
+length = 0.8
+step = 0.01
+tracks/0/type = "value"
+tracks/0/path = NodePath("CanvasLayer/player_relocated3/Sprite-by-statemachine:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1, 1, 1, 1 ),
+"update": 1,
+"values": [ 0, 1, 2, 2, 3, 4, 5, 6, 7 ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("CanvasLayer/player_relocated3/Sprite-by-statemachine:position")
+tracks/1/interp = 0
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1, 1 ),
+"update": 1,
+"values": [ Vector2( 0, 0 ), Vector2( 0, -2 ), Vector2( -10, -8 ), Vector2( -50, -30 ), Vector2( -80, -10 ), Vector2( -87, 1 ), Vector2( -85, 0 ) ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("CanvasLayer/player_relocated3/Sprite-by-statemachine:scale")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0, 0.8 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ Vector2( 1, 1 ), Vector2( 1, 1 ) ]
+}
+
+[sub_resource type="Animation" id=5]
+resource_name = "jump_left_trans"
+length = 0.85
+loop = true
+tracks/0/type = "value"
+tracks/0/path = NodePath("CanvasLayer/player_relocated2/Sprite-by-transition:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1, 1, 1, 1 ),
+"update": 2,
+"values": [ 0, 1, 2, 2, 3, 4, 5, 6, 7 ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("CanvasLayer/player_relocated2/Sprite-by-transition:position")
+tracks/1/interp = 0
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1, 1, 1 ),
+"update": 0,
+"values": [ Vector2( 0, 0 ), Vector2( 0, -2 ), Vector2( -10, -8 ), Vector2( -50, -30 ), Vector2( -80, -10 ), Vector2( -87, 1 ), Vector2( -85, 0 ), Vector2( -85, 0 ) ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("CanvasLayer/player_relocated2/Sprite-by-transition:scale")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0, 0.8 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ Vector2( 1, 1 ), Vector2( 1, 1 ) ]
+}
+
+[sub_resource type="Animation" id=19]
+resource_name = "jump_right_aniplayer"
+length = 0.802
+tracks/0/type = "value"
+tracks/0/path = NodePath("CanvasLayer/player_relocated/Sprite-by-animationplayer:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1, 1, 1, 1 ),
+"update": 1,
+"values": [ 0, 1, 2, 2, 3, 4, 5, 6, 7 ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("CanvasLayer/player_relocated/Sprite-by-animationplayer:position")
+tracks/1/interp = 0
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1, 1, 1 ),
+"update": 1,
+"values": [ Vector2( 0, 0 ), Vector2( 0, -2 ), Vector2( 10, -8 ), Vector2( 50, -30 ), Vector2( 80, -10 ), Vector2( 87, 1 ), Vector2( 85, 0 ), Vector2( 85, 0 ) ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("CanvasLayer/player_relocated/Sprite-by-animationplayer:scale")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0, 0.8 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ Vector2( -1, 1 ), Vector2( -1, 1 ) ]
+}
+
+[sub_resource type="Animation" id=22]
+resource_name = "jump_right_sm"
+length = 0.802
+tracks/0/type = "value"
+tracks/0/path = NodePath("CanvasLayer/player_relocated3/Sprite-by-statemachine:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1, 1, 1, 1 ),
+"update": 1,
+"values": [ 0, 1, 2, 2, 3, 4, 5, 6, 7 ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("CanvasLayer/player_relocated3/Sprite-by-statemachine:position")
+tracks/1/interp = 0
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1, 1, 1 ),
+"update": 1,
+"values": [ Vector2( 0, 0 ), Vector2( 0, -2 ), Vector2( 10, -8 ), Vector2( 50, -30 ), Vector2( 80, -10 ), Vector2( 87, 1 ), Vector2( 85, 0 ), Vector2( 85, 0 ) ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("CanvasLayer/player_relocated3/Sprite-by-statemachine:scale")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0, 0.8 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ Vector2( -1, 1 ), Vector2( -1, 1 ) ]
+}
+
+[sub_resource type="Animation" id=8]
+resource_name = "jump_right_trans"
+length = 0.9
+loop = true
+tracks/0/type = "value"
+tracks/0/path = NodePath("CanvasLayer/player_relocated2/Sprite-by-transition:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1, 1, 1, 1 ),
+"update": 1,
+"values": [ 0, 1, 2, 2, 3, 4, 5, 6, 7 ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("CanvasLayer/player_relocated2/Sprite-by-transition:position")
+tracks/1/interp = 0
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1, 1, 1 ),
+"update": 1,
+"values": [ Vector2( 0, 0 ), Vector2( 0, -2 ), Vector2( 10, -8 ), Vector2( 50, -30 ), Vector2( 80, -10 ), Vector2( 87, 1 ), Vector2( 85, 0 ), Vector2( 85, 0 ) ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("CanvasLayer/player_relocated2/Sprite-by-transition:scale")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0, 0.8 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ Vector2( -1, 1 ), Vector2( -1, 1 ) ]
+}
+
+[sub_resource type="AnimationNodeStateMachinePlayback" id=23]
+
+[sub_resource type="StyleBoxFlat" id=2]
+bg_color = Color( 0.419608, 0.0745098, 0.0745098, 0.494118 )
+
+[node name="Root" instance=ExtResource( 2 )]
+script = ExtResource( 5 )
+
+[node name="MyTitle" parent="bg" index="0"]
+text = " Spritesheet & Animation Blending"
+
+[node name="note" parent="bg" index="2"]
+visible = false
+
+[node name="Camera2D" type="Camera2D" parent="." index="1"]
+position = Vector2( 511, 292 )
+anchor_mode = 0
+current = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." index="2"]
+environment = ExtResource( 6 )
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." index="3"]
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="CanvasLayer" index="0"]
+unique_name_in_owner = true
+root_node = NodePath("../..")
+anims/RESET = SubResource( 3 )
+anims/bullet = SubResource( 26 )
+"anims/fog jump" = SubResource( 4 )
+anims/idle = SubResource( 25 )
+anims/idle-sm = SubResource( 24 )
+anims/idle-trans = SubResource( 20 )
+anims/jump_left_aniplayer = SubResource( 18 )
+anims/jump_left_sm = SubResource( 21 )
+anims/jump_left_trans = SubResource( 5 )
+anims/jump_right_aniplayer = SubResource( 19 )
+anims/jump_right_sm = SubResource( 22 )
+anims/jump_right_trans = SubResource( 8 )
+
+[node name="AnimationTree" type="AnimationTree" parent="CanvasLayer" index="1"]
+unique_name_in_owner = true
+tree_root = ExtResource( 15 )
+anim_player = NodePath("../AnimationPlayer")
+active = true
+"parameters/Add2 3/add_amount" = 1.0
+parameters/BlendSpace1D/blend_position = -0.571584
+parameters/BlendSpace2D/blend_position = Vector2( -0.397406, -0.555215 )
+parameters/OneShot/active = false
+parameters/StateMachine/playback = SubResource( 23 )
+parameters/Transition/current = 1
+
+[node name="MyAnimatedSprite" type="Sprite" parent="CanvasLayer" index="2"]
+position = Vector2( 902, 410 )
+texture = ExtResource( 11 )
+hframes = 4
+vframes = 2
+region_rect = Rect2( 114.679, 32, 96, 96 )
+script = ExtResource( 7 )
+loop = true
+TextureMovtion = false
+
+[node name="bullet" type="Node2D" parent="CanvasLayer" index="3"]
+position = Vector2( 195, 410 )
+script = ExtResource( 13 )
+
+[node name="player_relocated" type="Node2D" parent="CanvasLayer" index="4"]
+position = Vector2( 741, 412 )
+script = ExtResource( 16 )
+color = Color( 0.780392, 0.835294, 0.294118, 0.501961 )
+
+[node name="Sprite-by-animationplayer" type="Sprite" parent="CanvasLayer/player_relocated" index="0"]
+texture = ExtResource( 8 )
+hframes = 4
+vframes = 2
+frame = 7
+region_rect = Rect2( 64, 0, 64, 64 )
+script = ExtResource( 10 )
+
+[node name="player_relocated2" type="Node2D" parent="CanvasLayer" index="5"]
+position = Vector2( 120, 410 )
+script = ExtResource( 14 )
+color = Color( 0.890196, 0.878431, 0.878431, 0.501961 )
+
+[node name="Sprite-by-transition" type="Sprite" parent="CanvasLayer/player_relocated2" index="0"]
+scale = Vector2( -1, 1 )
+texture = ExtResource( 11 )
+hframes = 4
+vframes = 2
+
+[node name="player_relocated3" type="Node2D" parent="CanvasLayer" index="6"]
+position = Vector2( 280, 410 )
+script = ExtResource( 12 )
+color = Color( 0.678431, 0.65098, 0.65098, 0.501961 )
+
+[node name="Sprite-by-statemachine" type="Sprite" parent="CanvasLayer/player_relocated3" index="0"]
+texture = ExtResource( 11 )
+hframes = 4
+vframes = 2
+
+[node name="ColorRect" type="ColorRect" parent="CanvasLayer" index="7"]
+margin_left = 575.0
+margin_top = 380.0
+margin_right = 615.0
+margin_bottom = 420.0
+color = Color( 1, 1, 1, 0 )
+script = ExtResource( 1 )
+
+[node name="AnimatedSprite" type="AnimatedSprite" parent="CanvasLayer/ColorRect" index="0"]
+position = Vector2( 20, 20 )
+frames = ExtResource( 4 )
+animation = "spikey"
+frame = 3
+playing = true
+
+[node name="ViewportContainer" type="ViewportContainer" parent="CanvasLayer" index="8"]
+margin_left = 410.0
+margin_top = 391.0
+margin_right = 458.0
+margin_bottom = 439.0
+
+[node name="Viewport" type="Viewport" parent="CanvasLayer/ViewportContainer" index="0"]
+size = Vector2( 48, 48 )
+transparent_bg = true
+handle_input_locally = false
+render_target_update_mode = 3
+
+[node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="CanvasLayer/ViewportContainer/Viewport" index="0"]
+frames = ExtResource( 4 )
+animation = "fly"
+frame = 4
+playing = true
+
+[node name="Camera" type="Camera" parent="CanvasLayer/ViewportContainer/Viewport" index="1"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.00654733, 0.972104 )
+current = true
+fov = 36.0
+
+[node name="Parallax" type="ParallaxBackground" parent="." index="4"]
+layer = 3
+
+[node name="background" type="ParallaxBackground" parent="Parallax" index="0"]
+layer = -128
+scale = Vector2( 1, 0.948 )
+transform = Transform2D( 1, 0, 0, 0.948, 0, 0 )
+
+[node name="lanscape" type="ParallaxLayer" parent="Parallax/background" index="0"]
+motion_scale = Vector2( 0.5, 0.5 )
+
+[node name="Sprite" type="Sprite" parent="Parallax/background/lanscape" index="0"]
+position = Vector2( 618, 360 )
+scale = Vector2( 0.5, 0.5 )
+texture = ExtResource( 9 )
+
+[node name="Sprite2" type="Sprite" parent="Parallax/background/lanscape" index="1"]
+position = Vector2( 551, 360 )
+scale = Vector2( 0.5, 0.5 )
+texture = ExtResource( 9 )
+
+[node name="Sprite3" type="Sprite" parent="Parallax/background/lanscape" index="2"]
+position = Vector2( 479, 360 )
+scale = Vector2( 0.5, 0.5 )
+texture = ExtResource( 9 )
+
+[node name="Sprite4" type="Sprite" parent="Parallax/background/lanscape" index="3"]
+position = Vector2( 399, 360 )
+scale = Vector2( 0.5, 0.5 )
+texture = ExtResource( 9 )
+
+[node name="stage" type="ParallaxLayer" parent="Parallax" index="1"]
+z_index = 2
+motion_scale = Vector2( 0, 0 )
+
+[node name="Label3" type="Label" parent="Parallax/stage" index="0"]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = 434.0
+margin_right = 1024.0
+margin_bottom = 493.0
+custom_styles/normal = SubResource( 2 )
+text = "Click circle to interact with AnimationTree."
+align = 1
+valign = 1
+
+[node name="foreground" type="ParallaxLayer" parent="Parallax" index="2"]
+z_index = 3
+
+[node name="Sprite" type="Sprite" parent="Parallax/foreground" index="0"]
+position = Vector2( 789, 500 )
+texture = ExtResource( 9 )
+
+[node name="Sprite2" type="Sprite" parent="Parallax/foreground" index="1"]
+position = Vector2( 605, 500 )
+texture = ExtResource( 9 )
+
+[node name="Sprite3" type="Sprite" parent="Parallax/foreground" index="2"]
+position = Vector2( 440, 500 )
+texture = ExtResource( 9 )
+
+[node name="Sprite4" type="Sprite" parent="Parallax/foreground" index="3"]
+position = Vector2( 277, 500 )
+texture = ExtResource( 9 )
+
+[node name="TileMap" type="TileMap" parent="." index="5"]
+mode = 2
+tile_set = ExtResource( 3 )
+format = 1
+
+[connection signal="animation_changed" from="CanvasLayer/AnimationPlayer" to="CanvasLayer/player_relocated3" method="_on_AnimationPlayer_animation_changed"]
+[connection signal="animation_finished" from="CanvasLayer/AnimationPlayer" to="CanvasLayer/player_relocated/Sprite-by-animationplayer" method="_on_AnimationPlayer_animation_finished"]
+[connection signal="animation_started" from="CanvasLayer/AnimationPlayer" to="CanvasLayer/player_relocated/Sprite-by-animationplayer" method="_on_AnimationPlayer_animation_started"]
+[connection signal="circle_hit" from="CanvasLayer/player_relocated2" to="CanvasLayer/player_relocated2" method="_on_player_relocated2_circle_hit"]
+[connection signal="gui_input" from="CanvasLayer/ColorRect" to="CanvasLayer/ColorRect" method="_on_ColorRect_gui_input"]
+[connection signal="animation_finished" from="CanvasLayer/ColorRect/AnimatedSprite" to="CanvasLayer/ColorRect" method="_on_AnimatedSprite_animation_finished"]

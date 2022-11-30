@@ -1,0 +1,62 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://L07 UI/RichTextLabel.gd" type="Script" id=1]
+[ext_resource path="res://L07 UI/theme.tres" type="Theme" id=2]
+
+[node name="Node2D" type="Node2D"]
+
+[node name="VSplitContainer" type="VSplitContainer" parent="."]
+margin_left = 24.0
+margin_top = 12.0
+margin_right = 1000.0
+margin_bottom = 586.0
+split_offset = 70
+
+[node name="Title" type="Label" parent="VSplitContainer"]
+margin_top = 35.0
+margin_right = 976.0
+margin_bottom = 67.0
+size_flags_horizontal = 5
+theme = ExtResource( 2 )
+theme_type_variation = "MyLabel"
+custom_colors/font_color_shadow = Color( 0.858824, 0.788235, 0.788235, 1 )
+text = "User Interface, Theme and Fonts"
+align = 1
+valign = 1
+
+[node name="HSplitContainer" type="HSplitContainer" parent="VSplitContainer"]
+margin_top = 114.0
+margin_right = 976.0
+margin_bottom = 574.0
+rect_pivot_offset = Vector2( -475, -161 )
+split_offset = 499
+
+[node name="Label" type="Label" parent="VSplitContainer/HSplitContainer"]
+margin_right = 500.0
+margin_bottom = 460.0
+size_flags_vertical = 1
+theme = ExtResource( 2 )
+text = "    Bitmap Font Generator
+    字体示范 
+    Example: The word [url=https://www.bbcode.org]BBCode[/url] is clickable.
+    [img]res://icon.png[/img]
+    The word BBCode is clickable, use meta_clicked signal to handle it.
+
+SplitContainer > HSplitContainer and VSplitContainer
+"
+autowrap = true
+
+[node name="RichTextLabel" type="RichTextLabel" parent="VSplitContainer/HSplitContainer"]
+margin_left = 512.0
+margin_right = 976.0
+margin_bottom = 460.0
+theme = ExtResource( 2 )
+text = "Bitmap Font Generator
+    字体示范 
+    Example: The word [url=https://www.bbcode.org]BBCode[/url] is clickable.
+    [img]res://icon.png[/img]
+    The word BBCode is clickable, use meta_clicked signal to handle it.
+"
+script = ExtResource( 1 )
+
+[connection signal="dragged" from="VSplitContainer/HSplitContainer" to="VSplitContainer/HSplitContainer/RichTextLabel" method="_on_dragged"]

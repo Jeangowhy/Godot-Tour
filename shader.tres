@@ -1,0 +1,21 @@
+[gd_resource type="Shader" format=2]
+
+[resource]
+code = "
+shader_type spatial;
+// Here are the available types:
+// spatial for 3D rendering.
+// canvas_item for 2D rendering.
+// particles for particle systems.
+
+void vertex() {
+  // Animate Sprite moving in big circle around its location
+  VERTEX += vec3(cos(TIME)*1.0, sin(TIME)*0.6, 0);
+  VERTEX.y += cos(VERTEX.x) * sin(VERTEX.z);
+}
+
+void fragment(){
+//  COLOR = vec4(0.4, 0.9, 0.9, 1.0);
+//  COLOR = vec4(UV, 0.3, 1.0);
+//  COLOR = texture(TEXTURE, UV); //read from texture
+}"

@@ -1,0 +1,10 @@
+[gd_resource type="Environment" load_steps=2 format=2]
+
+[sub_resource type="ProceduralSky" id=1]
+sky_curve = 0.0419864
+
+[resource]
+background_mode = 3
+background_sky = SubResource( 1 )
+background_canvas_max_layer = 1
+tonemap_mode = 2

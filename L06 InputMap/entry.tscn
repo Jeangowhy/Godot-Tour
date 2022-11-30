@@ -1,0 +1,164 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://L06 InputMap/RichTextLabel.gd" type="Script" id=1]
+[ext_resource path="res://L07 UI/theme.tres" type="Theme" id=2]
+[ext_resource path="res://L06 InputMap/entry.gd" type="Script" id=3]
+[ext_resource path="res://L06 InputMap/icon.gd" type="Script" id=4]
+
+[node name="Node2D" type="Node2D"]
+script = ExtResource( 3 )
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+margin_left = 24.0
+margin_top = 95.0
+margin_right = 1000.0
+margin_bottom = 586.0
+
+[node name="GridContainer" type="GridContainer" parent="PanelContainer"]
+margin_left = 338.0
+margin_top = 97.0
+margin_right = 638.0
+margin_bottom = 393.0
+rect_min_size = Vector2( 300, 200 )
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme = ExtResource( 2 )
+theme_type_variation = "PanelContainer"
+columns = 3
+
+[node name="Tile" type="Label" parent="PanelContainer/GridContainer"]
+margin_right = 98.0
+margin_bottom = 96.0
+size_flags_horizontal = 5
+size_flags_vertical = 7
+theme = ExtResource( 2 )
+theme_type_variation = "MyLabel"
+custom_colors/font_color_shadow = Color( 0.858824, 0.788235, 0.788235, 1 )
+text = "
+"
+align = 1
+valign = 1
+
+[node name="move_up" type="Button" parent="PanelContainer/GridContainer"]
+margin_left = 102.0
+margin_right = 199.0
+margin_bottom = 96.0
+rect_min_size = Vector2( 96, 96 )
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Up(W)"
+
+[node name="Tile2" type="Label" parent="PanelContainer/GridContainer"]
+margin_left = 203.0
+margin_top = 16.0
+margin_right = 300.0
+margin_bottom = 80.0
+size_flags_horizontal = 5
+theme = ExtResource( 2 )
+theme_type_variation = "MyLabel"
+custom_colors/font_color_shadow = Color( 0.858824, 0.788235, 0.788235, 1 )
+text = "
+"
+align = 1
+valign = 1
+
+[node name="move_left" type="Button" parent="PanelContainer/GridContainer"]
+margin_top = 100.0
+margin_right = 98.0
+margin_bottom = 196.0
+rect_min_size = Vector2( 96, 96 )
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Left(A)"
+
+[node name="Tile3" type="Label" parent="PanelContainer/GridContainer"]
+margin_left = 102.0
+margin_top = 116.0
+margin_right = 199.0
+margin_bottom = 180.0
+size_flags_horizontal = 5
+theme = ExtResource( 2 )
+theme_type_variation = "MyLabel"
+custom_colors/font_color_shadow = Color( 0.858824, 0.788235, 0.788235, 1 )
+text = "
+"
+align = 1
+valign = 1
+
+[node name="move_right" type="Button" parent="PanelContainer/GridContainer"]
+margin_left = 203.0
+margin_top = 100.0
+margin_right = 300.0
+margin_bottom = 196.0
+rect_min_size = Vector2( 96, 96 )
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Right(D)"
+
+[node name="Tile4" type="Label" parent="PanelContainer/GridContainer"]
+margin_top = 200.0
+margin_right = 98.0
+margin_bottom = 296.0
+size_flags_horizontal = 5
+size_flags_vertical = 5
+theme = ExtResource( 2 )
+theme_type_variation = "MyLabel"
+custom_colors/font_color_shadow = Color( 0.858824, 0.788235, 0.788235, 1 )
+text = "
+"
+align = 1
+valign = 1
+
+[node name="move_down" type="Button" parent="PanelContainer/GridContainer"]
+margin_left = 102.0
+margin_top = 200.0
+margin_right = 199.0
+margin_bottom = 296.0
+rect_min_size = Vector2( 96, 96 )
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Down(S)"
+
+[node name="Tile5" type="Label" parent="PanelContainer/GridContainer"]
+margin_left = 203.0
+margin_top = 216.0
+margin_right = 300.0
+margin_bottom = 280.0
+size_flags_horizontal = 5
+theme = ExtResource( 2 )
+theme_type_variation = "MyLabel"
+custom_colors/font_color_shadow = Color( 0.858824, 0.788235, 0.788235, 1 )
+text = "
+"
+align = 1
+valign = 1
+
+[node name="Title" type="Label" parent="."]
+margin_left = 22.0
+margin_top = 31.0
+margin_right = 998.0
+margin_bottom = 63.0
+size_flags_horizontal = 5
+theme = ExtResource( 2 )
+theme_type_variation = "MyLabel"
+custom_colors/font_color_shadow = Color( 0.858824, 0.788235, 0.788235, 1 )
+text = "User Input Mapping"
+align = 1
+valign = 1
+
+[node name="icon" type="Node2D" parent="."]
+scale = Vector2( 0.997, 1 )
+script = ExtResource( 4 )
+
+[node name="RichTextLabel" type="RichTextLabel" parent="icon"]
+anchor_right = 1.0
+margin_left = 480.441
+margin_top = 304.0
+margin_right = 552.441
+margin_bottom = 375.0
+size_flags_horizontal = 5
+size_flags_vertical = 5
+theme = ExtResource( 2 )
+bbcode_enabled = true
+bbcode_text = "[url=https://godotengine.org/][img]res://icon.png[/img][/url]"
+script = ExtResource( 1 )

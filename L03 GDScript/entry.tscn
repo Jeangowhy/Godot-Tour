@@ -1,0 +1,34 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://L03 GDScript/MyTitle.gd" type="Script" id=1]
+[ext_resource path="res://L03 GDScript/entry.gd" type="Script" id=2]
+[ext_resource path="res://L03 GDScript/MySprite.gd" type="Script" id=3]
+[ext_resource path="res://icon.png" type="Texture" id=4]
+[ext_resource path="res://L07 UI/theme.tres" type="Theme" id=5]
+
+[node name="L3Root" type="Node2D"]
+script = ExtResource( 2 )
+LabelText = "Click to attach"
+
+[node name="MySprite" type="Sprite" parent="."]
+position = Vector2( 515, 299 )
+rotation = 29546.5
+texture = ExtResource( 4 )
+script = ExtResource( 3 )
+
+[node name="MyTitle" type="Label" parent="."]
+margin_right = 1024.0
+margin_bottom = 64.0
+rect_min_size = Vector2( 1024, 64 )
+theme = ExtResource( 5 )
+theme_type_variation = "MyLabel"
+custom_colors/font_color = Color( 0.960784, 0.960784, 0.960784, 1 )
+custom_colors/font_color_shadow = Color( 1, 0.54902, 0, 1 )
+custom_constants/shadow_offset_x = 2
+custom_constants/shadow_offset_y = 2
+text = "GDScript Programming"
+align = 1
+valign = 1
+script = ExtResource( 1 )
+resource = ExtResource( 4 )
+ResourceInfo = "res://icon.png"

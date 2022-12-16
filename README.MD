@@ -6,6 +6,9 @@
 ## 🟡🟠 Godot Docs 官方文档阅读指南
 - [动画师救生手册 - 动画十二原则](https://www.bilibili.com/video/BV1x54y1e7J9)
 - [GAMES101-现代计算机图形学入门-闫令琪](https://www.bilibili.com/video/BV1X7411F744/)
+- [GAMES202-高质量实时渲染](https://www.bilibili.com/video/BV1YK4y1T7yY/)
+- [GAMES202-高质量实时渲染](https://sites.cs.ucsb.edu/~lingqi/teaching/games202.html/)
+- [GAMES104-现代游戏引擎：从入门到实践-王希](https://www.bilibili.com/video/BV1J3411n7WT/)
 - [CSD 15-462 Computer Graphics - Carnegie Mellon University](https://www.cs.cmu.edu/afs/cs/academic/class/15462-f11/www/)
 - [龚大的上帝视角看GPU教程](https://www.bilibili.com/video/BV1P44y1V7bu/)
 - [The Book of Shaders by Patricio Gonzalez Vivo & Jen Lowe](https://thebookofshaders.com/?lan=ch)
@@ -15,6 +18,8 @@
 
 要阅读好 Godot 官方文档，需要掌握文档的使用方法，并且最好有计算机图形学基础，掌握 Python 脚本语言
 可以快速掌握 GDScript 脚本。
+
+- [Overview of the interface](https://docs.godotengine.org/en/latest/_images/editor-vocabulary-overview.png)
 
 Godot 除了自带的 GDScript 脚本外，通过模块扩展支持了多种语言开发，C# 支持需要下载集成 Mono 的版本，
 推荐使用自带的 GDScript 脚本开发，它相当一个支持多线程的 Python，并且支持六种 match 分支匹配模式。
@@ -39,7 +44,7 @@ Godot 官方示范项目很赞，提供了许多基础功能的演示，Godot 3.
 > git clone --depth=1 git@github.com:godotengine/godot-docs.git
 
 
-Godot 文档是非常从性化的，体现在以下几点：
+Godot 文档是非常人性化的，体现在以下几点：
 
 Godot IDE 编辑器本身集成了在线手册，按 F1 或直接在代码中按下 Ctrl 单击关键字即跳转到相关手册文档。
 信息非常详细，包括类对象的继承关系、成员、方法信息等等。例如全局空间 @GDScript 和 @GlobalScope 
@@ -73,6 +78,7 @@ Godot IDE 编辑器本身集成了在线手册，按 F1 或直接在代码中按
 
 ## 🟡🟠 Godot Architecture 构架介绍
 - [Introduction to Godot development](https://docs.godotengine.org/en/stable/development/cpp/introduction_to_godot_development.html)
+- [Optimization using Servers](https://docs.godotengine.org/en/3.3/tutorials/optimization/using_servers.html)
 - [Inheritance class tree](https://docs.godotengine.org/en/stable/development/cpp/inheritance_class_tree.html)
 - [Overview of Godot's key concepts](https://docs.godotengine.org/en/stable/getting_started/introduction/key_concepts_overview.html)
 - [Nodes and Scenes](https://docs.godotengine.org/en/stable/getting_started/step_by_step/nodes_and_scenes.html)
@@ -80,6 +86,7 @@ Godot IDE 编辑器本身集成了在线手册，按 F1 或直接在代码中按
 - [Using Viewports](https://docs.godotengine.org/en/3.5/tutorials/rendering/viewports.html)
 - [Canvas layers](https://docs.godotengine.org/en/3.5/tutorials/2d/canvas_layers.html)
 - [User Interface(UI)](https://docs.godotengine.org/en/3.5/tutorials/ui/index.html)
+- [What were the motivations behind creating GDScript?](https://docs.godotengine.org/en/latest/about/faq.html#doc-faq-what-is-gdscript)
 - [WebGL 可视化相机](https://webglfundamentals.org/webgl/lessons/zh_cn/webgl-visualizing-the-camera.html)
 - [《迷失岛2》游戏框架开发01:实现场景转换｜Godot教程](https://www.bilibili.com/video/BV1jr4y1V7xJ/)
 
@@ -96,6 +103,79 @@ Godot IDE 编辑器本身就是和游戏工程一样的应用，每个游戏可�
 包含一组节点，节点是一个可以绑定脚本进行编程的对象。
 
 ![Architecture diagram](https://docs.godotengine.org/en/stable/_images/architecture_diagram.jpg)
+
+Godot 本身支持多平台，通过源代码 platform 目录下对应各平台的实现，detect.py 脚本则用于检测当前
+支持的平台，主程序入口则是在 main 目录下，入口方法是 **Main::start()**。SceneTree 类型就是一个
+MainLoop 子类型，代表了游戏中的主循环，它会在程序入口中执行。
+
+- OS_Unix    <- OS
+- OS_UWP     <- OS
+- OS_Windows <- OS
+- OS_X11     <- OS_Unix
+- OS_OSX     <- OS_Unix
+- OSIPhone   <- OS_Unix
+- OS_Android <- OS_Unix
+- OS_JavaScript <- OS_Unix
+
+不同平台的入口会包装 OS 类，例如 OS_Windows，但是 Web 平台特殊一点，因为它运行在浏览器上。因为
+大多数系统都是类 Unix 操作系统，所以除了 Windows 平台，几乎都包装为一个 OS_Unix 类型。操作系统
+与窗口的交互消息全部通过 Notification 机制转达场景树。Godot IDE 本身就是一个 EditorNode 节点，
+它也是基于 Godot 引擎开发的一个游戏，只不过这个游戏是用来开发其它游戏的。
+
+以下是入口代码的流程摘要，演示了 UWP 平台下的入口运行基本流程。Android 平台窗口消息传递方式差别
+较大，MainLoop 的方法包装到了不同的函数内：
+
+```cpp
+bool Main::start() {
+
+    MainLoop *main_loop = nullptr;
+    if (editor) {
+        main_loop = memnew(SceneTree);
+    };
+
+    SceneTree *sml = Object::cast_to<SceneTree>(main_loop);
+
+    if (!project_manager && !editor) { // game
+        // ...
+    }
+
+    if (editor) {
+        EditorNode *editor_node = nullptr;
+        editor_node = memnew(EditorNode);
+        sml->get_root()->add_child(editor_node);
+    }
+
+    OS::get_singleton()->set_main_loop(main_loop);
+}
+
+void OS_UWP::run() {
+    if (!main_loop)
+        return;
+
+    main_loop->init();
+
+    uint64_t last_ticks = get_ticks_usec();
+
+    int frames = 0;
+    uint64_t frame = 0;
+
+    while (!force_quit) {
+        CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
+        if (managed_object->alert_close_handle)
+            continue;
+        process_events();      // get rid of pending events
+        if (Main::iteration()) // -> VisualServer tick()
+            break;
+    };
+
+    main_loop->finish();
+}
+```
+
+整个引擎的消息处理循环结构就是 while 循环，Main::iteration() 函数就是游戏循环中要处理的工作，
+在这里会发送各种通知，让节点有处理的机会。在入口方法中，会判断当前的运行状态，根据是否在编辑器状态
+执行不同的代码。 
+
 
 Godot 编程体系的继承层次结构中，所有对象的父类是 **Object**，然后派生出各种功能的类对象，主要是
 引用类和节点类两大块：
@@ -114,6 +194,68 @@ Object 提供了最基本的能力，包括观察者编程模式 Signal 和 Noti
 
 相对于 Object、References、Resources 等类型，Node 是一个功能丰富的对象，因此它也更消耗 CPU，
 所以，可以使用简单对象实现的功能，就尽量避免使用 Node 类型对象来实现。
+
+场景树中可以添加的所有节点类型统一在源代码 scene 目录下：
+
+- /scene/main 主要节点类型，包括 SceneTree、CanvasLayer、ViewPort、Node、Timer、HTTPRequest；
+- /scene/gui 控件类型，包括 Control 及子类的实现，如文件对话框 FileDialog 等；
+- /scene/2d  二维节点类型，包括 Node2D 及子类的实现；
+- /scene/3d  三维节点类型，包括 Spatial 及子类的实现；
+- /scene/animation  动画节点类型，包括AnimationPlayer、AnimationTree 等等；
+- /scene/audio  音频播放节点类型，包括 AudioStreamPlayer；
+- /scene/resource 资源节点类型，包括 Animation、AudioStreamPlaybackSample 等等；
+
+和 UnrealEngine 这样的大型引擎不同，Godot 引擎没有将二维图形作为一个独立的模块包装，而是在更底层
+架构了一个服务系统，以不同的服务器为音频、图形、物理及空间位置相结合的音频等提供相应的渲染服务。最后，
+音频合成数据将送往系统的音频驱动器，视频则交由 OpenGL 或 Vulkan 接口进行渲染。
+
+- VisualServer (RenderingServer) 可视渲染服务；
+- Physics2DServer 二维物理引擎服务；
+- PhysicsServer 三维物理引擎服务；
+- SpatialSound2DServer 二维空间的音频服务；
+- SpatialSoundServer 三维空间的音频服务；
+- AudioServer 所有音频服务的最终于合成器；
+
+节点类型本身不包含绘图逻辑，只是存储数据、功能逻辑以及用户交实现等等。因为节点类型众多，从音频到图形，
+从网络到 AI 算法相关都有，也就不可能直接在节点类型中编写绘图等具体行为的实现代码，这些复杂的细节将
+交由各种服务器类型实现。
+
+2D 场景中，需要一个画布来绘制所有的视觉元素。而在 3D 中，所有可见对象都需要一个 scenario，它代表
+可视的三维世界，通过 Spatial **get_world()** 方法访问。所有视觉元素都会绘制到 Viewport 上，
+可以将其附加到场景树上，也可以使用渲染引擎 **viewport_create()** 方法实例化一个 Viewport 对象。
+使用自定义场景或者画布时，通过 **viewport_set_scenario()**、**viewport_attach_canvas()** 
+方法将它们附加到视口中，**scenario_create()** 创建场景。
+
+所有三维对象都由相关资源和实例组成，可以是网格、粒子系统、灯光或任何其他 3D 对象。所以，VisualServer 
+实质上就是实时的游戏渲染引擎，最新版本 Godot 4.x 中，名字也改为了 **RenderingServer**。为了渲染 
+3D 资源，必须调用渲染引擎方法 **instance_set_base()** 将资源附加到渲染引擎实例上，还必须附加场景。
+
+
+```py
+    # Create a visual instance (for 3D).
+    var instance = VisualServer.instance_create()
+    # Set the scenario from the world, this ensures it
+    # appears with the same objects as the scene.
+    var scenario = get_world().scenario
+    VisualServer.instance_set_scenario(instance, scenario)
+    # Add a mesh to it.
+    # Remember, keep the reference.
+    mesh = load("res://mymesh.obj")
+    VisualServer.instance_set_base(instance, mesh)
+    # Move the mesh around.
+    var xform = Transform(Basis(), Vector3(20, 100, 0))
+    VisualServer.instance_set_transform(instance, xform)
+```
+
+引擎内部，所有资源都有一个 Resource ID (RID)，是服务器内部为了管理资源内存分配实现的句柄。服务器
+内部几乎每个功能都需要 RID 来访问实际资源。大多数 Godot 节点和资源类型都包含来自服务器内部的 RID，
+它们可以通过不同的函数获得。事实上，继承 Resource 的任何类型都可以转型为 RID。但并非所有资源都包含
+RID，这种情况下，转型得到的结果为空。
+
+- CanvasItem.get_canvas_item()
+- CanvasLayer.get_canvas()
+- Viewport.get_viewport_rid()
+
 
 官方提供了一个 Control Gallery 示范工程，用于演示各种控件、布局容器的使用，2D 控件支持主题设置，
 定制控件外观非常方便。2D 对象使用 Anchors 模型进行图形的比例、多分辨率处理：
@@ -142,6 +284,7 @@ Viewport 可以设置背景透明，赋值给 SpatialMaterial 材质的 Albedo �
 
 Viewport 可以装入 ViewportContainer 这个特殊容器，且只包含一个 Viewport 子节点，用来显示图像，
 方便在编辑器中观察图像输出效果，并且可以用来显示多个视图图像输出。
+
 
 在计算机模拟的世界中，需要虚构一台用于成像的相机，目的是模拟人的眼眼所看到的世界。视界中的光线入射
 到视网膜形成图像，在模拟世界中的成像用 Viewport 这个概念表示，光线从远处透过视口，到达相机的位置，
@@ -269,6 +412,11 @@ get_node("../Swamp/Alligator")
 get_node("/root/MyGame")
 ```
 
+虽然当前活动场景树只有一个，但是可以使用 Godot 的自动加载功能，工程配置 AutoLoad 栏目中设置，
+可以实现将其它场景、或者脚本加载到全局空间运行，例如背景音乐需要避免转场中断，可以在自动加载场景中
+播放 BGM 即可以解决。
+
+
 可以激活 Scene Unique Nodes 模式，在节点右键菜单中，这样就在原节点名前缀 % 号作为唯一名称来访问它。
 使用拖动的方式，可以很方便地将节点从场景树中拖放到脚本中，会自动生成引用，按下 Ctrl 生成引用类似如下：
 
@@ -338,11 +486,97 @@ class Something:
 
 
 
+## 🟡🟠 Project Settings 项目配置
+- [Multiple resolutions](https://docs.godotengine.org/en/3.5/tutorials/rendering/multiple_resolutions.html)
+- [Setting up the project](https://docs.godotengine.org/en/3.5/getting_started/first_2d_game/01.project_setup.html)
+
+Godot 项目设置中 display/window/stretch/mode 拉伸模式会影响画面的呈现：
+
+如果设置 Stretch Mode = Viewport 意味着将根视口的大小精确设置为“项目设置 Display 配置中指定
+的基本大小。调整窗口大小时，会缩放此视口以适合屏幕，除非设置了保留宽高比为 Stretch Aspect = keep。
+使用像素精度游戏时，或者为了渲染到较低的分辨率以提高性能，此模式很有用。设置 2D 伸展模式，则可以保持
+图像在不同显示屏幕下布局缩放的一致性。
+
+![Stretch Mode](https://docs.godotengine.org/en/3.5/_images/stretch.png)
+
+
+在高分屏设备中，默认情况下，操作系统会认为 Godot 项目是 DPI 无关的。因为操作系统的 DPI 回退缩放
+比应用程序内做缩放要快很多，即便使用 viewport 拉伸模式，所以这样做可以提高在低端系统上的性能。
+
+不过操作系统的 DPI 回退缩放功能在全屏模式下并不好用。如果你想在 hiDPI 显示器下得到清晰的画面，又
+或者想要支持全屏，那么推荐启用项目设置中的 Display > Window > Dpi > Allow Hidpi 以获得高清
+画面。否则，可能在高分屏幕上看到像素化的画面，这是因为像素都按 DPI 比例缩放了。
+
+注意，Allow Hidpi 选项仅在 Windows 和 macOS 上有效，其它平台会忽略这个选项。
+
+Godot IDE 本身是打开这个选项的，与 DPI 相关的，可以在编辑器中设置缩放比例，高分屏默认为 200%。
+在编辑器中运行项目时，只有在项目设置里启用 Allow Hidpi 才会让项目与 DPI 相关。
+
+Godot 尚未支持手动设置 2D 缩放比例，所以无法在非游戏应用中支持 hiDPI。因此，推荐为非游戏应用禁用
+Allow Hidpi 选项，操作系统会回退到低 DPI。
+
+
+高分屏系统中，还可能出现调试游戏时，在没有启用 hiDPI 时，窗口位置超出右下角的情况。这种情况可以通过
+修改编辑器配置 run/window_placement 改变窗口位置，默认是居中，是启用高分屏支持就没有问题。
+
+虽然当前活动场景树只有一个，但是可以使用 Godot 的自动加载功能，工程配置 AutoLoad 栏目中设置，
+可以实现将其它场景、或者脚本加载到全局空间运行，例如背景音乐需要避免转场中断，可以在自动加载场景中
+播放 BGM 即可以解决。
+
+Godot 全局空间 @GDScript 和 @GlobalScope 包含所有脚本中可以直接使用的函数，用户要向全局空间
+添加对象，可以使用工程设置自动加载，Singletons (AutoLoad)，自动加载得到位于全局空间的单态对象。
+
+例如，将以下脚本保存到 Global.gd，并设置工程的 AutoLoad 加载它，即可以实现自动剧中窗口。运行程序
+时，引擎将加载并附着 GlobalNS 到场景树上，初始化方法会被调用：
+
+```py
+extends Node
+
+class_name GlobalNS
+
+func _init():
+    print("Global.gd _init")
+    # Center window on screen
+    var screen_size = OS.get_screen_size(OS.get_current_screen())
+    var window_size = OS.get_window_size()
+    var centered_pos = (screen_size - window_size) / 2
+    OS.set_window_position(centered_pos)
+```
+
+VSync 垂直同步信号，又称场同步，显示器完整显示一个画面时产生的一个同步信号，可用于和 GPU 协作用途。
+在旧式的 Cathode Ray Tube (CRT) 阴极射线显像管式显示中，一幅画面的显示需要电子枪从左到右，从上
+到下，完整地扫描一遍显示屏才算完成，电子枪由高压电驱动发射电子束击打屏幕上的荧光点显示相应的图像。
+
+游戏中打开垂直同步可以使得画面平滑、稳定，因为游戏画面的渲染需要等待显示器的同步信号。而关闭垂直同步，
+则可以明显提高帧数，在高端设备上可以获得更快的速度，但是这可能带来图像不稳定的问题。一般图形引擎会
+使用双缓冲区技术 Double buffering，即一个缓冲区连接到显示作为当前显示图像的数据源，另一个缓冲区
+则作为下一帧图像的渲染输出缓冲区。在关闭 Vsync 的情况下，高端设备可能渲染好了画面，但显示器还示来得
+及调用，又开发下一帧图像的渲染了。而下一帧图面又不一定完整，这就导致画面有断裂的现象。
+
+FPS 低于游戏设计时，可能会有输入延迟和卡顿。在需要快速反应和复杂输入的游戏中，输入延迟尤其令人恼火。
+
+为了提高设备性能厂家也在硬件上不断改良 VSync 技术：
+
+- Adaptive VSync 由 Nvidia 发起，会根据监视到的 FPS 帧率来决定是否启用 VSync。
+- Fast Sync 由 Nvidia 发起的更高级的自适应垂直同步形式，在必要时启用 VSync，并添加自动三重缓冲。
+- Enhanced Sync 由 AMD 发起，会在帧率低于显示刷新率时禁用 VSync。
+
+另外，还有 Nvidia 的 G-Sync 和 AMD 的 FreeSync，这两种 GPU 技术都可以将刷新率和数据与 GPU 
+的帧速率同步。这些公司希望解决 VSync 的问题，特别是图像精度和均匀性，以及撕裂。但它们要求  GTX 1050
+以及 AMD Radeon RX 200 级别以上的显卡。
+
+
+
 
 ## 🟡🟠 MT Downloader
+- [Requests: HTTP for Humans](https://requests.readthedocs.io/en/latest/)
 
 一个 Python 实现的多线程下载器，将链接地址复制到粘贴板上，执行它就会自动下载文件并保存到当前目录。
-需要安装 clipboard 模块，使用 pip install clipboard 命令安装：
+需要安装 clipboard 模块，使用 pip install clipboard 命令安装。
+
+尽管 Python 有一个全局锁，不能并行多线程运行，但是在多线程下的程序也有各种问题需要注意的，比如，
+print 函数打印信息到控制台上，尽管这个函数本身是线程安全的，但是可能因为线程切换导致缓冲区被破坏
+而输出一些奇怪的字符，包括 NULL 字符，应该在打印操作后执行 flush 清空缓冲区，以免输出内容被破坏。
 
 ```py
 import os
@@ -352,24 +586,80 @@ import threading
 import concurrent.futures
 import sys
 import re
+import pathlib
 
 thread_local = threading.local()
 
-def content_filter(content, url):
-    if "filter" not in sys.argv:
-        return content
+def pagelist(items):
+    for line in items:
+        if not line:
+            continue
+        p = line.split()[-1].replace("P","")
+        page = int(int(p) / 3) + 1
+        url = line.split()[0]
+        print(url)
+        for no in range(page):
+            print(url.replace(".html", "_%s.html" % no))
+
+def checkfile(items):
+    for item in items:
+        file = item.split("/")[-1]
+        if not item or os.path.exists(file):
+            continue
+        print(item)
+
+def checkalbum(items):
+    albumsum = 0
+    error = 0
+    for item in items:
+        if not item:
+            continue
+        p = int(item.split()[-1].replace("P", ""))
+        id = item.split('/')[-1].split('.')[0]
+        match = pathlib.Path().cwd().glob("%s*" % id)
+        count = len(sorted(match))
+        state = "===Done!" if p == count else "---Miss!"
+        print(state, item, " <== ", count)
+        albumsum += p
+        error += p - count
+    print("Album: %d/%d,  error: %d " %((albumsum-error), albumsum, error))
+
+def default_filter(content, url):
     root = "/".join(url.split("/")[:3])
     lines = content.decode().split('\r\n')
     contents = ""
     for line in lines:
-        if line.find("</div>") >= 0 and len(contents)>0:
+        if len(contents)>0 and re.search(r"</?div", line) :
             break
         elif line.startswith('<p align="center">') or line.startswith('<div class="content"><p') or contents:
             contents += line
     match = re.findall(r'https?://[^" ]+', contents.replace('src="/', 'src="%s/' % root))
     for m in match:
-        print(m)
-    return content #s.encode()
+        print("%s#/%s" %(m, url.split('/')[-1].replace("html","jpg")))
+    sys.stdout.flush()
+    return None #s.encode()
+
+
+def argument(name):
+    if "filter" in sys.argv:
+        return ""
+    for a in sys.argv[1:]:
+        if a.startswith("%s=" % name):
+            return a.replace("%s=" % name, "")
+    return None
+
+def content_filter(content, url):
+    filter = argument("filter")
+    if None == filter:
+        return content
+    elif "" == filter:
+        return default_filter(content, url)
+    else:
+        lines = content.decode().split('\n')
+        for line in lines:
+            if line.find(f"{filter}") > -1:
+                print(line) 
+        return None
 
 def get_session():
     if not hasattr(thread_local, "session"):
@@ -383,12 +673,18 @@ def download(url):
         'Accept-Encoding': 'gzip, deflate',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36'
     }
-    res = session.get(url, headers=headers)
-    save(url.split('/')[-1], res.content, url)
+    try:
+        res = session.get(url, headers=headers)
+        if not res.ok or res.text.find("页面出错")>-1:
+            return print(url, " status", res.status_code, res.reason)
+        save(url.split('/')[-1], res.content, url)
+    except Exception as ex:
+        print("%s %s" %(url, type(ex))) # class.__class__
 
 def save(name, content, url):
-    if "filter" in sys.argv:
-        return content_filter(content, url)
+    content = content_filter(content, url)
+    if type(content) is not bytes:
+        return None
     fd = os.open(name, os.O_BINARY|os.O_RDWR|os.O_CREAT)
     ret = os.write(fd, content)
     os.close(fd)
@@ -406,8 +702,14 @@ def download_all(urls):
 if __name__ == "__main__":
     txt = clipboard.paste()
     items = txt.split('\r\n')
-    print(os.path.abspath('.'))
-    download_all(items)
+    if "checkfile" in sys.argv:
+        checkfile(items)
+    elif "pagelist" in sys.argv:
+        pagelist(items)
+    elif "checkalbum" in sys.argv:
+        checkalbum(items)
+    else:
+        download_all(items)
 ```
 
 
@@ -420,6 +722,12 @@ if __name__ == "__main__":
 - [Godot Compiling](https://docs.godotengine.org/en/stable/development/compiling/index.html)
 - [Godot Engine Download](https://downloads.tuxfamily.org/godotengine/)
 - [Godot Engine – Multi-platform 2D and 3D game engine](https://github.com/godotengine/godot/releases)
+- [Godot Rust bindings - GDNative and GDExtension APIs](https://godot-rust.github.io/)
+- [Platform Support](https://doc.rust-lang.org/nightly/rustc/platform-support.html)
+
+通常，在产品需要快速迭代前期开发阶段，GDScript 主要的开发语言工具，只有在需要处理性能瓶颈问题时，
+或者有潜在性能瓶颈的功能需要处理，才会考虑使用 C/C++ 或者 Rust 等语言进行静态编译，以获得高性能
+模块，这当然是以软件结构复杂性为代价的。
 
 Godot 本身是 C++ 开发的，使用 C++ 可以实现各种模块以扩展 Godot 功能。通过现有的 GDNative C++ Binding 
 模块，可以使用 C++ 来开发 Godot 应用。源代码开发需要使用 Python，编译工具使用 SCons，支持 C++14 规范，
@@ -507,6 +815,87 @@ env.Append(
 env.Append(LIBPATH=[godot_bindings_path + "/bin/"])
 # ellipsis ...
 ```
+
+
+Godot 4.x 引入 GDExtension 作为 GDNative 的替代模块，或者说是 GDNative 应用层的重构版本，
+扩展的目标还为了减轻给 Godot 引擎开发插件的难度。GDExtension 是 C API，提供方法注册动态库中的类。
+注册后的类，就可以供 Godot 引擎使用，因为是平台编译的共享库，所以能更好地集成到引擎内。配合现有的
+godot-cpp 库，可以非常方便地使用 C++ 开发静态编译的模块。
+
+    git clone --depth=1 git@github.com:godot-rust/book
+    git clone --depth=1 git@github.com:godot-rust/gdnative
+    git clone --depth=1 git@github.com:godot-rust/gdextension
+
+当然，使用 Rust 语言绑定也是可行的方案。Rust 有望成为 C++ 的替代者，它的编程思想与 C++ 绝然不同：
+只要能被证明是正确代码的才被允许，而 C++ 则是允许任何不能证明是错误的代码。
+
+Rust 编译脚本中，需要根据具体情况添加 C++ 头文件的目录，因为 godot-rust 绑定依赖 godot-headers，
+这些 C/C++ 头文件需要通过 Rust FFI 接口绑定，Rust 中常用的 API 绑定工具有以下这些：
+
+- `bindgen` automatically generates Rust FFI bindings to C (and some C++) libraries.
+- `cbindgen` creates C/C++11 headers for Rust libraries which expose a public C API.
+- `cpp` rust-cpp - Embed C++ code directly in Rust.
+
+其中，gdnative-sys 这个模块会包装 godot-headers，它会依赖一部分平台相关的头文件，可以直接修改
+buider.rs 编译脚本，添加 clang_arg 指定编译器参数 -I 来指定头文件路径，但不推荐直接修改。
+
+交叉编译涉及问题很多，通常根据当前平台的架构来编译是容易通过的，可以使用 rustup 查询当前的平台构架
+及工具链。即使在交叉编译时，bindgen 也需要访问平台标头以了解平台的类型定义么。gdnative syscrate
+尝试根据平台检测头文件路径，也许可以通过 C_INCLUDE_PATH 环境变量提供自定义路径。
+
+```sh
+> rustup toolchain install stable
+> rustup toolchain install stable-x86_64-pc-windows-gnu
+> rustup toolchain list
+stable-x86_64-pc-windows-msvc (default)
+stable-x86_64-pc-windows-gnu
+> rustc --print target-list
+...
+x86_64-pc-windows-gnu
+x86_64-pc-windows-gnullvm
+x86_64-pc-windows-msvc
+...
+> cargo build --target=x86_64-pc-windows-msvc
+```
+
+```rust
+let mut builder = bindgen::Builder::default()
+    .header("godot_headers/gdnative_api_struct.gen.h")
+    .allowlist_type("godot.*")
+    .allowlist_function("godot.*")
+    .allowlist_var("godot.*")
+    .allowlist_type("GDNATIVE.*")
+    .derive_default(true)
+    .ignore_functions()
+    .size_t_is_usize(true)
+    .ctypes_prefix("libc")
+    // .clang_arg("-IC:/mingw/include")
+    .clang_arg("-IC:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.18362.0\\ucrt")
+    .clang_arg("-IC:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.26.28801\\include")
+    .clang_arg(format!("-I{}/godot_headers", manifest_dir));
+```
+
+错误的交叉编译配置，可以会导致类型不匹配等问题：
+
+    error[E0308]: mismatched types - types differ in mutability
+
+
+Rust 中使用 `cpp` crate 定义的 `cpp!` 宏来嵌入 C++ 代码，它通过获取所有的内联 C++ 代码并将
+其写入一个单独的 cpp 文件来实现这一点，该文件将被编译为 Rust crate 的最终目标代码。
+
+当将 Rust 库绑定到 C/C++ 时，核心逻辑层和 FFI 层之间应该存在明显的分离。在做好的情况下，FFI 代码
+应该在单独的 crate，因此设计 Rust API 不会受到 FFI 的太多影响，并且选择可变性修饰符变得更加容易。
+
+Rust 编译生成的库文件类型有以下这些：
+
+- **lib** — Generates a library kind preferred by the compiler, currently defaults to rlib.
+- **rlib** — A Rust static library.
+- **staticlib** — A native static library.
+- **dylib** — A Rust dynamic library.
+- **cdylib** — A native dynamic library.
+- **bin** — A runnable executable program.
+- **proc-macro** — Generates a format suitable for a procedural macro library that may be loaded by the compiler.
+
 
 
 ## 🟡🟠 CLI 命令行工具
@@ -653,6 +1042,93 @@ func _ready():
       --build-solutions                Build the scripting solutions (e.g. for C# projects). Implies --editor and requires a valid project to edit.
       --gdnative-generate-json-api     Generate JSON dump of the Godot API for GDNative bindings.
       --test <test>                    Run a unit test ('string', 'math', 'basis', 'transform', 'physics', 'physics_2d', 'render', 'oa_hash_map', 'gui', 'shaderlang', 'gd_tokenizer', 'gd_parser', 'gd_compiler', 'gd_bytecode', 'ordered_hash_map', 'astar', 'xml_parser', 'theme').
+
+
+
+    Godot Engine v4.0.beta7.official.0bb1e89fb - https://godotengine.org
+    Free and open source software under the terms of the MIT license.
+    (c) 2007-2022 Juan Linietsky, Ariel Manzur.
+    (c) 2014-2022 Godot Engine contributors.
+
+    Usage: Godot_v4.0-beta7_win64.exe [options] [path to scene or 'project.godot' file]
+
+    General options:
+      -h, --help                                   Display this help message.
+      --version                                    Display the version string.
+      -v, --verbose                                Use verbose stdout mode.
+      -q, --quiet                                  Quiet mode, silences stdout messages. Errors are still displayed.
+
+    Run options:
+      --, ++                                       Separator for user-provided arguments. Following arguments are not used by the engine, but can be read from `OS.get_cmdline_user_args()`.
+      -e, --editor                                 Start the editor instead of running the scene.
+      -p, --project-manager                        Start the project manager, even if a project is auto-detected.
+      --debug-server <uri>                         Start the editor debug server (<protocol>://<host/IP>[:<port>], e.g. tcp://127.0.0.1:6007)
+      --quit                                       Quit after the first iteration.
+      -l, --language <locale>                      Use a specific locale (<locale> being a two-letter code).
+      --path <directory>                           Path to a project (<directory> must contain a 'project.godot' file).
+      -u, --upwards                                Scan folders upwards for project.godot file.
+      --main-pack <file>                           Path to a pack (.pck) file to load.
+      --render-thread <mode>                       Render thread mode ('unsafe', 'safe', 'separate').
+      --remote-fs <address>                        Remote filesystem (<host/IP>[:<port>] address).
+      --remote-fs-password <password>              Password for remote filesystem.
+      --audio-driver <driver>                      Audio driver ['WASAPI', 'Dummy'].
+      --display-driver <driver>                    Display driver (and rendering driver) ['windows' ('vulkan', 'opengl3'), 'headless' ('dummy')].
+      --rendering-method <renderer>                   Renderer name. Requires driver support.
+      --rendering-driver <driver>                  Rendering driver (depends on display driver).
+      --gpu-index <device_index>                   Use a specific GPU (run with --verbose to get available device list).
+      --text-driver <driver>                       Text driver (Fonts, BiDi, shaping)
+      --tablet-driver <driver>                     Pen tablet input driver.
+      --headless                                   Enable headless mode (--display-driver headless --audio-driver Dummy). Useful for servers and with --script.
+      --write-movie <file>                         Run the engine in a way that a movie is written (by default .avi MJPEG). Fixed FPS is forced when enabled, but can be used to change movie FPS. Disabling vsync can speed up movie writing but makes interaction more difficult.
+      --disable-vsync                              Force disabling of vsync. Run the engine in a way that a movie is written (by default .avi MJPEG). Fixed FPS is forced when enabled, but can be used to change movie FPS.
+
+    Display options:
+      -f, --fullscreen                             Request fullscreen mode.
+      -m, --maximized                              Request a maximized window.
+      -w, --windowed                               Request windowed mode.
+      -t, --always-on-top                          Request an always-on-top window.
+      --resolution <W>x<H>                         Request window resolution.
+      --position <X>,<Y>                           Request window position.
+      --single-window                              Use a single window (no separate subwindows).
+      --xr-mode <mode>                             Select XR mode (default/off/on).
+
+    Debug options:
+      -d, --debug                                  Debug (local stdout debugger).
+      -b, --breakpoints                            Breakpoint list as source::line comma-separated pairs, no spaces (use %20 instead).
+      --profiling                                  Enable profiling in the script debugger.
+      --gpu-profile                                Show a GPU profile of the tasks that took the most time during frame rendering.
+      --gpu-validation                             Enable graphics API validation layers for debugging.
+      --gpu-abort                                  Abort on graphics API usage errors (usually validation layer errors). May help see the problem if your system freezes.
+      --remote-debug <uri>                         Remote debug (<protocol>://<host/IP>[:<port>], e.g. tcp://127.0.0.1:6007).
+      --debug-collisions                           Show collision shapes when running the scene.
+      --debug-paths                                Show path lines when running the scene.
+      --debug-navigation                           Show navigation polygons when running the scene.
+      --debug-stringnames                          Print all StringName allocations to stdout when the engine quits.
+      --frame-delay <ms>                           Simulate high CPU load (delay each frame by <ms> milliseconds).
+      --time-scale <scale>                         Force time scale (higher values are faster, 1.0 is normal speed).
+      --disable-render-loop                        Disable render loop so rendering only occurs when called explicitly from script.
+      --disable-crash-handler                      Disable crash handler when supported by the platform code.
+      --fixed-fps <fps>                            Force a fixed number of frames per second. This setting disables real-time synchronization.
+      --print-fps                                  Print the frames per second to the stdout.
+
+    Standalone tools:
+      -s, --script <script>                        Run a script.
+      --check-only                                 Only parse for errors and quit (use with --script).
+      --export-release <preset> <path>             Export the project in release mode using the given preset and output path. The preset name should match one defined in export_presets.cfg.
+                                                   <path> should be absolute or relative to the project directory, and include the filename for the binary (e.g. 'builds/game.exe').
+                                                   The target directory must exist.
+      --export-debug <preset> <path>               Export the project in debug mode using the given preset and output path. The preset name should match one defined in export_presets.cfg.
+      --export-pack <preset> <path>                Export the project data only using the given preset and output path. The <path> extension determines whether it will be in PCK or ZIP format.
+      --convert-3to4 [<max_file_kb>] [<max_line_size>]              Converts project from Godot 3.x to Godot 4.x.
+      --validate-conversion-3to4 [<max_file_kb>] [<max_line_size>]  Shows what elements will be renamed when converting project from Godot 3.x to Godot 4.x.
+      --doctool [<path>]                           Dump the engine API reference to the given <path> (defaults to current dir) in XML format, merging if existing files are found.
+      --no-docbase                                 Disallow dumping the base types (used with --doctool).
+      --build-solutions                            Build the scripting solutions (e.g. for C# projects). Implies --editor and requires a valid project to edit.
+      --dump-gdextension-interface                 Generate GDExtension header file 'gdnative_interface.h' in the current folder. This file is the base file required to implement a GDExtension.
+      --dump-extension-api                         Generate JSON dump of the Godot API for GDExtension bindings named 'extension_api.json' in the current folder.
+      --startup-benchmark                          Benchmark the startup time and print it to console.
+      --startup-benchmark-file <path>              Benchmark the startup time and save it to a given file in JSON format.
+
 
 
 
@@ -852,6 +1328,38 @@ Godot 就提供了一个 TouchScreenButton 用于触摸屏的输入。对于一�
 的映射关系，用户操作按映射关系产生相应的动作。
 
 ![Input Event Flow](https://docs.godotengine.org/en/3.5/_images/input_event_flow.png)
+
+用户转入会先进入标准 `Node._input()` 函数，任何节点中覆盖这个函数就可以处理用户的所有输入，只要
+还没有使用 `Node.set_process_input()` 禁用输入处理。如果任何用户输入的是正要处理的事件，可以
+调用 SceneTree 或 Viewport 的 `set_input_as_handled()` 函数告诉引擎，这个事件已经被处理好，
+不必再传播，这确保可以过滤所有感兴趣的事件。对于游戏输入，`Node._unhandled_input()` 通常更适合，
+因为它允许 GUI 拦截事件。
+
+标准输入处理后，事件会流向 GUI 事件处理，控件可以在 `Control._gui_input()` 接收到 GUI 事件，
+gui_input 信号会在此发布。如果控件处理好事件，应该调用 `Control.accept_event()` 避免事件再
+传播。GUI 控件可以设置 mouse_filter 属性来避免鼠标穿透到下一层的控件上。
+
+如果，前两步中还没有表明事件被处理好，事件就会送入 `_unhandled_input()` 及 `_unhandled_key_input()` 
+函数中处理，只要没有通过以下方法禁用。
+
+    void set_process_unhandled_input(const bool enable);
+
+    void set_process_unhandled_key_input(const bool enable);
+
+处理未经处理的输入是全屏游戏事件处理的理想选择，因此当 GUI 处于活动状态时，它们不会被接收。如果到
+这一步还没表示该事件已经被处理，在启用 Object Picking 的情况下将摄影机指定给视口，则事件将会
+投射到光线方向的物理世界。对于根视口，也可以在项目设置中启用此选项，如果此光线击中对象，它将调用
+`CollisionObject._input_event()` 函数，默认情况下，主体会接收此回调，但区域不会，可以通过
+区域属性进行配置。key_input 只包含键盘事件，鼠标、手柄按键、轴运动等不属于键盘事件。
+
+最后，如果事件未处理，它将被传递到树中的下一个视口，否则将被忽略。GUI 事件也会在场景树中向上传播，
+但由于这些事件针对特定控件，因此只有目标控件节点的直系上级节点才能接收事件。
+
+需要注意，事件在节点中的传播是从后面、深层往根节点传播的，当一个节点调用 `accept_event()` 或者
+`set_input_as_handled()` 函数后，只能阻止上层节点接收相应的事件，而不能阻止下层或后面的节点
+接收事件。同时，节点还可以直接在 process 等函数中调用 Input 主动轮询输入状态，而不必被动接收事件。
+
+![reverse depth-first order](https://docs.godotengine.org/en/3.5/_images/input_event_scene_flow.png)
 
 
 就键盘输入而言，不同国家使用的键盘布局也不尽相同，按键物理位置分布有所差异。Godot 工程设置 Input Map
@@ -1237,6 +1745,7 @@ Margin(0, 0, 100, 100) 设置，子节点同样设置为 100x100 却会有加倍
 属性面板上只能设置 Anchors 的值为 [0, 1] 区间，通过 Layout Presets 可以修改，点击船锚图标
 可以激活拖动节点时直接修改锚点位置。
 
+Godot 3.x 升级到 4.x 后，Anchor & Margin 两个属性合并，并使用 Anchors Preset 预配置替代。
 
 控件可以选择使用主题，也可以在主题覆盖设置中进行修正。主题主要保存 5 类数据：
 
@@ -1391,7 +1900,9 @@ func _on_meta_clicked(meta):
 - [3blue1brown 线性代数的本质](https://www.bilibili.com/video/BV1ys411472E)
 - [张筑生《数学分析新讲》（共三册）](http://fdjpkc.fudan.edu.cn/d201353/2015/0408/c17008a34495/page.htm)
 - [GAMES101-现代计算机图形学入门-闫令琪](https://www.bilibili.com/video/BV1X7411F744/)
+- [CMU 15-462/662 计算机图形学 Computer Graphics](https://www.bilibili.com/video/BV1QZ4y1K7ga)
 - Mathematical Logic for Computer Science
+- [Eigen - C++ template library for linear algebra](https://eigen.tuxfamily.org/index.php)
 
 掌握线性代数的重要性在图形学中特别明显，不像一些算法库，开发好了就可以直接调用，完全不用考虑数学问题。
 而图形学中，随处都需要使用数学去解决实际问题，比如角色的正面朝向，投掷武器前如何面向敌人，相机角度的
@@ -1554,6 +2065,7 @@ Tangent 正切函数是根据角度 α 求解对边与邻边的比值，而反�
 - [Vectors](https://www.math.net/vector)
 - [Vectors - Maths is fun](https://www.mathsisfun.com/algebra/vectors.html)
 - [Vectors - 3Blue1Brown](https://www.3blue1brown.com/lessons/vectors)
+- [Math Typography](https://bisqwit.iki.fi/jutut/typography.html)
 
 向量 Vector 也称为欧几里得向量、几何向量、矢量，指具有大小（magnitude）和方向的量。与向量对应的
 量叫做数量 Scalar，物理学中称标量，或者叫一维向量，数量只有大小，没有方向，如重量、时间等，英文
@@ -1561,9 +2073,8 @@ Tangent 正切函数是根据角度 α 求解对边与邻边的比值，而反�
 
 数学上向量的规范表达有三种方式，代数表示、几何表示、坐标表示。几何图上为带箭头的线段，箭头表向量的方向，
 线段长度代表向量的大小。代数符号表达记作黑体字母，如 **𝒂**、**𝒃**、**𝒖**、**𝒗**，书写时在字母顶上
-加一小箭头“→”表示指向。如果给定向量的起点（A）和终点（B），可将向量记作 AB 一并于顶上加 → 符号表示
-方向。在文档中，为了简化输入，就直接表示为 **AB**。
-
+加一小箭头“→”表示指向，如 u⃗  v⃗  w⃗  x⃗ y⃗。如果给定向量的起点（A）和终点（B），可将向量记作 AB 并于
+顶上加箭头符号表示方向。在文档中，为了简化输入，就直接表示为 **AB**。
 
 向量空间也称为线性空间，是集合的载体，标量可以被组织在一起。标量通常被认为是实数，也存在标量乘以复数。
 向量空间是线性代数的主题，维度通过它们可以很好地表征，粗略地说，它指定了空间中独立方向的数量。无限维
@@ -2301,9 +2812,6 @@ Sarrus’s rule，这种方法是将行列式往右边循环扩展，从左上�
 
 
 ### 🟢🔵 Complexes 复数
-- [四元数的可视化 by 3Blue1Brown](https://www.bilibili.com/video/av33385105/)
-- [Visualizing quaternions, an explorable video series](https://eater.net/quaternions/video/intro)
-- [Understanding Quaternions](https://www.3dgep.com/understanding-quaternions/)
 - [闫令琪 GAMES101-现代计算机图形学入门 - 04 Transformation Cont.](https://www.bilibili.com/video/BV1X7411F744/?p=3)
 - [Imaginary Numbers Are Real - Welch Labs](https://www.bilibili.com/video/BV1Ts411u7iH?p=5)
 - [Imaginary Numbers Are Real - Welch Labs](https://www.welchlabs.com/resources/freebook)
@@ -2313,7 +2821,10 @@ Sarrus’s rule，这种方法是将行列式往右边循环扩展，从左上�
 - [Complex Plane](https://www.mathsisfun.com/algebra/complex-plane.html)
 - [Imaginary Multiplication vs. Imaginary Exponents](https://betterexplained.com/articles/imaginary-multiplication-exponents/)
 - [A Visual, Intuitive Guide to Imaginary Numbers](https://betterexplained.com/articles/a-visual-intuitive-guide-to-imaginary-numbers/)
-
+- [数学里最美的公式： e^iπ+1=0 - Surein Aziz 博士](https://www.meipian.cn/588prp7)
+- [复数的实矩阵表示 - Shenelry](https://zhuanlan.zhihu.com/p/160270375)
+- [Maths - Rotation Theory](http://euclideanspace.com/maths/geometry/rotations/theory/index.htm)
+- [Rotations And Infinitesimal Generators](https://www.reedbeta.com/blog/rotations-and-infinitesimal-generators/)
 
 任意一个复数 𝑧 ∈ ℂ 都可以表示为 𝑧 = 𝑎 + 𝑏𝑖 的形式，其中 𝑎, 𝑏 ∈ ℝ 而且 𝑖² = −1．我们将 𝑎 称之
 为这个复数的实部（Real Part），𝑏 称之为这个复数的虚部（Imaginary Part）。Imaginary 本身译作
@@ -2374,12 +2885,12 @@ i 后得到 (-4 + 3i)，在复数平面上，前后两者坐标旋转了 90°。
 
 两个复数相乘，两分量俩俩相乘再相加，归纳如图，"FOIL" 即 "Firsts, Outers, Inners, Lasts"：
 
-    (a+bi)(c+di) => ac + adi + bci + bdi² => (ac − bd) + (ad + bc)i
+    (a+b𝑖)(c+d𝑖) => ac + ad𝑖 + bc𝑖 + bd𝑖² => (ac − bd) + (ad + bc)𝑖
 
 - Firsts: a × c
-- Outers: a × di
-- Inners: bi × c
-- Lasts: bi × di
+- Outers: a × d𝑖
+- Inners: b𝑖 × c
+- Lasts: b𝑖 × d𝑖
 
 使用 Matlab 等工具可以很方便地执行复数的计算：
 
@@ -2429,26 +2940,112 @@ Matlab 向量计算则，直接使用方括号表示向量：
 
 复数除法的诀窍就是在分式上同时乘以分母的共轭复数！一个复数与其共轭复数相乘可以用以下公式：
 
-    (a + bi)(a − bi) = a² + b²：
+    (a + b𝑖)(a − b𝑖) = a² + b²：
 
 证明过程也简单：
 
-    (a + bi)(a − bi) = a² (- abi + abi) -b²i²
-                     = a² - b²i²
+    (a + b𝑖)(a − b𝑖) = a² (- ab𝑖 + ab𝑖) -b²𝑖²
+                     = a² - b²𝑖²
                      = a² + b²
 
-计算 (2 + 3i) 与 (4 − 5i) 相除为例：
+计算 (2 + 3𝑖) 与 (4 − 5𝑖) 相除为例：
 
-    (2 + 3i) / (4 − 5i) = (2 + 3i)(4 + 5i) / (4 - 5i)(4 + 5i)
-                        = (8 - 15) + (10 + 12)i / (4² + 5²)
-                        = -(7 + 22i) / 41
-                        = -7/41 + 22i/41
+    (2 + 3𝑖) / (4 − 5𝑖) = (2 + 3𝑖)(4 + 5𝑖) / (4 - 5𝑖)(4 + 5𝑖)
+                       = (8 - 15) + (10 + 12)𝑖 / (4² + 5²)
+                       = -(7 + 22𝑖) / 41
+                       = -7/41 + 22𝑖/41
 
-回到三角函数表达的单位圆方程，将其变换到复数平面上，它就可以用来任意角度旋转复数：
+复数的代数乘法看上去并没有什么特别的，借助复数的矩阵表示，可以重新理解它所表示的实际含义。
+
+一个复数可以用来表示一个旋转、缩放变换，多个复数相乘，可以看作是多个旋转缩放变换的叠加。由于 2D 旋转
+和缩放无顺序差别，所以复数相乘满足交换律。
+
+构造一个从复数集合 ℂ 到特定矩阵集合 𝕄 的映射，使任意复数 𝑍 = 𝑎 + 𝑏𝑖 一一对应映射到矩阵 M：
+
+    [ 𝑎  -𝑏 ]
+    [ 𝑏   𝑎 ]
+
+当然，这样的映射当然不是满射，即矩阵的维数不仅有 2x2，所以对值域加这个维数限制，则使之成为满射。
+这样定义复数的矩阵表达，可以使复数的矩阵运算完全和一般矩阵无异，加、减、乘、除运算规则都一致。
+
+复数表示的 2D 旋转如下，在复平面内，假设向量 𝑍 与实轴的夹角为 Θ，则：
+
+    cos(Θ) = 𝑎 / √(𝑎² + 𝑏²)
+
+    sin(Θ) = 𝑏 / √(𝑎² + 𝑏²)
+
+提取因子，即可将以上两个条件代入复数 𝑍 = 𝑎 + 𝑏𝑖 对应的矩阵表达式中：
+
+    [ 𝑎  -𝑏 ]               [ cos(Θ)  -sin(Θ) ]
+               = √(𝑎² + 𝑏²) 
+    [ 𝑏   𝑎 ]               [ sin(Θ)   cos(Θ) ]
+
+所以，复数的矩阵形式代表的是一个旋转、缩放变换，旋转角度为 Θ，绽放比例为 √(𝑎² + 𝑏²)。
+
+
+
+回到三角函数表达的单位圆方程，将其变换到复数平面上，它就可以用来任意角度旋转复数。
 
     cos(θ)² + sin(θ)² = 1
 
-    cos(θ)² + sin(θ)²i = 1
+介绍一下极坐标(polar coordinate)，常用的 xy 两轴坐标称为 Cartesian 坐标，极坐标的也用 xy 轴，
+不同的是，极坐标加入了旋转角度，用来 θ 表示沿 x 轴正方向逆时针旋转度数。在极坐标平面系统中的任意点
+可以用半径和旋转角度来表示 (r,θ)，复平面内的点可以变换为极坐标的形式。
+
+可用 x = r cos(θ) 和 y = r sin(θ) 来转化到笛卡尔坐标，所以复数极坐标 (r, θ) 表示如下：
+
+    z = x + 𝑖y 
+      = r cos(θ) + 𝑖 r sin(θ)
+      = e^(𝑖θ)
+
+特别的，如果 r = 1， 则 
+
+    z = cos(θ) + 𝑖 sin(θ)
+
+形如 r e^(𝑖θ) 的复数为极坐标形式，并且与之相对的 x+𝑖y 为笛卡尔形式. 1743 年，瑞士数学家欧拉
+给出了著名的欧拉公式，对所有实数 θ 都成立。这就是用对数形式表示的欧拉公式，但是，要理解这个公式是
+如何来的，我们需要一样东西，叫做泰勒级数 Taylor series。
+
+    e^(𝑖θ) = cos(θ) + 𝑖 sin(θ)
+
+特别当 θ = π 时，按复数平面规则运算，右边的值为 -1，欧拉公式的特殊形式更是被评为数学上最美的公式：
+
+    e^(𝑖π) + 1 = ０
+
+这个简洁公式包括了数学上最重要的 5 个常数：
+
+- 0，1 自然数的基本单位；
+- e 描述变化率的自然指数；
+- π 圆周率；
+- 𝑖 虚数的基本单位。
+
+最奇怪的问题是：我们怎样取一个数的 𝑖 次方？指数上有虚数怎么算？那就是用对数形式导出的欧拉公式。
+
+用几何的方法证明该等式，不同的 θ 值对应的极坐标 e^θ，特别注意复平面旋转角度 180° 落到 -1 的时刻。
+
+由数学家布鲁克·泰勒发现的 Taylor series 在近似计算中有重要作用。函数 e^x 的泰勒级数扩展如下，
+因为阶乘 0! 和 1! 的值都定义为 1，式子前两项为 1 + x:
+
+    eˣ = x⁰/0! + x¹/1! + x²/2! + x³/3! + x⁴/4! ... xⁿ/n!
+
+阶乘是基斯顿·卡曼（Christian Kramp，1760～1826）于 1808 年发明的运算符号，是数学术语。一个正
+整数的阶乘（factorial）是所有小于及等于该数的正整数的积，并且 0 阶乘为 1。自然数 n 阶乘写作 n!。
+1808年，基斯顿·卡曼引进这个表示法。
+
+如果 n 比较大，结果几乎等于 e^x，且添加的求和项数越多，两个结果越靠近。在某些时候，计算器上的两个
+结果是一样的，因为计算器精度无法检测它们之间的微小区别。当你对无穷多项求和时，两个结果是一模一样的。
+当你对无穷多项求和时，两个结果是一模一样的。欧拉公式包含以下两个函数的泰勒级数，注意角度使用弧度。
+
+    cos(x) = 1 - x²/2! + x⁴/4! - x⁶/6! + ...
+    sin(x) = x - x³/3! + x⁵/5! - x⁷/7! + ...
+
+现在，让我们将泰勒级数中的变量 x 换成 ix 就得到：
+
+    eⁱˣ = (𝑖x)⁰/0! + (𝑖x)¹/1! + (𝑖x)²/2! + (𝑖x)³/3! + (𝑖x)⁴/4! ... (𝑖x)ⁿ/n!
+
+某些 𝑖 的次方可以简化，例如，按定义 𝑖² = −1，𝑖³ = -𝑖 及 𝑖⁴ = 1，等等。上式简化后，涉及 𝑖 的项
+合并在一起，简化式会包含两个级数与前面 sin(x) 和 cos(x) 的级数一样，将它们代入而得欧拉公式。
+
 
 
 复数的引入，不仅仅解决了负数的开方问题，在各行业上也大放异彩。例如，信号处理领域利用傅里叶变换可以
@@ -2462,7 +3059,174 @@ zₙ+1 ＝ zₙ² + c，重复该步骤直到：
 - 不会发散，并形成实际的 Mandelbrot 集，显示为黑色。
 
 
+### 🟢🔵 Quaternions 四元数
+- [四元数的可视化 by 3Blue1Brown](https://www.bilibili.com/video/av33385105/)
+- [Visualizing quaternions, an explorable video series](https://eater.net/quaternions/video/intro)
+- [Understanding Quaternions](https://www.3dgep.com/understanding-quaternions/)
+- [四元数与三维旋转 - Krasjet](https://krasjet.github.io/quaternion/quaternion.pdf)
+- Visualizing Quaternions by Andrew J. Hanson
+- [四元数——基本概念 - 杨智为](https://zhuanlan.zhihu.com/p/27471300)
+- [四元数应用——转矩阵、Slerp插值与万向节](https://zhuanlan.zhihu.com/p/28189289)
+- [如何形象地理解四元数？ - Yang Eninala](https://www.zhihu.com/question/23005815/answer/33971127)
+- [维度：数学漫步 Dimensions: A Walk Through Mathematics (2008)](https://www.bilibili.com/video/BV1rx411J7EL)
+- [GAMES105-计算机角色动画基础-刘利斌](https://www.bilibili.com/video/BV1GG4y1p7fF/)
+- [08.游戏引擎的动画技术基础 GAMES104-现代游戏引擎：从入门到实践](https://www.bilibili.com/video/BV1jr4y1t7WR?t=3794.3)
 
+![Hamilton plaque at Broombridge, Cabra](https://ingeniousireland.ie/wp-content/uploads/2011/10/Broombridge-plaque-BDolan-2010-web-600x450.jpg)
+
+相比矩阵，用四元数处理 3D 旋转的优势是毋庸置疑的，但是 Quaternions 四元数概念复杂，难于理解。
+四元数的定义和复数非常类似，唯一的区别就是四元数有三个虚部，而复数只有一个．所有的四元数 𝑞 ∈ ℍ，
+ℍ 代表四元数的发现者 William Rowan Hamilton，都可以写成下面这种形式。
+
+    𝑞 = 𝑎 + 𝑏𝑖 + 𝑐𝑗 + 𝑑𝑘 ∈ ℍ (𝑎, 𝑏, 𝑐, 𝑑 ∈ ℝ)
+
+    𝑖² = 𝑗² = 𝑘² = 𝑖𝑗𝑘 = −1
+
+    𝑖𝑗 = -𝑗𝑖 = 𝑘
+    𝑗𝑘 = -𝑘𝑗 = 𝑖
+    𝑘𝑖 = -𝑖𝑘 = 𝑗
+
+一个四元数由一个实数和一个三维向量构成，四元数就是一个高阶复数，四元数其实就是基底 {1, 𝑖, 𝑗, 𝑘} 
+的线性组合，也可以写成向量的形式。有说法指出，向量这个名字就是汉密尔顿发明的，向量的叉乘也是四元数的
+副产物：
+
+    q = (𝑣⃗ + 𝒘)ᵀ = ((x,y,z),𝒘)ᵀ
+
+    q₁q₂ = (𝒘₁ + x₁𝑖 + y₁𝑗 + z₁𝑘) (𝒘₂ + x₂𝑖 + y₂𝑗 + z₂𝑘)
+         = (𝒘₁𝒘₂ - x₁x₂ - y₁y₂ - z₁z₂) +
+           (𝒘₁x₂ + x₁𝒘₂ + y₁z₂ - z₁y₂ )𝑖 +
+           (𝒘₁y₂ + y₁𝒘₂ + z₁x₂ - x₁z₂ )𝑗 +
+           (𝒘₁z₂ + z₁𝒘₂ + x₁y₂ - y₁x₂ )𝑘
+
+        = (𝒘₁, 𝑣⃗₁) (𝒘₂, 𝑣⃗₂)
+        = (𝒘₁𝒘₂ - 𝑣⃗₁ ∙ 𝑣⃗₂, 𝒘₁𝑣⃗₂ + 𝒘₂𝑣⃗₁ + 𝑣⃗₁ ⨉ 𝑣⃗₂)
+
+
+其它表达形式及运算：
+
+- 纯四元数   𝑞 = 0 + 𝑏𝑖 + 𝑐𝑗 + 𝑑𝑘, (𝑎, 𝑏, 𝑐, 𝑑 ∈ ℝ)
+- 单位四元数 q = (𝒘, 𝑣⃗)ᵀ = (cos(Θ/2), 𝑢 sin(Θ/2))  |𝑢| = x² + y² + z² + 𝒘² = 1
+- 共轭四元数 q* = (𝒘, -𝑣⃗)ᵀ
+- 标量积    s𝒒 = (s𝒘, s𝑣⃗)ᵀ
+- 加法     q₁ + q₂ = (𝒘₁+𝒘₁, 𝑣⃗₂+𝑣⃗₂)ᵀ
+- 点积     q₁ · q₂ = (𝒘₁𝒘₁ + 𝑣⃗₂·𝑣⃗₂)
+- 点积共轭  (q₁ · q₂)* = q₂* · q₁*
+- 模长     |q| = √(𝒘₁𝒘₁ + 𝑣⃗₂·𝑣⃗₂) = √(q · q)
+- 模长平方  |q|² = q · q* = q* · q
+- 倒数     q⁻¹ = q* / |q|²
+- 倒数积   qq⁻¹ = q⁻¹q = 1
+
+
+在三维空间的旋转操作中，即工程中的刚体旋转问题，需要考虑物体如何旋转，是根据全局坐标系统，还是物体
+局部坐标系统。一般操作上是以全局空间定义的，通常物体的初始状态下，本地坐标与全局坐标是对齐的。
+
+Blender 中提供了三种旋转方式，向负轴向看，以逆时针旋转为正旋转角度：
+
+- **Euler** The gizmo handles are aligned to the Euler axis, allowing you to see 
+    the discreet XYZ axis underlying the Euler rotation, as well as possible Gimbal Lock.
+- **Axis Angle** The X, Y, and Z coordinates define a point relative to the 
+    object origin. This point and the origin define an axis around the W value 
+    defines the rotation.
+- **Quaternion** X, Y, Z and W correspond to the Quaternion components.
+
+欧拉角旋转旋转轴与 XYZ 各坐标轴对齐，即各坐标轴就是旋转轴，按先后顺序旋转 有 6 种顺序组合，列表中
+的名称中的各轴顺序与 Gimbal 设备中的各轴由内到外的套接顺序相同。例如，ZYX Euler 旋转就是优先读取
+Z 轴旋转角度，最后读取 X 轴旋转角。或者可以这样理解，无论其它轴如何旋转，名字开头的这个轴总是绕物体
+局部坐标对应轴作为旋转轴，而名字结尾的 X 则相当于全局空间的 X 坐标轴作为旋转轴。
+名字中间的旋转轴就取决于另外两者的旋转状态，因为有优先级的关系，算法就可能存在 Gimbal Lock 现象。
+
+![Gimbal](https://pic2.zhimg.com/v2-2f3d8c9c2de8c7f225ab65092598685d_b.webp)
+
+以轴角表示旋转，Axis Angle 方式需要两个参数，旋转轴向量 𝑢 和旋转角度 Θ。即表示物体绕过原点的 𝑢 轴
+旋转 Θ 角度。因该轴穿过原点，只需要一个三维单位矢量表示该轴方向。在三维空间中，旋转轴 𝑢 的坐标以及
+旋转角组成四个自由度 (Degree of Freedom)，多于欧拉角的三个自由度。
+
+轴角法有两个优点，两个硬伤：
+
+- 优点一：同轴的两次旋转可以直接相加来等效为一次旋转。
+- 优点二：定义简单，相对直观。
+- 硬伤一：两个坐标系 xyz 和 x'y'z'，轴角法表示不唯一（角度规定在0-180）。当旋转角度为 0，旋转轴
+  可以为任意方向。但是在应用中，一一对应很重要，这也就暴露出了轴角法表示的最致命的问题。
+- 硬伤二：两次连续的旋转怎样合成呢？或者说是两个旋转如何做差呢？答案是没办法，除非借助其他表示方法。
+
+下图演示了以微积分思想的三维旋转表达，d𝑢⃗/dθ = 𝑎⃗ x 𝑢⃗：
+
+![Axis-Angle Rotations in 3D](https://www.reedbeta.com/blog/rotations-and-infinitesimal-generators/rotation03.png)
+
+四元数旋转也定义了四个数，其中 W 定义一个角度，但它与轴角度截然不同。默认 w = 1.0 的前提下，旋转
+1.0 相当 90°，但永远到达不了 180°，并且不是线性关系，设置系数 w = 0.5，旋转角度相当于加倍，
+最大旋转角依然为 180°。
+
+轴角旋转方式 Axis Angle (𝑣⃗, Θ) 可以对应到四元数旋转，但这种对应不是一一对应，即非满射关系，形式
+也不同。
+
+    q = (𝒘, 𝑣⃗)ᵀ = (cos(Θ/2), 𝑢 sin(Θ/2))
+    Θ = 2argcos(𝒘)
+    𝑢 = 𝑣⃗/|𝑣⃗|
+
+按 𝑢 向量所对齐的轴旋转 𝑝 得到 𝑝' 可以表示为，q 或 -q 表示同样的旋转的两个方向，两个四元数旋转
+可以变换成这两个四元数的叉积的旋转：
+
+    (0, 𝑝')ᵀ = q (0, 𝑝')ᵀ q* = (-q) (0, 𝑝')ᵀ (-q*)
+
+一个四元数值可以在几何学上解释为，定义 4D 空间中单位球体上的点。沿着球体的任何大圆移动，表示围绕固定
+轴旋转，一个完整的圆匹配两个完整的旋转。
+
+使用四元数进行旋转操作的优点：
+
+- 提供球形旋转的平滑插值功能，Spherical Linear Interpolation (SLERP)；
+- 解决万向节死锁（Gimbal Lock）问题；
+- 仅需存储 4 个浮点数，相比矩阵更加轻量；
+- 四元数无论是求逆、串联等操作，相比矩阵更加高效；
+
+所以综合考虑，主流游戏或动画引擎都会组合缩放向量、旋转四元数、平移向量数据存储角色的运动。
+
+总结一下已经得出的四元数特性：
+
+- 四元数是四维空间中一个超球上面的点，满足 w²+x²+y²+z²=1。
+- 四元数是复数虚部扩展的结果，复数的虚部为 1 个，而四元数虚部有 3 个，且两两互相正交。
+- 由于 w²+x²+y²+z²=1 约束，四元数旋转只有 3 个自由度，且每个四元数可以对应一个特征向量，即 n。但请记住四元数并不是与特征向量一一对应。
+
+在二维平面空间中圆表示为 x²+y²=1，在三维空间中球体表示为 x²+y²+z²=1，而四元数可表示一个超球体，
+Hypersphere，而其中的 3 个虚部分即拥有三维空间，可以表示为一个球体。Grant Sanderson 尝试用
+Stereographic projection 球极平面投影，降维投射的方式帮助理解四元数，将二维圆作为一维球极投影
+得到一条投影线，球作为二维球极平面投影得到一个平面，超球作为三维球极平面投影得到一个球体。
+
+由于四元数存在于四维空间，所以需要利用低维信息去理解高维信息。用三维球为例，代数方程为 x²+y²+z²=1，
+虽然球上面的点是由 x，y，z 三个参数来确定，但实际上只需要两个，因为已经方程关系。假设 x 和 z 表示，
+其中 y 可以通过 x 和 z 进行求解。所以将 y 轴信息给隐去，三维球就可以投影为平面上的圆，如下图所示。
+图片来自 Visualizing Quaternions Chapter 8 Visualizing Spheres，教材用 q 表示四元向量。
+
+![3D Sphere projection](https://pic2.zhimg.com/80/v2-8934d9751fb9f2485156b87b2d718171_1440w.webp)
+
+> FIGURE 8.9 The standard sphere S² visualized as two filled 2D discs, the northern 
+> and southern hemispheres, together with the equatorial circle (i.e., S¹ ) that 
+> forms the border exactly between the two, at q₀ = 0, or equivalently at |q| = 1.
+
+这张图的意思是，三维球在 xOz 平面上投影是一个圆，当球面一点投影在过圆心的平面与球面相交的圆上时，
+y = 0，投影结果就是图上的圆。当投影位于圆内，则分两种情况，y > 0 处于北半球，y < 0 处于南半球，
+两个半圆交界就是圆。所以，通过投影后的圆即可还原出整个球体。
+
+![4D Sphere Projection](https://pic2.zhimg.com/80/v2-d636d27ab4a72b31925b1d610469b32d_1440w.webp)
+
+> FIGURE 8.11 The quaternion S³ visualized as two solid 3D balls, the northern 
+> and southern hemispheres, together with the equatorial S² that forms the border 
+> exactly between the two, at q₀ = 0, or equivalently at |q| = 1.
+
+推广到四维空间，w²+x²+y²+z²=1 中取 x、y、z 来表示超球 hypersphere 在三维空间上的投影。四维空间
+的超球投影到三维超平面可能是一个 two-sphere，当投影点在整个 two-sphere 的交界时，w = 0。投影点
+落在 two-sphere 的内部时，也分为两种情况，w > 0 和 w < 0。这两种情况下对应的特征向量是一样的，
+所以我们将旋转矩阵向四元数转换时，是有两个对应值的，四元数的范围是 2 倍覆盖于 3D 旋转（2:1 mapping）。
+
+
+
+### 🟢🔵 Calculus 微积分
+- [Highlights of Calculus - Bilbert Strang](https://www.bilibili.com/video/BV13v411t7A6/)
+
+微积分，包括微分和积分两种完全相反的问题处理思维，differential and integral，微分向细微处求解，
+积分将细微变化累积成为一个完整的结构。
+
+∫ₙᵐ
 
 
 ### 🟢🔵 Transformations 变换
@@ -2495,14 +3259,17 @@ zₙ+1 ＝ zₙ² + c，重复该步骤直到：
 - 平行性：若两条线变换前平行，则变换后仍然平行；
 - 共线比例不变性：变换前一条线上两条线段的比例，在变换后比例不变；
 
-仿射变换是二维平面重要的变换形式，在图形处理领域有广泛的应用，Godot 提供以下类型支持变换操作：
+卡耐基梅隆大学计算机图形学 CMU 15-462/662 Computer Graphics 课件直观地演示了什么是线性变换。
 
-|    Class    |              Usage              |
-|-------------|---------------------------------|
-| Vector2     | Vector used for 2D math.        |
-| Vector3     | Vector used for 3D math.        |
-| Transform2D | 2D transformation (2×3 matrix). |
-| Transform3D | 3D transformation (3×4 matrix). |
+![Linear Maps - Geometric Definition](http://15462.courses.cs.cmu.edu/fall2020/lecture/linearalgebra/slide_040)
+
+课程对代数知识的讲解也非常全面，比如对方程组这个概念的解析，System of Linear Equations 即类似
+以下一组方程，左手边是线性函数，右手边是常量。未知量有时也叫做自由度，degrees of freedom (DOFs)。
+方程有时也叫做约束，方程组的目标是求解同时满足所有约束的 DOFs。
+
+     x + 2y = 3
+    4x + 5y = 6
+
 
 对于一个集合 𝕏 的仿射变换可以定义为：
 
@@ -2613,34 +3380,253 @@ Euler angles 欧拉角旋转即按不同的轴向旋转，表示法以平驶飞�
 这种装置在出现两个枢纽对齐重叠，就有引起一个自由度失效的问题。三维软件算法上处理不当，也会有类似现象。
 
 
-相比矩阵，用四元数处理 3D 旋转的优势是毋庸置疑的，但是 Quaternions 四元数概念复杂，难于理解。
-四元数的定义和复数非常类似，唯一的区别就是四元数有三个虚部，而复数只有一个．所有的四元数 𝑞 ∈ H，
-H 代表四元数的发现者 William Rowan Hamilton，都可以写成下面这种形式：
+仿射变换是二维平面重要的变换形式，在图形处理领域有广泛的应用，Godot 提供以下类型支持变换操作：
 
-    𝑞 = 𝑎 + 𝑏𝑖 + 𝑐𝑗 + 𝑑𝑘, (𝑎, 𝑏, 𝑐, 𝑑 ∈ ℝ)
+|    Class    |              Usage              |
+|-------------|---------------------------------|
+| Vector2     | Vector used for 2D math.        |
+| Vector3     | Vector used for 3D math.        |
+| Transform2D | 2D transformation (2×3 matrix). |
+| Transform3D | 3D transformation (3×4 matrix). |
 
-    𝑖² = 𝑗² = 𝑘² = 𝑖𝑗𝑘 = −1.
+Godot 坐标系统中，按以下向量确定方向，x 轴指向 RIGHT，y 轴指向 UP，z 轴指向 BACK(backward)：
 
-与复数类似，因为四元数其实就是基底 {1, 𝑖, 𝑗, 𝑘} 的线性组合，四元数也可以写成向量的形式。
+    Vector3.UP (0, 1, 0)
+    Vector3.RIGHT (1, 0, 0)
+    Vector3.FORWARD (0, 0, -1)
 
-四元数相比其他形式的优点：
+根据变换矩阵的维度不同，2D 或 3D，变换矩阵对象包含的只是一系列存储浮点数值的向量，也就是 xyz 三轴
+对应的三个向量，通过下标可以访问这此矩阵元素，就像访问数组的元素一样。注意，变换矩阵只是定义如何变换，
+而变换后的结果，如 3D 物体的旋转角度这些值则是另外的属性中存储的数据，在属性探测器 Transform 分组，
+而变换矩阵数据则在 Matrix 分组中显示。变换后的属性值通过导出属性读取，如当前物体的旋转角度：
 
-- 解决万向节死锁（Gimbal Lock）问题；
-- 仅需存储 4 个浮点数，相比矩阵更加轻量；
-- 四元数无论是求逆、串联等操作，相比矩阵更加高效；
+```py
+var rotation:Vector3 = get("rotation_degrees")
 
-所以综合考虑，现在主流游戏或动画引擎都会以缩放向量+旋转四元数+平移向量的形式进行存储角色的运动数据。
+var t = Transform2D()
+# Translation
+t.origin = Vector2(350, 150)
+# Rotation
+var rot = -0.5 # The rotation to apply.
+t.x.x = cos(rot)
+t.y.y = cos(rot)
+t.x.y = sin(rot)
+t.y.x = -sin(rot)
+# Scale
+t.x *= 3
+t.y *= 3
+transform = t # Change the node's transform to what we just calculated.
+```
 
-总结一下已经得出的四元数特性：
+根据，数组在内存中的顺序结构，矩阵的第一个维度表示一行，第二维度表示列，如 t.x.y 表示 y 行 x 列。
+一般不会直接修改变换矩阵的元素，而是通过方法来间接修改，最基本的就是旋转、缩放、平移三种仿射变换：
 
-- 四元数（以后不特指四元数=单位四元数）是四维空间中一个超球上面的点，满足 w²+x²+y²+z²=1；而纯四元数是四维空间在w=0时的一个子空间的点，形式为{0, q}，特别注意的是纯四元数与四元数是不同的概念。
-- 四元数是复数虚部扩展的结果，复数的虚部为1个，而四元数虚部有3个，且两两互相正交，其中实部是cosθ/²，而虚部为一个単位轴乘以sinθ/2。
-- 四元数自由度并没有四个维度，由于存在w²+x²+y²+z²=1这个约束，它的自由度其实只有3，且每个四元数可以对应一个特征向量，即n。但请记住四元数并不是与特征向量一一对应的。
+```py
+Transform rotated(axis: Vector3, angle: float)
+Transform scaled(scale: Vector3)
+Transform translated(offset: Vector3)
+```
 
-在二维平面空间中圆表示为 x²+y²=1，在三维空间中球体表示为 x²+y²+z²=1，而四元数可表示一个超球体，
-Hypersphere，而其中的 3 个虚部分即拥有三维空间，可以表示为一个球体。Grant Sanderson 尝试用
-Stereographic projection 球极平面投影，降维投射的方式帮助理解四元数，将二维圆作为一维球极投影
-得到一条投影线，球作为二维球极平面投影得到一个平面，超球作为三维球极平面投影得到一个球体。
+```py
+Transform affine_inverse()
+Transform interpolate_with(transform: Transform , weight: float)
+Transform inverse() 
+bool is_equal_approx(transform: Transform )
+Transform looking_at(target: Vector3, up: Vector3)
+Transform orthonormalized()
+Variant xform(v: Variant)
+Variant xform_inv(v: Variant)
+```
+
+画布中的图像要显示到屏幕上，即从画布项目坐标系统转换到屏幕坐标系统，会经历以下四个变换。并且，画布
+与 CanvasLayer 是可以嵌套的，即节点之间的层次受到本身坐标影响外，还受到 CanvasLayer 的影响：
+
+- CanvasItem Coordinates
+    - > CanvasItem Global Transform `CanvasItem.get_global_transform()`
+    - > Canvas Layer Transform `CanvasItem.get_canvas_transform()`
+    - > Viewport Global Canvas Transform
+    - > Viewport Stretch Transform
+- Screen Coordinates
+
+注意，屏幕坐标是指程序窗口所占据的屏幕区域，左上角为原点，右下角为正方向。其中，Stretch Transform 
+变换和项目设置 Stretch Mode 相关，可以通过 SceneTree 提供的方法手动给视口设置延申变换矩阵，目的是为了处理多分辨率显示的适应问题。
+
+```py
+void set_screen_stretch(mode: StretchMode, aspect: StretchAspect, minsize: Vector2, scale: float = 1)
+```
+
+使用 `CanvasItem.get_viewport_transform()` 获取 CanvasLayer、GlobalCanvas、Stretch 
+三合一变换矩阵。
+
+在输入事件`MainLoop._input_event()` 中，坐标数据是经过 Stretch Transform 变换后的值，这个
+值对应的是窗口坐标。另外还提供了 `CanvasItem.make_input_local()` 函数方便转换到画布对象坐标。
+
+默认状态下，输入事件中的鼠标位置是指全局空间下相对于当前节点的 CanvasLayer 的坐标，可以将其转换为
+节点本地坐标，本地坐标方向与全局坐标不同，以左下角为原点，右上方向为正方向。全局坐标则以左上角为原点，
+右下角为正方向，即上下反转关系。
+
+```py
+Vector2 get_global_mouse_position() const # 获取鼠标位于当前节点相对当前 CanvasLayer 的坐标
+
+Vector2 get_local_mouse_position() const  # 获取鼠标位于当前节点本地坐标
+
+InputEvent make_input_local(event: InputEvent) const # 输入事件的鼠标位置转换为当前节点本地坐标
+
+Vector2 make_canvas_position_local(screen_point: Vector2) const
+# Assigns screen_point as this node's new local transform.
+```
+
+本地坐标要转换为全局坐标，只需要按以下顺序做逆变换，即可以得到屏幕坐标。还可以模拟鼠标事件，将带有
+指定坐标信息的鼠标事件投喂到 SceneTree 事件输入队列中：
+
+```py
+var screen_coord = get_viewport_transform() * (get_global_transform() * mouse.position)
+
+var local_pos = Vector2(10, 20) # local to Control/Node2D
+var ie = InputEventMouseButton.new()
+ie.button_index = BUTTON_LEFT
+ie.position = get_viewport_transform() * (get_global_transform() * local_pos)
+get_tree().input_event(ie)
+```
+
+
+### 🟢🔵 Curve & Geometry 曲线与几何抽象思维
+- [Geometry](https://www.mathsisfun.com/geometry/index.html)
+- [从零开始学图形学 - 贝塞尔曲线](https://zhuanlan.zhihu.com/p/344934774)
+- [曲线篇: 贝塞尔曲线](https://zhuanlan.zhihu.com/p/136647181)
+- [Bezier Curve Demos](http://math.hws.edu/eck/cs424/notes2013/canvas/bezier.html)
+- [Animated Bézier Curves](https://www.jasondavies.com/animated-bezier/)
+- [【华中科技大学】计算机图形学 #万琳教授](https://www.bilibili.com/video/BV1V7411k74z?p=32)
+- [GAMES101 现代计算机图形学入门  Geometry - 闫令琪](https://www.bilibili.com/video/BV1X7411F744/?p=11)
+- [清华大学-计算机图形学基础 - 胡事民](https://www.bilibili.com/video/BV13441127CH/)
+- [CS3621 Introduction to Computing with Geometry Notes](https://pages.mtu.edu/~shene/COURSES/cs3621/NOTES/)
+- [Mesh Shimplification](https://pages.mtu.edu/~shene/COURSES/cs3621/SLIDES/Simplification.pdf)
+- [Multiresolution Modeling A Very Brief Introduction](https://pages.mtu.edu/~shene/COURSES/cs3621/SLIDES/Multiresolution.pdf)
+
+Bézier Curve 贝塞尔曲线是计算机图形学二维图形应用程序的数学曲线，曲线定义有起始点、终止点、控制点，
+通过调整控制点，贝塞尔曲线的形状会发生变化。
+
+1962 年，法国数学家 Pierre Bézier 第一个研究了这种矢量绘制曲线的方法，并给出了详细的计算公式，
+因此按照公式绘制出来的曲线就用他的姓氏来命名，称为贝塞尔曲线。
+
+二次 Bézier 曲线只需要一个控制点，可以画一条 1/4 圆弧。三次贝赛曲线，前两个是控制点坐标。可以通过
+调节控制点的位置，进而调整整个曲线，比如使用两个控制点可以画 1/2 圆。
+
+![Bézier curve](https://pic1.zhimg.com/80/c5e0a5463172222a82983fde34ccac5c_1440w.webp)
+
+以二次 Bézier 曲线的实现过程解析，有起点、控制点和终点 P0、P1、P2，曲线的产生完全与这三个点位置相关。
+为了确定画线，需要两个运动的参考点：
+
+- R1 从 P0 到 P1 匀速移动；
+- R2 从 P1 到 P2 匀速移动；
+
+在期间 R1 R2 连线，其线段可能会长短变化，但只需按比例取 R1-R2 线上的点进行绘制即可得到平滑的曲线。
+对于三次或更高阶的 Bézier 曲线，需要在参考点连线上再连参考线，依照处理，同样得到平滑曲线。
+
+虽然贝塞尔曲线的阶数可以很高，但是阶数过高，调整控制点对曲线的影响就比较小，调整起来相当麻烦。于是，
+通常用分段的贝塞尔曲线，保证每一小段不会太复杂。这样每次只用调小段，还可以做到只调局部不影响大局。
+
+分段带来的唯一问题是，曲线在段与段的交界处，如何保证平滑？所谓平滑，就是一阶导数连续，左右导数的极限相同。
+曲线 Anti-Aliasing，只需要在曲线附近做点插值就行，满足离曲线越近的像素的像素值越高，越远的越低，即可。
+
+改进的样条曲线就是一种方便单独控制线段的曲线描述，最常用的是 B-Splines，即 Basis-Splines。样条中
+每个顶点都有两个控制点，通过这两个控制点就可以改变线段的外观。
+
+由样条曲线与平面结合，就可以产生任意的曲面，Non-Uniform Rational B-Splines (NURBS) 非均匀
+有理 B 样条曲面是工业常用的曲面生成工具。通过曲线控制平面上的顶点偏移，从而构造出任意的曲面：
+
+![Curve & surface](https://pages.mtu.edu/~shene/COURSES/cs3621/NOTES/surface/bs-local-mod-2.jpg)
+
+
+曲面细分是指将一个模型的面合理的分成更多小的面，从而提升模型精度，提高渲染效果。而曲面简化是指将一个
+模型的面合理的合成更少的面，从而降低模型精度，为特定情形下提供使用，如 Level Of Detail (LOD) 技术。
+
+几何模型简化是图形学的难点，与之相反的是几何图形细分问题。细分的基本思想是在每条边上插入一个新的顶点，
+随着细分次数的增加，折线逐渐变成一条光滑的曲线。曲面细分需要有几何规则和拓扑规则，几何规则用于计算新的
+顶点位置，拓扑规则用于确定新顶点的连接关系。Catmull-Clark 细分是一种四边形网格的细分法则，每个面
+计算生成一个新的顶点，每条边计算生成一个新的顶点，同时每个原始顶点更新位置。
+
+时钟拨回到 1972 年, 在 Utah 大学的计算机科学课程上, 一位博士, 用贝塞尔曲线算法, 为这节课提交了
+一个课程项目：A Computer Animated Hand，这只手, 是美国历史上最早记载的计算机生成动画(CG)。
+这位博士就是卡特缪尔 Edwin Catmull，在此前 3 年，他刚拿到自己的物理系学位，凭借着对于图形的热情，
+他成为了一家叫 Applicon 的做 CAD 软件的公司的雇员。直到他遇到了 Ivan Sutherland 而开始了计算机
+科学博士学位的进修，仿佛重获新生，找到了将自己的艺术理想与理工科学结合的希望。Catmull 博士的毕业论文 
+A subdivision algorithm for computer display of curved surfaces 至今超过一千引用。
+
+Ivan Sutherland 是图灵奖得主、计算机先驱、冯诺伊曼奖章、工程与科学院院士、ACM会士、计算机历史博物馆会士，
+伊凡·苏泽兰是计算机图形学之父，是 Sun 研究院的高级技术顾问，是隐藏在 Sun 团队背后真正的导师。
+
+
+曲线是数学抽象思维的表达，通过数学语言来组织思考，并进行高度抽象思维，是一种从无到有的又准确的概括思维。
+抽象是一个孤立的过程，是思考着逐渐将信息降维，以保留最普遍信息的一个过程。缺乏抽象思维，则面临被信息淹没。
+缺乏逻辑，则难以建立问题与求解的关系。一边简化信息，一边建立问题与解的关系，才是最根本也是最重要的做法。
+
+按以下将 6 项思维能力归类：
+
+- 改变世界 <-- 创新思维
+- 理解世界 <-- 整体思维、辩证思维、逻辑思维
+- 感受世界 <-- 形象思维
+
+可以把理解世界的 3 个基本的思维作为一个整体的抽象思维：
+
+- 逻辑思维（一元思维、线形、明确的因果关系）
+- 辩证思维（二元思维，对立统一的两个要素）
+- 整体思维（多元思维，认为事物是相互联系的整体，既见树木又见森林）
+
+思维是人脑借助于语言对事物的概括和间接的反应过程，看苹果是苹果，这就是`形象思维`。从一个苹果一根黄瓜
+抽象出数字 1 的概念，进一步抽象出加减乘除四则运算的概念，这应该是大部分智力正常的人都能达到的。
+然后从具体的数字运算抽象出用字母代替数字，出来方程、代数概念，这一步已经能淘汰一些人了。再抽象到集合，
+抽象到函数，这一步能淘汰掉大半人以上。`函数`、`集合论`的抽象这一步过不去，就很难做进一步的抽象。函数
+之上还有 epsilon-delta 语言，这是很多人第一次接触真正意义上的现代数理逻辑。是的，很多人的抽象思维
+能力还根本没达到能读懂形式逻辑的地步，还有抽象代数，还有拓扑。
+
+罗素说过，数学是符号加逻辑。大卫·希尔伯特 David Hilbert 说过，听别人讲解某些数学问题时，常觉得很难理解，
+甚至不可能理解。这时便想，是否可以将问题化简些呢﹖往往，在终于弄清楚之后，实际上，它只是一个更简单的问题。
+
+
+几何图形表达有显式、隐式两种基本形式：
+
+- 隐式 Implicit：用解析式表示。易于判断点相对于面的位置，不易判断哪些点在面上。
+    - 数学公式：解析几何使用数学公式表达几何体，缺点是不容易表示复杂形状。
+    - Constructive Solid Geometry (CSG)：通过一系列基本几何的基本运算（例如布尔运算）来形成新的几何。
+    - Distance Functions：如符号距离函数 Signed Distance Functions (SDF)。
+    - Fractals 分形
+- 显式 Explicit：显式给出或参数映射来定义几何表面。易于判断哪些点在面上，不易判断点相对于面的位置。
+    - Point Cloud：点云是大量点的列表。它通过密集的点来给人以面的感觉。点云一般是扫描后得到的数据。
+    - Polygon Mesh：多边形面是最常见的显式表示方式。
+
+The Wavefront Object File（.obj）文件定义空间中的点、法线、纹理坐标等，然后组织起来表示多边形面。
+
+距离函数描述空间中任何一个点到表面的最小距离，表面外部的为正数，表面内部为负数，SDF 为 0 的位置
+就是物体的表面。使用距离函数对两个物体进行混合的做法是：先混合它们的 SDF，然后将结果恢复成形状。
+
+例如 (x - a)² + (x - b)² = r² 表示一个圆形，但是对于一个没有接解过代数几何的人，是很难相像它
+是什么的，这就是几何图形的隐式表达。即使受过高等数学教育的人，也难以想象一个复杂图形的代数表达。比如，
+(R - √(x² + y²))² + z² = r² 就很难看出来是一个圆环。
+
+但是，这种隐式几何图形的表达在计算处理时却非常有用，比如判断一个点是否在几何体内。
+
+而一种比较直观的图形表达方式是图形的布尔运算，布尔是英国的数学家，在 1847 年发明了处理二值之间关系
+的逻辑数学计算法，包括：
+
+- 联合 unionwaov相交 intersection
+- 相减 subtraction
+
+在图形处理操作中引用了这种逻辑运算方法，以使简单的基本图形组合产生新的形体，还可以进行图形打散，并由
+二维布尔运算发展到三维图形的布尔运算。
+
+考虑图形关系的几种情况：
+
+- 两图形没有相交部分，做布尔运算都简单。
+- 其中一个图形包含另一个图形，这也是容易的情形，将其中一个图形反转方向绘制，这样得到的 Loop 就是镂空的。
+- 当两个图形相交时，情况就复杂了。可能是点线相交，也可以是部分相交，根据不同的运算需求不一样。
+
+Path 元素可能是所有 SVG 图形中最通用的形状，可能也是最难掌握的元素。图形学软件实现图形逻辑运算，
+SVG 矢量图形对象布尔运算是常规需求，这是很有趣的问题，在一维的数学中 1+1=2，到了二维就是一个图和
+另一图的运算。
+
+
+
 
 
 
@@ -2715,7 +3701,26 @@ Godot 使用 Autotiles 更新单元格时，首先会根据已设置的相邻单
 
 必须满足所有 “open” 和 “off” 的标记位，才能匹配位掩码，但忽略 “ignore” 标记位。
 
+另外，通过编程，可以批量修改 TileMap 的内容，TileSet 提供了方法根据 tile 名称获取 ID，然后可以
+在 TileMap 中定位到全部分使用了 ID 对应的图像的格子坐标，这个坐标是格子的行列坐标，和世界坐标之间
+可以相互转换。给 set_cell() 传递 -1 作为 tile ID 则可以清空格子内容。
 
+通过这些方法，可以使用 TileMap 绘制各种对象的占位符号，然后编程替换成需要的节点对象。Godot 4.x
+版本中，直接可以在 TileMap 中将场景当作 tile 使用。 
+
+```py
+# TileSet
+int find_tile_by_name(name: String) const
+
+# TileMap
+Array get_used_cells_by_id(id: int) const
+Vector2 world_to_map(world_position: Vector2) const
+Vector2 map_to_world(map_position: Vector2, ignore_half_ofs: bool = false) const
+
+# Node2D
+Vector2 to_global(local_point: Vector2) const
+Vector2 to_local(global_point: Vector2) const
+```
 
 
 缓动曲线是用数学公式计算一个时间段内某一个变量的平滑变化产生动画的技术，例如，在 1s 时间内将节点
@@ -2785,6 +3790,9 @@ Animation 可以记录 6 种轨道数据，TrackType 定义的值如下：
 ● **TYPE_AUDIO** 音频轨道，使用 AudioStreamPlayer 播放音频流，可以在动画中修剪和预览该流。
 ● **TYPE_ANIMATION** 动画轨道，用于播放其它 AnimationPlayer 节点的动画。
 
+动画播放器可以配合 Path2D、Path3D 以及 PathFollw 可以制作运动路径跟随，内嵌 RemoteTransform
+作为子节点，它可以将自身的位置等状态，包含路径运动的产生的运动信息，发送给其它对象以实现路径跟随运动，
+例如用路径控制运动学刚体 KinematicBody。
 
 
 视差，即远慢近快的视觉现象，是常被 2D 采用的一种动画技术，游戏、动画片中非常多应用，使用视差背景图节点
@@ -2803,7 +3811,7 @@ ParallaxBackground，就可以实现，继承自 CanvasLayer。将视差图层�
 在 3D 场景中也可以使用 **CanvasLayer** 来显示 2D 节点内容，避免受到画布因相机视角变换的影响，
 可以实现的功能不仅以下功能：
 
-- Parallax Backgrounds 视差效果。
+- Parallax Backgrounds 视差效果，配合 ParallaxLayer 节点设置背景图片，可以设置镜像延伸。
 - UI: 游戏中的用户界面，或者 head-up display (HUD) ，它们应该固定在屏幕中，不随游戏世界变换。
 - Transitions: 视觉变换，如渐变、混合效果，这些内容也固定位置。
 
@@ -2983,6 +3991,10 @@ func _on_AnimationPlayer_animation_finished(anim_name):
 - [Retargeting 3D Skeletons](https://docs.godotengine.org/en/latest/tutorials/assets_pipeline/retargeting_3d_skeletons.html)
 - [Animation Retargeting in Godot 4.0](https://godotengine.org/article/animation-retargeting-in-godot-4-0)
 - [Better collada plugin for Blender](https://github.com/HungryProton/collada-exporter-2.8)
+- [09.高级动画技术：动画树、IK和表情动画 | GAMES104-现代游戏引擎：从入门到实践](https://www.bilibili.com/video/BV1pY411F7pA)
+- https://threejs.org/examples/#webgl_animation_skinning_additive_blending
+- [spine-godot Runtime](http://esotericsoftware.com/spine-godot)
+- [Spine Runtimes - spine-godot](https://github.com/EsotericSoftware/spine-runtimes)
 
 官方文档提供的第三人称射击游戏示范项目 Third Person Shooter demo 是学习动画混合的好例子。
 
@@ -2991,8 +4003,11 @@ Adobe Mixamo 是学习 3D 动画的一个资源网站，它用许多现成的模
 
 动画混合是一种重要的计算机动画技术，基本的动画技术在使用上存在难以使用的的问题。例如，游戏中玩家角色
 同时可以不同的动作，也就是不同的动画融合在一起。比如，简单的动画可能有步行、跳跃、攻击行为等，在简单
-播放动画的技术中，它们都是独立的，一个播放完就进行下一个动画。但是，在游戏交互中要求远不止如此，可能
-玩家在做跳跃动作时还突然想做出攻击动作，那么传统的动画就无法很好适应这种中间转播其它动画的操作。
+播放动画的技术中，它们都是独立的，一个播放完就进行下一个动画。
+
+典型的动画混合例子，就是将 3D 人物模型从走路动画过滤过渡到奔跑动画。但是，在游戏交互中要求远不止如此，
+可能玩家在做跳跃动作时还突然想做出攻击动作，那么传统的动画就无法很好适应这种中间转播其它动画的操作。
+
 
 游戏、动画工业对动画有大量的需求，动画制作完成后还有复用的需要，即将同一套动画应用于骨骼结构相似的
 模型上。这里就存在动画重定向的问题，Animation Retargeting。基于骨骼绑定制作的动画，有一个特点，
@@ -3487,9 +4502,9 @@ Victo Ngai 倪传婧在其 Mastering Color 网课上指出几条最重要的色�
 - [Reflection probes](https://docs.godotengine.org/en/3.5/tutorials/3d/reflection_probes.html)
 - [Global illumination probes](https://docs.godotengine.org/en/3.5/tutorials/3d/gi_probes.html)
 - [Baked lightmaps](https://docs.godotengine.org/en/3.5/tutorials/3d/baked_lightmaps.html)
-
-所谓环境光 ambient 即经过无数折射后在空间上呈现极度均匀的柔和光，无论从什么角度看，物体的环境光
-都是一致的。所谓漫反射光 diffuse 即光线折射次数不是很多，并且对下一个物体的受光面有较大影响。
+- [GAMES104-现代游戏引擎：从入门到实践-王希](https://www.bilibili.com/video/BV1J3411n7WT/)
+- [GAMES202：《高质量实时渲染》闫令琪](https://www.bilibili.com/video/BV1YK4y1T7yY/)
+- [实时阴影技术 Real-time Shadows](https://www.cnblogs.com/KillerAery/p/15201310.html)
 
 不同于电影行业为了追求高质量的离线渲染 off-line rendering，游戏行业中是实时渲染，这就为硬件提出
 了高度的性能要求，在一定的硬件性能条件下，实时渲染并不能一味为了做最佳图像质量，而是在质量与流畅体验
@@ -3497,7 +4512,9 @@ Victo Ngai 倪传婧在其 Mastering Color 网课上指出几条最重要的色�
 
 为了实现图像质量又好，游戏操作体验又流畅的双平衡，渲染中通过引用一些代运算成本的技术，例如引入法线
 贴图替代高精度高面数的模型。光照系统中，引入各种探针来设置需要细致处理的光照空间，避免将有限的算力
-用到性价比不高的区域上，例如以下光照探针，后期处理或其它相关技术：
+用到性价比不高的区域上。
+
+例如，Godot 引入了b以下光照探针、后期处理或其它相关技术：
 
 - Real-time global illumination (GI) probe 全局照明探针，只处理指定区域的全局光。
 - Reflection probes 反射光探针，只处理指定区域的反射光。
@@ -3509,10 +4526,1229 @@ Victo Ngai 倪传婧在其 Mastering Color 网课上指出几条最重要的色�
 
 
 
+### 🟢🔵 2D lights 二维灯光
+- [2D lights and shadows](https://docs.godotengine.org/en/3.5/tutorials/2d/2d_lights_and_shadows.html)
+- [2D lights and shadows demo](https://github.com/godotengine/godot-demo-projects/tree/master/2d/lights_and_shadows)
+- [Trace Bitmap In Inkscape](https://inkscape.org/doc/tutorials/tracing/tutorial-tracing.html)
+- [GPU Gems 1 - 11. Shadow Map Antialiasing](https://developer.nvidia.com/gpugems/gpugems/part-ii-lighting-and-shadows/chapter-11-shadow-map-antialiasing)
+
+除了环境设置，在 2D 场景中，可以使用 **CanvasModulate** 对整个画布进行颜色调整，可以批量改变
+场景中的 CanvasItem 的颜色，但是对 CanvasLayer 或子类 ParallaxBackground 无效，因为它们
+是独立的画布对象，具有不同 layer 绘画顺序。同样，配合 Light2D 节点，又可以添加二维光照，使得场景
+中与光照节点的纹理重叠的区域不被调制影响。
+
+- **CanvasModulate** 通过颜色调制使场景变暗，或者调制成任何希望的色调。
+- **Sprite** 设置纹理显示灯光斑点、背景和阴影投射器，其纹理本身不会能参与光线的计算。
+- **Light2D** 照亮场景，二维灯光通常的工作方式是，在场景的其余部分添加选定的纹理以模拟照明。但它也可以以其他方式使用，例如掩盖场景的某些部分。
+- **LightOccluder2D** 用于告诉着色器场景的哪些部分投射阴影。阴影仅显示在 Light2D 覆盖的区域上，其方向基于灯光的中心。
+
+![2D lights and shadows demo](https://docs.godotengine.org/en/3.5/_images/light_shadow_main.png)
+
+Sprite 本身不会投身阴影，只用于设置场景需要的纹理，但会受到 CanvasModulate 的调制。阴影本身需要
+通过 LightOccluder2D 节点设置 OccluderPolygon2D 多边形来决定 Light2D 覆盖范围内的阴影投射。
+LightOccluder2D 提供了一个 Show Behind Parent 选项，所以可以作为 Sprite 子节点以显示在父
+节点纹理的底层，避免用于投射阴影的多边形遮挡内容。
+
+阴影投射区多边需要手动绘制，不能结合 Inkscape 这类工具提供的 Trace Bitmap 功能自动生成的矢量图。
+或者没提供像 Blender 那样的画笔绘制曲线的编辑器。
+
+Light2D 通过纹理来建立光源的各种属性，主要是光源的颜色、辐射范围。纹理尺寸越大，或者 Scale 越大，
+光线照射到的范围越广。可以使用图像纹理作，或者使用 AnimatedTexture 这样的动画纹理，以产生交替的
+灯光效果。光源纹理的一般制作，使用中心放射过渡的纯色，中心透明度低表示光照强，周边透明度高表示弱光照。
+通过纹理制作，可以模拟散光灯、射灯或者聚光灯，光源也提供 Color、Energy、Mode、Height 等调制属性。
+
+虽然，光源可以设置 Height 来与 Sprite 中的法线贴图进行光线的交互，但 LightOccluder2D 却没有
+提供高度属性，所以光源始终被多边形分隔为内外两个区，在多边形外面、内面的光线不会穿透多边形。
+
+2D 光源可以使用 20 个灯光分层管理光线交互、阴影投射，只有光源中 Range、Shadow 设置的 **Item Cull**
+遮罩层与 CanvasItem、LightOccluder2D 中的 **Light Mask** 使用了一致的分层，它们才会与相应的
+光源、阴影产生交互效果。Light Mask 遮罩属性在编程技术上，使用的是 bit 位记录分层信息。光源与物体在
+同一个比特位置 1 表示它们是同层交互关系，应该产生光线交互效果。
+
+Godot 支持 Percentage Closer Filtering (PCF)，这是一种阴影贴图的抗锯齿优化算法技术。
+
+阴影贴图 shadow mapping 是一种用于影片图像的高端渲染技术，但是在实时的视频游戏中，会出现严重的
+锯齿化问题。并且，当光线几乎平行于阴影表面传播时，使用透视阴影贴图技术和增加阴影贴图分辨率并不能解决
+锯齿问题，因为放大率接近无穷大。高端渲染软件通过使用一种称为 PCF 百分比渐进滤波的技术来解决混叠问题。
+
+与法线纹理不同，阴影贴图不能预过滤去消除锯齿。相反，每个像素都要进行多个阴影贴图的比较，求平均值。
+这种技术被称为 PCF，因为它计算的是更接近光线的曲面的百分比，而不是在阴影中。
+
+![Figure 11-1 Percentage-Closer Filtering](https://developer.nvidia.com/sites/all/modules/custom/gpugems/books/GPUGems/elementLinks/fig11-01.jpg)
+
+原始 PCF 算法要求将要着色的区域映射到阴影贴图空间，并随机采样该区域。该算法首先由 REYES 渲染引擎
+实现，因此要着色的区域意味着四边的微多边形。
+
+一般点光源会生成硬阴影，而面光源则会生成软阴影。当遮挡物越接近光线接受物体，会趋向于生成更硬的阴影，
+远离的时候，会趋向于生成更软的阴影。调整 filter, filter smooth, gradient length 等属性改变
+阴影的软硬程度。
+
+
+
+
+### 🟢🔵 Texture Map 纹理贴图
+- [Texture Mapping - GAMES101-现代计算机图形学入门-闫令琪](https://www.bilibili.com/video/BV1X7411F744?p=9)
+- [GAMES101 随堂笔记-Lecture 09 Shading 3 Texture Mapping](https://blog.csdn.net/weixin_44848751/article/details/127887098)
+- [Physically Based Rendering 3rd - 10 Texture](https://www.pbr-book.org/3ed-2018/Texture)
+- [OpenGL Programming Guide > Chapter 9 Texture Mapping](http://www.glprogramming.com/red/chapter09.html)
+- Fundamentals Of Computer Graphics - 11. Texture Mapping
+- [OGLDev Tutorial 16: Basic Texture Mapping](https://ogldev.org/www/tutorial16/tutorial16.html)
+- [LearnOpenGL - Textures](https://learnopengl.com/Getting-started/Textures)
+- OpenGL 4.6 (Core Profile) 8.14 Texture Minification & 8.15 Texture Magnification
+- [GPU Gems II - 28. Mipmap-Level Measurement](https://developer.nvidia.com/gpugems/gpugems2/part-iii-high-quality-rendering/chapter-28-mipmap-level-measurement)
+
+纹理贴图是图形着色中的一种基本方法，贴图就是一张贴在图形上的图像。要将一张图片映射到一个图形，比如
+三角形或者正方形上，这就需要一种确定映射关系的方法。图形学中，将渲染得到的图像中的每一个点称为像素，
+相似地，对于纹理图像上的每个点称为纹素，pixel vs. texel。
+
+当然，纹理不一定局限于图像文件，也可以是程序贴图纹理 Procedural Texturing，通过噪声函数算法生成，
+Noise Function 旨在创建可以模拟自然元素的纹理，例如木材，大理石，花岗岩，金属，石头等。噪声函数
+包括分形 fractal noise，湍流扰动函数 turbulence functions，Perlin noise，Voroni 等等。
+在过去，由于过程纹理计算量很大，在实时绘制中很少使用，而 GPU 促进了噪声纹理在实时渲染中的广泛应用。
+
+
+在 2D 纹理处理中需要使用 UV 坐标，3D 纹理则使用 UVW 坐标，因为表示位置的坐标使用 XYZ 表示，为了
+区别开来，所以使用 UVW 三个量表示三个轴向，以和位置坐标区分。
+
+Godot 中的纹理坐标以左上角为原点，右下角为正方向 ，与 OpenGL 有点差别，就是将 V 轴上下反转。
+
+![UV Mapping](https://docs.godotengine.org/en/3.5/_images/iconuv.png)
+
+以下是 OpenGL 的 UV 坐标，纹理是一张砖墙图像，将它映射到一个三角形图形上，只使用了纹理中间的部分：
+
+![https://learnopengl.com/Getting-started/Textures](https://learnopengl.com/img/getting-started/tex_coords.png)
+
+UV 坐标取值范围在 [0,1] 区间，在屏幕空间看起来就是 U 对应从左到右的方向，V 对应从上到下的方向。
+在给 GPU 传递顶点数据时，一般包含位置坐标及顶点对应的 UV 坐标，这样就可以按 UV 坐标给表面贴纹理。
+通过设置 UV Mapping 映射关系，可以将纹理图按坐标对应贴紧模式表面，可以原点、大小一一对齐，也可以
+不对齐，例如，将图片原点对应到模型 UV 最大值指向的位置，而将图片的最大尺寸位置对应到模型原点，就
+将纹理图反转。
+
+
+在纹理映射处理的过程中，会遇到这样的两种问题，即纹理缩放问题：
+
+- 纹理太小，图形太大，需要对纹理进行放大处理；
+- 纹理太大，图形大小，需要对纹理重采样，让它变小；
+
+这两种问题就是 Point Query vs. (Avg.) Range Query，纹理处理中的平均范围查询只是一种具体操作，
+并不是范围查询的一般形式。
+
+为了放大纹理适用图形，简单复制纹素会导致严重的锯齿问题，例如以下图左侧显示的这样：
+
+![GL_NEAREST vs. GL_LINEAR](https://learnopengl.com/img/getting-started/texture_filtering.png)
+
+而右侧，则使用了线性插值重采样，看起来效果明显好多了。线性插值是最简单的纹理放大方法，通过在纹素间
+增加平滑变化值创造出更的纹素，纹理尺寸也相应变大，这些纹理重采样方法也叫做 Texture filtering。
+
+高分辨率的像素坐标经纹理映射，只有大小一致的情况下才会落在纹素中心，通常不会落在纹素中心，即映射坐标
+非整数值，如何计算红点处的纹理值？就是插值需要考虑的问题。
+
+一个方法是基于三角形重心坐标的插值算法，Interpolation Across Triangles: Barycentric Coordinates。
+三角形是二维环境下的单形，即可以通过三角形拼接铺满整个 2D 空间。三角形内的任意一点，可以表示为三角形
+三个顶点坐标的线性组合：
+
+    (x, y) = αA + βB + γC
+         1 = α + β + γ      (α, β, γ non-negative)
+
+三角形所在平面上任意一个点（x，y）都可以用三个顶点 A、B、C 坐标的线性组合来表示。当线性组合的系数非负，
+且 α、β、γ 之和等于 1，则表示这个点在三角形内部，而三个系数则会用于计算插值。
+
+对于一个已知面积的小三角型，可以求角任意点 αβγ 三个系数。假定某点（x，y）与三个顶点连接，将三角形
+划分成三个小三角形，各自的面积为 Aᴬ Aᴮ Aᶜ，那么利用面积比可以求出系数 α、β、γ。
+
+    α = Aᴬ ÷ (Aᴬ + Aᴮ + Aᶜ)
+    β = Aᴮ ÷ (Aᴬ + Aᴮ + Aᶜ)
+    γ = Aᶜ ÷ (Aᴬ + Aᴮ + Aᶜ)
+
+![Geometric viewpoint — proportional areas](https://img-blog.csdnimg.cn/bcd7595c4bc64587a08351dd029f47ec.png)
+
+三角形的重心（质心）标对应的系数就是（1/3, 1/3, 1/3），一般情况下，等密度的物体在均衡的重力场下，
+重心和质心是重合的，这个点会将三角形分割成三个面积相等的小三角形。所以，相比于通过面积求系数，更快的
+是直接通过顶点坐标来计算，通过向量叉乘可以推导以下式子。式子不重要，关键是理解通过重心坐标来插值。
+
+    α = ((x - Ax)(By - Cy) + (y - By)(Cx - Bx))÷((Ax - Bx)(By - Cy) + (Ay - By)(Cx - Bx))
+    β = ((x - Cx)(Cy - Ay) + (y - Cy)(Ax - Cx))÷((Bx - Cx)(Cy - Ay) + (By - Cy)(Ax - Cx))
+    γ = 1 - α - β
+
+![Barycentric Coordinates: Formulas](https://img-blog.csdnimg.cn/596fb2e34799442fa59e1f123493220a.png)
+
+当一个点的重心坐标（α，β，γ）求出来以后，就可以求解任意属性 V 在此点的插值，只需要将三个顶点所定义
+的属性和系数做乘法再相加，即可求出插值出来的属性值。属性可以是位置，纹理坐标，颜色，法线，深度等等。
+
+但是要注意，在三维空间中，应该考虑投影产生的变形影响，尤其对于在三维空间中的属性，比如深度信息，应该
+用三维空间坐标找到对应位置，然后在三维空间中对 A、B、C 的深度属性插值，然后再投影回来，这个过程需要
+做一次逆变换就可以。
+
+最简单的插值就是一维线性插值，Linear Interpolation，函数简写为 lerp。更复杂的插值可以有二次曲线、
+三次曲线等插值方法。对纹理的插值缩放尺寸，这种操作就是超采样 supersampling。
+
+假定在一个小三角形顶点上，刚好对应到相邻的纹素，那么这个小三角形中间区域的渲染得到的像素就需要在各
+个顶点对应的纹素取值之间，进行线性的平滑插值。比如，两顶点之间只多渲染一个像素，而两个顶点的值分别为，
+0.5 和 0.7，那么插值点就可以按两点的平均值计算得到 0.6。
+
+对于二维图像，需要进行二线性插值，Bilinear interpolation，分别对应水平方向、竖直方向插值。三维
+中还有三线性插值 Trilinear Interpolation。注意，这里的二、三不是指二次曲线或三次曲线，而是一次
+的直线做了几回插值操作。
+
+![Bilinear interpolation](https://img-blog.csdnimg.cn/5f070c0acce34afa8562c076fe289fd4.png)
+
+超采样抗锯齿 Super-Sampling Anti-aliasing (SSAA) 是早期抗锯齿方法，比较消耗资源。一般按整数
+倍放大，x2、x4、x8 等倍数。 超级采样抗锯齿中使用的采样法一般有两种：
+
+- 顺序栅格超级采样 Ordered Grid Super-Sampling (OGSS)，采样时选取 2 个邻近像素。
+- 旋转栅格超级采样 Rotated Grid Super-Sampling (RGSS)，采样时选取 4 个邻近像素。
+
+
+对于高质量的纹理，比如 4K 纹理在给小图形着色时，就会面临完全不同的问题，一大块的纹素要如何适配一个
+像素。这就是块查询问题。当然，不能直接用一个平均值去代表一整块的纹素，会造成严重的失真。
+
+一个经典的解决方法是 Mipmap，它通过为高质量的纹理生成不同精细层级的缩小版纹理，很好地解决了纹理
+适配问题，并且速度很快，但是它只能做正方形的处理，比如 1x1、64x64、512x512 这样的纹理尺寸。一般
+每层重采样按 1/2 的大小缩小，Level 0 为原图，Level 1 为原图的 1/4 大小，依次类推，所以增加的
+存储空间最大为原纹理大小的 1/3。
+
+![Figure 9-4 : Mipmaps](http://www.glprogramming.com/red/images/Image114.gif)
+
+Mipmap 重采样纹理可以预先生成，得到 Mipmap 层级纹理后，贴纹理时就需要有一个映射方法，根据图形的
+大小来选择所需要的精细度层级，Computing Mipmap Level D。
+
+![Computing Mipmap Level D](https://img-blog.csdnimg.cn/cbc21cd30b7f4e129dfd141783d1aa0e.png)
+
+计算 Mipmap 层级需要用到偏微分，图上的式中看起来很复杂，但其实就是求解像素与纹素变化率的比值问题。
+将像相邻素点投影到对应的纹素，图中的红点代表投射坐标，四个相邻像素构成的矩形就会在纹理上投射出一个
+四边形。已知相邻两个像素中心的距离是 1，对应到右边纹理上有的距离 L 也就可以求出，只需要用变化大的
+一边的值就可以计算出目标的 Mipmap Level。如果 L 同样为 1 就表示应该使用原纹理，如果 L 为 2 则
+应该使用 Level 1 纹理，查询结果总会对应 D  = log2L 层纹理上的一个纹素。
+
+因此，只需要算出 D，即在第几层正方形的区域对应一个像素，就可以得出这个区域内平均值是多少。
+
+
+Mipmap 并不能处理一切纹理适配问题，当图形需要纹理在两个层级之间过渡需要时，如果直接在现有的两个层
+级之间转换，这就会导致纹理从一个精细纹理直接改变为另一张精度只有一半的纹理，图像会出现不连续的现象。
+这就需要对 Mipmap 进行三线性插值：先查询出两个层级的纹理各自的二线性插值，再在这两个值之间做一次
+额外的层到层之间的插值。
+
+三线性插值提供了一种类似可以提供任意层的 Mipmap 的效果，出来的效果就是一个很漂亮的连续渐变的层级。
+
+![Mipmap Trilinear Interpolation](https://img-blog.csdnimg.cn/cc252947b2f1434cbc10db1dbf1cffb5.png)
+
+
+很显然，非正方形的变换也不能用 Mipmap 处理，这种情况下应用 Mipmap 就会产生不良效果。
+
+![Mipmap 锯齿及摩尔纹](https://img-blog.csdnimg.cn/f187e0f6755749c5a68961c80d8405a5.png)
+
+这种现象产生的原因是变形方向与采样不适配，Mipmap 都是正方形区域缩放，只能做正方形的 Range Query。
+然而真实情况并不是如此，见下图，不同 Screen space 的像素所对应的纹素延展方向不同，有方块，有长条，
+方向也不一样，甚至是不规则图形。下图来源 Fundamentals Of Computer Graphics - 11. Texture Mapping
+
+![Screen space to texture space](https://pic2.zhimg.com/80/v2-1003f344d0ffc9d683b66167e45c0359_1440w.webp)
+
+Figure 11.18. The footprints in texture space of identically sized square areas 
+in the image vary in size and shape across the image.
+
+为了解决 Mipmap 不能解决非正方形变换的问题，又引入了各向异性过滤 Anisotropic Filtering 以解决
+三线性插值弊端，在不同的方向上表现各不相同（考虑方向性）：
+
+![Anisotropic Filtering](https://img-blog.csdnimg.cn/4b84789bb6074c46b9baff3903fa8deb.png)
+
+Mipmap 操作的相当于是上图的对角线图片，每次长宽各缩小一半，而各向异性可以用不同的长宽比进行缩小，
+包含上图除了对角线以外的图片，就可以应对非矩形区域做范围查询，额外存储开销是原来的三倍。
+
+
+但是，对于一些斜着的图形，依然没有很好的方法去查询。为了解决任意变形纹理映射问题，又引入了更复杂的
+纹理过滤方法，如 Elliptically Weighted Average (EWA) 椭圆加权平均过滤。效果上，比三线性滤波 
+Trilinear Filter 要好了一大截。
+
+对于任何一个形状，EWA 都可以将其拆成很多不同的圆形去覆盖这个形状。比如，查询一个椭圆，可将其拆成多个
+圆形，每次去查询一个圆形，多次查询自然就可以得到一个区域，但是代价是“多次查询”。可见质量越高的效果，
+性能开销越大。
+
+![EWA filtering](https://img-blog.csdnimg.cn/ea8e695554e04d74bf530569f6d7c04a.png)
+
+
+
+### 🟢🔵 IBL & Skybox 纹理贴图光照
+- [Poly Haven - The Public 3D Asset Library](https://polyhaven.com/all)
+- [LearnOpenGL - Cubemaps skybox](https://learnopengl.com/Advanced-OpenGL/Cubemaps)
+- [OGLDev Tutorial 25: SkyBox](https://ogldev.org/www/tutorial25/tutorial25.html)
+- [GAMES101 现代计算机图形学入门 - 闫令琪](https://www.bilibili.com/video/BV1X7411F744/?p=10)
+- [详解球面环境映射 - Spherical Environment Mapping](https://zhuanlan.zhihu.com/p/84494845)
+- [GPU Gems I - 19. Image-Based Lighting](https://developer.nvidia.com/gpugems/gpugems/part-iii-materials/chapter-19-image-based-lighting)
+- [Programming with OpenGL: Advanced Rendering - 9.3.2 Sphere Mapping](https://www.opengl.org/archives/resources/code/samples/advanced/advanced97/notes/node93.html)
+- Real-Time Rendering - 10.4 Environment Mapping
+- [Real-Time Rendering 3rd 纹理贴图及相关技术提炼总结](https://zhuanlan.zhihu.com/p/27551369)
+- [Real-Time Rendering 3rd 基于图像的渲染技术提炼总结](https://zhuanlan.zhihu.com/p/30345339)
+- [Real-Time Rendering 3rd 全局光照 GI 技术进化编年史](https://zhuanlan.zhihu.com/p/29418992)
+
+纹理贴图不仅可以用来给图形着色，它还有各式各样的用法，如下，按技术出现先后序：
+
+- Bump Mapping 凹凸贴图，使用纹理变化来影响法线方向，增加图形表面的凹凸细节；
+- Displacement Mapping 转换贴图，使用纹理来改变顶点的位置；
+- Normal Mapping 法线贴图，是凹凸贴图的一种应用，使用纹理记录法线向量；
+- Parallax Mapping 视差贴图，又称为 Offset Mapping，是凹凸贴图改进版，纹理将有更明显的深度。
+- Relief Mapping 浮雕贴图，有人把它誉为凹凸贴图的极致。
+
+视差贴图是针对 Normal Mapping 的改进，利用 Height Map 进行了近似的 Texture Offset。
+而 Relief Mapping 是精确的 Texture Offset，所以在表现力上比较完美。
+
+
+
+用纹理图像来模拟光照就是常见用法，纹理当作环境光使用，那么纹理中记录的就是光照信息。或者直接将纹理
+当作 Environment Map 渲染到图形上。
+
+Skybox 就是将环境光纹理保存在一个 Cube 上用来模拟天空大气的环境，原理就是假设一个无限远的盒子，
+以玩家为中心，无论玩家移动了多远，天空盒都不会变近，这样就产生一种四周的环境真的非常大的假象。
+
+![Cubemaps skybox](https://learnopengl.com/img/advanced/cubemaps_skybox.png)
+
+使用了环境立方体贴图的技术叫做环境贴图技术，让物体有反射(reflection)和折射(refraction)属性。
+
+更早期的做法是使用一个球体来保存环境光，Spherical enviroment map，它采用单张贴图表示整个环境，
+缺点是球形贴图的周边精确度急剧下降。这种模型中，摄像机位于无穷远，而球体无穷小，同时假设相机的分辨率
+可以任意高。相当于把一个擦得锃亮的完美球体放在环境的中央，然后在无穷远处用长焦镜头对它进行拍照。照片
+就是中覆盖整个圆形区域的部分，它与纹理图像的顶、底、左、右边缘相切。这个圆形区域之外的区域不重要，因为
+它们不会在环境纹理中使用。
+
+![Sphere Mapping](https://pic3.zhimg.com/80/v2-1528a601b4105d6e1b4c935444ac75e2_1440w.webp)
+![Sphere Mapping](https://www.opengl.org/archives/resources/code/samples/advanced/advanced97/notes/img130.gif)
+
+假设反射球表面法线为 n，视角方向 v，反射向量 r，采样公式表达如下，通过反射向量求采样坐标：
+
+    m = 2 √(r𝑥² + r𝑦² + (r𝑧 + 1)²)
+    𝑢 = r𝑥/m + 1/2
+    𝑣 = r𝑦/m + 1/2
+
+反射球体仅在球体的正面显示整个环境，产生的圆形图像也称为光照探针（light probe），因为它捕获了球体
+位置处的照明情况，拍摄球形探针是捕获基于图像的照明的有效方法。将球形贴图可以展开为一张矩形的经纬贴图，
+但是，这种方式的图像会出现上下两端的畸变，而赤道部分则相对过度采样。
+
+1986 年，Greene 推出了立方环境映射（cubic environment map），这种是当今最流行的方法，它的投影
+直接在现代 GPU 的硬件中实现。Cubemaps 方式使用 6 张纹理图，则不会有球体贴图的畸变问题。天空盒也要以
+球体的方式呈现环境贴图，所以是将一个盒子包裹着一个球体，在计算上不及直接使用球体方便。与球形映射不同，
+立方体环境映射独立于视图，与经纬映射相比，它还具有更加统一的采样特性。
+
+
+以下使用 Blender + Godot 创建一个 Cubemap。先在 Blender 创建一个 Cube，进入编辑模式：
+
+- 激活 Face selection mode，并选择所有面；
+- 执行 Mesh - Normals - Flip 将六个面的法线反转，指向立方体内部；
+- 设置 Viewport Overlays - Normals 可以显示法线，以确认法线朝向；
+- 执行 UV - Cube Projection 使各面的 UV 坐标铺满整个纹理空间；
+- 执行 Mesh - Split - Faces by Edges 分离六个面；
+- 执行 Mesh - Separate - By Loose Parts 将六个分离面独立为 Mesh 对象；
+- 操持各个面选择状态，执行菜单导出 Export - Wavefront (.obj)，导出选项设置：
+    - Limit to: Selected Only 只导出已选择的六个面；
+    - Foward Axis: -Z
+    - Up Axis: Y
+
+右手系 (right-hand system)，使大拇指、食指、中指互成直角，大拇指、食指、中指分别指向 x、y、z 轴
+正方向，并且中指指向自己。而左手系 (left-hand system)则是中指指向 z 轴负方向，并且中指指向前方。
+
+Godot 坐标系统中，按以下向量确定方向，x 轴指向 RIGHT，y 轴指向 UP，z 轴指向 BACK(backward)：
+
+    Vector3.UP (0, 1, 0)
+    Vector3.RIGHT (1, 0, 0)
+    Vector3.FORWARD (0, 0, -1)
+
+Blender 虽然也使用右手系，但是它是 z 轴向上的，这点与 Godot 不同。通过以上的导出设置可以适配 Godot
+正常使用的右手系，会自动将 Blender 的 -Z 对应到 Godot 的 -Y，即对齐底部，Blender 中显示的底部，
+在 Godot 中依然是底部。
+
+导出后，各个面的顺序可以直接打开 obj 文件查看，在 Blender 场景中修改 Mesh 名称会改变显示顺序，
+但导出的顺序可能还按原来的数据顺序，可以按需要的顺序重新将 Mesh 添加到 Collection 集体中再导出。
+
+Cube 与摄像机前进方向相同的一面为 Back，相反方向的一面为 Front，同样，左右两面也与摄像机的左右
+对换。在贴纹理图时，按前面展示的 Skybox 的图像命名，对应 Cube 的面进行贴图。因为，摄像机需要透过
+Cube 的内表面成像，有三个面的 UV 坐标需要对 U 轴反转，分别是 Top、Front、Right，另外 Buttom
+需要 UV 同时反转。
+
+这种简单通过 Cube 模拟的 Skybox 有缺点，就是摄像机向顶、底方向时，成像会有较明显的矩形边界。
+
+然后，通过 GDScript 加载导出的 Mesh 并设置纹理：
+
+```py
+tool
+extends Spatial
+class_name SkyBox
+
+onready var sky_mesh = load("res://assets/skybox/skybox.obj")
+
+export(StreamTexture) var TextureLeft = null setget set_TextureLeft
+func set_TextureLeft(value):
+    TextureLeft = value
+    set_mat()
+
+export(StreamTexture) var TextureRight = null setget set_TextureRight
+func set_TextureRight(value):
+    TextureRight = value
+    set_mat()
+
+export(StreamTexture) var TextureFront = null setget set_TextureFront
+func set_TextureFront(value):
+    TextureFront = value
+    set_mat()
+
+export(StreamTexture) var TextureBack = null setget set_TextureBack
+func set_TextureBack(value):
+    TextureBack = value
+    set_mat()
+
+export(StreamTexture) var TextureBottom = null setget set_TextureBottom
+func set_TextureBottom(value):
+    TextureBottom = value
+    set_mat()
+
+export(StreamTexture) var TextureUp = null setget set_TextureUp
+func set_TextureUp(value):
+    TextureUp = value
+    set_mat()
+
+onready var _mesh:MeshInstance = $SkyMeshInstance
+
+func create_mat(texture):
+    var m = SpatialMaterial.new()
+    m.flags_unshaded = true
+    m.albedo_texture = texture
+    return m
+
+func set_mat():
+    if _mesh:
+        _mesh.queue_free()
+    
+    _mesh = MeshInstance.new()
+    _mesh.name = "SkyMeshInstance"
+    _mesh.mesh = sky_mesh
+    add_child(_mesh)
+    _mesh.owner = self
+    print(_mesh.owner, sky_mesh)
+    _mesh.set_surface_material(0, create_mat(TextureRight))
+    _mesh.set_surface_material(1, create_mat(TextureLeft))
+    _mesh.set_surface_material(2, create_mat(TextureFront))
+    _mesh.set_surface_material(3, create_mat(TextureBack))
+    _mesh.set_surface_material(4, create_mat(TextureBottom))
+    _mesh.set_surface_material(5, create_mat(TextureUp))
+
+
+func _ready():
+    set_mat()
+```
+
+
+
+### 🟢🔵 Blinn-Phong 基础光照着色模型
+- [GAMES101-现代计算机图形学入门-闫令琪](https://www.bilibili.com/video/BV1X7411F744?p=7)
+- [GAMES202 作业 0: WebGL 框架的使用与 Blinn-Phong 着色模型 闫令琪](https://sites.cs.ucsb.edu/~lingqi/teaching/games202.html)
+- [Learn OpenGL - Basic Lighting](https://learnopengl.com/Lighting/Basic-Lighting)
+- [Learn OpenGL - Advanced Lighting](https://learnopengl.com/Advanced-Lighting/Advanced-Lighting)
+- [Phong shading - HandWiki](https://handwiki.org/wiki/Phong_shading)
+- [Blinn–Phong reflection model From HandWiki](https://handwiki.org/wiki/Blinn–Phong_reflection_model)
+- [CS-116A: Introduction to Computer Graphics - Light and Color - Rob Bruce](http://www.cs.sjsu.edu/~bruce/fall_2016_cs_116a_lecture_light_and_color_part_1_of_2.html)
+
+闫令琪的网课 GAMES202: 高质量实时渲染，作业零是 Blinn-Phong 着色模型编程的实验。这种着色器又叫
+反射模型、修正模型，Blinn–Phong reflection model 或者 modified Phong reflection model，
+是由 Jim Blinn于 1977 年在文章中对传统 phong 光照模型基础上进行修改提出的。它是一个经验模型，
+并不完全符合真实世界中的光照现象，但由于实现起来简单方便，并且计算速度和得到的效果都还不错，因此在
+早期被广泛的使用。
+
+原模型作者是 Bùi Tường Phong (1942 – 1975)，他于 1973 年在犹他大学取得计算机科学博士学位，
+并发明了 Phong 反射模型及 Phong Shading 着色算法，并广为 CG 界采用，作者 1975 死于白血病。
+
+同样的模型，使用不同的着色算法会产生不同的效果，以下是三种最基础的不同着色频率的模型：
+
+- Flat shding 按三角面着色，per-face，低频着色方法；
+- Gouraud shading 按顶点着色，per-vertex，属于中频着色方法；
+- Phong shding 按和像素着色，per-pixel，属于高频着色方法；
+
+![Flat shading (left) versus Phong shading (right)](https://handwiki.org/wiki/images/8/84/Phong-shading-sample.jpg)
+
+
+Blinn-Phong 光照模型将进入摄像机的光线分为三个部分，Ambient、Diffuse、Specular，即环境光、漫反射
+和高光反射，每个部分使用一种方法来计算它的贡献度。就是说，只要将这三种光计算出来，就可以实现布林冯
+光照模型效果。整个 Blinn-Phong 光照模型的结果就是 L𝑎 + L𝑑 + L𝑠 三者求和，以下逐个解析。
+
+![Blinn-Phong reflection model](https://handwiki.org/wiki/File:Phong_components_version_4.png)
+
+
+计算中需要先定义一些单位向量用于表示方向，更高效果要求的着色模型还会需要其它参数：
+
+- **Viewer direction**，观察方向，使用 𝑣 表示，由着色点指向摄像机；
+- **Surface normal**，表面法线方向，使用 𝑛 表示；
+- **Light direction**，光线入射方向，使用 𝑙 表示，由着色点指向光源；
+
+![Lights reflection](https://pic1.zhimg.com/80/v2-62c91756b8b182383578c6708db35da4_1440w.webp)
+
+环境光也称间接光，光线经过周围环境表面多次反射后会在物体表面形成均匀统一的光照效果，利用它可以描述
+物体基本外观亮度，在光照模型中，通常用一个常量来表示。公式表达如下，k𝑎、I𝑎 分别为环境光系数、光强度。
+
+    L𝑎 = k𝑎 ⨉ I𝑎
+
+一般上，对于个具有一定粗糙度的非光滑物体，当光线照射到物体时，光线会被均匀的反射到各个方向，这种反射光
+称为漫反射。从微观角度看，模型分析每一点光照都设定这一点有无数方向完全随机的法线，也就是说，在漫反射中，
+视角的位置是不重要的，因此可以认为漫反射光在任何反射方向上的分布都是一样的。而整体上，物体的一个面上，
+大多数法线都与这个面垂直，光线反射遵循整体规律。
+
+反射光与反射系数有关系，reflection coefficient，物体表面反射光线的能力，就是反射光强度与入射光
+的强度之比值，取值 [0, 1]，受入射光的投射角度、强度、波长、物体表面材料的性质，以及反射光的观察角度
+等因素影响。
+
+漫射光的强度与**入射角度**，入射光线与法线的夹角，以及入射光线强度相关。Lambert Consine Law
+兰伯特余弦定律指出，入射光角度越大，漫反射分量越小，当夹角接近 90°，认为漫反射几乎为零，全部都是
+反射光。夹角大于 90° 时的余弦值小于 0，没有实际意义，取 0 值。
+
+    f(Θ) = max(0, cosΘ) = max(0, 𝑙·𝑛)
+
+点积 𝑙·𝑛 就是求向量 𝑙 在 𝑛 上的投影，即反射光线强度，Θ 为入射角。
+
+光线强度会随着距离的增加而衰减，假设一个光源，在距离它单位圆上每一个点接收到光的强度是 I。那么根据
+能量守恒定律，且不考虑衰减，在距离光源 r 位置的圆上每个点接收到光的强度就是 I/r²。所以，漫射光强
+L𝑑 可以表达为以下公式，其中 k𝑑 为反射系数：
+
+    L𝑑 = k𝑑 ⨉ (I/r²) ⨉ max(0, 𝑙·𝑛)
+
+这个公式说的是，漫射光等于着色点处接收到的光能在反射系数、光线传播距离约束下的反射形成二次传播的光能。
+
+![Diffuse and Specular](https://learnopengl.com/img/lighting/basic_lighting_specular_theory.png)
+
+高光反射也称为镜面反射，当然并不说说只有镜面才有高光反射，只是说体表面越光滑，镜面反射越明显，理想
+条件下，完全的镜面是没有漫射光的。当平行入射的光线射到这个物体表面时，仍会平行地向一个方向反射出来。
+入射光线 𝑙 照射在光滑的平面上，会沿着 R 方向反射，当观察角度正好与 R 方向对齐时，这时的镜面反射光
+最强，最明显。非完全光滑的表面上，高光反射的方向并非只有 R 一个方向，而是 R 周边的一小块区域，角度
+越接近就越明显。可以得出一条结论：高光反射和表面光滑度、观察角度有关。
+
+布林冯模型中认为，高光反射的强度与反射光线 R 和观察角度 𝑣 之间夹角的余弦值成正比。它的强度，相当于
+求向量 𝑣 在 R 上的投影，即 𝑣·R。
+
+但是，对于一个现成的场景，一般已知量是摄像机代表的观察方向，物体表面法线方向，以及光线入射方向。而
+反射方向 R 是个未知量，虽然可以通过余弦定理求解，但是运算比较麻烦。
+
+![Halfway vector](https://learnopengl.com/img/advanced-lighting/advanced_lighting_halfway_vector.png)
+
+Blinn-Phong 对冯氏光照模型的一个改进，就是观察到了半程向量 half-angle vector 和法线方向接近，
+就表明高光越明显，这一发现就避免了直接计算 R 值，而是计算更容易得到的半程向量 ℎ，计算方法如下：
+
+    ℎ = (𝑙 + 𝑣)/|𝑙 + 𝑣|
+
+也就是半程向量等于，入射方向与观察方向的向量和，除于两向量的模，相当于做 normalize 归一化处理。
+最后，高光反射光可以表达为以下公式：
+
+    L𝑠 = k𝑠 ⨉ (I/r²) ⨉ max(0, 𝑛·ℎ)ᵖ
+
+高光反射与镜面程度有一些明显的视觉效果，镜面程度越高，高光越高并且面积会越小，明暗分界越清晰，通过
+设置指数就可以实现这一些效果，一般指数项 p 取值 64 次方的情况下，高光范围的角度大概对应 35° 左右。
+虽然，反射光这是使用的是幂运算，但是因为向量都是单位向量，点积最大值不会超过 1.0，所以指数值越大，
+光斑反而会越小。
+
+![basic lighting specular shininess](https://learnopengl.com/img/lighting/basic_lighting_specular_shininess.png)
+
+
+
+### 🟢🔵 Shadow Map 阴影贴图
+- [GAMES101 现代计算机图形学入门  Geometry - 闫令琪](https://www.bilibili.com/video/BV1X7411F744/?p=12)
+- [GAMES202 高质量实时渲染 - 闫令琪](https://www.bilibili.com/video/BV1YK4y1T7yY)
+- [Optimized StencilShadow Volumes Cass Everitt & Mark J. Kilgard](https://slidetodoc.com/optimized-stencil-shadow-volumes-cass-everitt-mark-j/)
+- [GPU Gems 1 - Part II: Lighting and Shadows](https://developer.nvidia.com/gpugems/gpugems/part-ii-lighting-and-shadows)
+- [GPU Gems 3 - Part II: Light and Shadows](https://developer.nvidia.com/gpugems/gpugems3/part-ii-light-and-shadows)
+- [RTR4 图形学基础 - 阴影 - ShadowMap及其延伸 - 杨鼎超](https://zhuanlan.zhihu.com/p/384446688)
+- [Planar Shadow 方向光 - Jeffrey Zhuang](https://zhuanlan.zhihu.com/p/94491734)
+- [Planar Shadow 点光源 - Jeffrey Zhuang](https://zhuanlan.zhihu.com/p/94555744)
+- [OGLDev Tutorial 40: Stencil Shadow Volume](https://ogldev.org/www/tutorial40/tutorial40.html)
+- [游戏中的阴影基础 - 洛城](https://zhuanlan.zhihu.com/p/27572129)
+- [GAMES202 L3&L4&L5：实时阴影（Real-time Shadows） - 戴子玲](https://zhuanlan.zhihu.com/p/471190375)
+- Real-Time Rendering, Fourth Edition - Chapter 7 Shadows
+- [阴影体(shadow volume)](https://blog.csdn.net/zhao_92221/article/details/46756645)
+- [实时阴影技术 Real-time Shadows](https://www.cnblogs.com/KillerAery/p/15201310.html)
+- [华中科技大学 计算机图形学 实时阴影 - 万琳](https://www.bilibili.com/video/BV1V7411k74z?p=72)
+
+Planar Shadow 是一种直接通过几何变换，将图形作为阴影的一种低运算得的低效果的阴影模拟技术，相当于
+将图形拍平到投射平面上，优缺点很明显：
+
+- 优点：阴影边界可以很清晰，节省 RenderTexture (RT)，相比 shadow map 就需要 RT。
+- 缺点：不适用于曲面，最好的应用环境是平坦地形。
+
+阴影映射 Shadow Mapping 是 Williams 于 1978 年发明的一种流行的阴影算法，同 Frank Crow 于
+1977 发明的体积阴影 Shadow volumes 相比，具有几个重要优势，特别是，阴影贴图可以在任意位置查询，
+并且对几何复杂性不太敏感。
+
+Shadow Volume 最大的优点是没有阴影锯齿问题，但它基于几何方法，有可能每帧都要构造和渲染阴影锥，
+而且有些工作必须由 CPU 完成，并且，无法处理具有透明材质物体的阴影投射，如公告板，粒子系统，树叶等。
+使得它在效率上没有 Shadow Map 高，因为后者计算都在 GPU 完成。
+
+Shadow Volume 根据光源和遮蔽物的位置关系计算出场景中会产生阴影的区域，然后对所有物体进行检测，
+以确定其会不会受阴影的影响。下图的绿色物体是遮蔽物，而灰色的区域就是 shadow volume，阴影区域内的
+物体才会受阴影的影响。假如一个物体遮住了光源投射出阴影，就称物体为 Shadow Caster (SC)。而阴影投射
+到另一个物体上形成阴影，另一个物体就称为 Shadow Receiver (SR)。
+
+![Optimized StencilShadow Volumes Cass Everitt & Mark J. Kilgard](https://img-blog.csdn.net/20150704160224644)
+
+图片来源：Optimized StencilShadow Volumes Cass Everitt & Mark J. Kilgard
+
+![Z-pass vs. Z-fail](https://images0.cnblogs.com/i/292994/201408/042015297253279.png)
+
+Shadow Volume 的一种实现是 Z-pass 算法，它可以在任何支持 stencil buffer 功能的 GPU 上运行。
+基本原理如下，分为三个步骤：
+
+- Pass1：enable z-buffer write 条件下渲染整个场景，得到所有物体的 depth map。
+- Pass2：disable z-buffer write & enable stencil buffer write 条件下渲染所有 shadow volume。
+    对视线穿越阴影区域边界进行计数，在深度测试结果为 pass 的前提下，穿越 front face 和 back face
+    分别 +1 和 -1，正面即面对视点的这一面，计数结果即为 stencil 值。
+- Pass3：根据每个象素的 stencil 值是否大于 0 判断其是否处于阴影当中，然后据此绘制阴影效果。
+
+以上过程概括起来，Z-pass 算法就是从视点向物体引一条射线，当它可以穿越所有 shadow volume 区域，
+即 stencil = 0，即表示视线可以看到物体，因为它不在 shadow volume 区域内。
+
+Z-pass 算法遇到的问题是，摄像机本身是假定位于阴影体外，当本身出现在阴影区域内部时，算法就失效了。
+
+Z-fail 算法是 John Carmack，Bill Bilodeau 和 Mike Songy 各自独立发明的，其目的就是解决
+视点进入 shadow volume 后 Z-pass 算法失效的问题。它针对 Z-pass 第二步作了补充，在尝试测试结果
+为 fail 的条件下，穿越 front face 和 back face 分别对 stencil 值 -1 和 +1，刚好是反向操作。
+
+
+Shadow Map 是目前主流的阴影生成算法，这主要得益于它算法直观，并且能够充分利用现代硬件的光栅化能力。
+这也是入门图形学的基础算法之一，算法思路是通过视点深度与光源尝试信息的比较，确定阴影区域。对于确定
+光源来说，场景中某个点是否被其照亮，取决于从光源的视角看去，这个点是否可触及，以及从摄像视角来看，
+这个点是否可见。当两者任意一方不可以触及一个位置，那么就可以确定一个阴影位置。
+
+Shadow Map 算法被分成光源视角处理、摄像机视角处理两个阶段：
+
+- 从光源视角出发，绘制整个场景，平行光用正交投影，点光用透视投影，Shadow Map 记录下物体表面的距离；
+- 从摄像机视角出发，重新绘制场景，获取世界投影空间内的像素到光源的深度 d；
+- 并根据光源投影矩阵的逆矩阵，将世界坐标空间变换回光源的投影空间，找出对应光源投影空间 UV 坐标；
+- 利用光源投影空间的 UV 坐标采样 Shadow Map，得到光源视角下的深度信息 ；
+- 比较两个深度值，若 d > z，则当前位置被遮挡，处于阴影内，否则未被遮挡；
+
+![Shadow Map Projections](https://pic3.zhimg.com/80/v2-3f2c370b6b39cade31f8b3e4bf3d815e_1440w.webp)
+
+回顾一下 z-buffer 算法，深度就是片元的到相机的距离信息，默认值 1.0 表示无限远，深度图就是一张
+灰度图像。想象一下，如果把相机位置换成光源，那么“光看不到的地方就是阴影”，这就是阴影贴图的思想。
+由于相机视角处理阶段，需要的数据只是深度值，所以可以把光照计算关掉，打开 z-test 和 z-write。
+
+![Depth map in Shadow map](https://pic2.zhimg.com/80/v2-7fc6cceda943968a08e8ec83fa46fe41_1440w.webp)
+
+注意，Shadow mapping 和 Shadow volume 里面使用的 depth map 是有区别的，前者以光源和视点、
+后者以视点角度计算得到深度图。
+
+
+阴影贴图是一种相对高效和直观的光照模拟技术，应用此技术有三大难点：
+
+- 1） Omnidirectional Shadow Maps：全方向的阴影贴图
+- 2） Depth Bias：比较深度时的偏差问题
+- 3） Aliasing：阴影贴图的采样和重采样问题
+
+由于纹理采样的离散性特点，以及浮点数的精度误差，不能直接比较相等值，等等因素都会导致阴影贴图走样，
+产生所谓的“Shadow Acne”。特别是在灯光与投影平面夹角较大时，锯齿现象更严重。通常的解决方案是比较时
+加上一个固定偏差值 bias，但是若偏差值选取过大，又会产生“Peter-Panning”问题，影子飞起来。自适应
+方案是 Slope Scale Depth Bias，基于斜率计算当前深度要加的偏差。
+
+![Slope Scale Depth Bias](https://pic2.zhimg.com/80/v2-713a366f76e8637c7b27efbc95027ccd_1440w.webp)
+
+Shadow Map 产生锯齿的普遍原因在于，坐标变换是连续的，但光栅化后的像素位置则是离散的，不论阴影贴图
+的精度有多高，都无法保证从屏幕空间的像素映射到光源空间时，能够找到一个位置完全匹配的像素。一个解决
+访求是，百分比渐进滤波 Percentage-Closer Filtering (PCF)，当计算一个屏幕空间的像素是否处于
+阴影当中时，需要考虑它投影到的 Shadow Map 位置附近的多个像素，使用阴影软化。
+
+
+### 🟢🔵 Ray Trace 光线追踪
+- [实时光线追踪技术：业界发展近况与未来挑战](https://zhuanlan.zhihu.com/p/102397700)
+- [RTX Global Illumination (RTXGI)](https://developer.nvidia.com/rtx/ray-tracing/rtxgi)
+- [DLSS 2.0 - 重新定义AI渲染 - 文刀秋二](https://zhuanlan.zhihu.com/p/116211994)
+- [GAMES101 现代计算机图形学入门 Ray Tracing - 闫令琪](https://www.bilibili.com/video/BV1X7411F744?p=13)
+- [GAMES202 高质量实时渲染 Real-Time Ray Tracing - 闫令琪](https://www.bilibili.com/video/BV1YK4y1T7yY?p=12)
+- [GAMES101 L15：光线追踪 - 辐射度量学、渲染方程、全局光照](https://www.yuque.com/sugelameiyoudi-jadcc/okgm7e/eb2c162cc558657da2aea25b68a6c580)
+- [CS190I: Introduction to Offline Rendering Fall 2020](https://sites.cs.ucsb.edu/~lingqi/teaching/cs190I.html)
+- [CS291A: Real-Time High Quality Rendering Spring 2020](https://sites.cs.ucsb.edu/~lingqi/teaching/cs291a.html)
+- [Physically Based Rendering: From Theory to Implementation", 3rd](http://www.pbr-book.org/3ed-2018/contents.html)
+- [Peter Shirley, "Ray Tracing in One Weekend -- The Book Series"](https://raytracing.github.io/)
+- [Computer Graphics Lecture Notes 17 - Photorealistic Effects](http://www.cs.kent.edu/~farrell/cg00/lectures/rendering/render.html)
+- [The Cornell Box](http://www.graphics.cornell.edu/online/box/)
+- [Introduction to Ray Tracing: a Simple Method for Creating 3D Images](https://www.scratchapixel.com/lessons/3d-basic-rendering/introduction-to-ray-tracing/how-does-it-work)
+- [空间数据结构(四叉树/八叉树/BVH树/BSP树/k-d树)](https://www.cnblogs.com/KillerAery/p/10878367.html)
+
+为了简化图像格式带来的问题，以将重心放到光线追踪的处理上，Ray Tracing in One Weekend 教程中
+使用了 Portable PixMap (PPM) 便携像素图片格式保存图像。
+
+PPM 是 Netpbm 项目定义的一系列的图片格式中的一个：
+
+|       Type       |  Magic Number & Format  | Extension |        Colors       |
+|------------------|-------------------------|-----------|---------------------|
+| Portable BitMap  | P1 (ASCII)  P4 (binary) | .pbm      | 0–1 (black & white) |
+| Portable GrayMap | P2 (ASCII)  P5 (binary) | .pgm      | 0–255 (gray scale)  |
+| Portable PixMap  | P3 (ASCII)  P6 (binary) | .ppm      | 0–255 (RGB)         |
+
+PPM 是其中一种支持彩色的格式，有字符串格式和 binary 两种保存格式，对应 P3、P6 两个魔术数字。例如，
+以下为 ASCII 保存的 PPM 彩色图像，只有 3x2 个像素：
+
+```sh
+    P3
+    # The magic number P3 means colors are in ASCII,
+    # The magic number P6 means colors are in binary.
+    3 2
+    255
+    # then 3 columns and 2 rows,
+    # then 255 for max color,
+    # then RGB triplets
+    255 0   0   0   255   0   0 0 255
+    255 255 0   255 255 255   0 0 0
+```
+
+图像数据部分，使用 ASCII 字符串表示 RGB 三个分量，并使用空格分隔，图像每一行像素对应文件的一行，
+像素数据从左到右，从上到下，与图像对应。当然，完全可以不分行，只需要定义好 columns x rows 即可。
+
+对于 binary 格式，直接使用字节数值表示 RGB，不需要使用空格分隔，使用 P6 格式就显得没那么可读，
+可以用 GIMP、IrfanView 等工具生成：
+
+    00000000:  5036 0a23 2043 7265 6174 6564 2062 7920  P6.# Created by 
+    00000010:  4972 6661 6e56 6965 770a 3320 320a 3235  IrfanView.3 2.25
+    00000020:  350a ff00 0000 ff00 0000 ffff ff00 ffff  5...............
+    00000030:  ff00 0000                                ....
+
+使用 ffmpeg 可以将图片合成为视频，或者 gif 动画，图片名称格式如 demo01.ppm：
+
+    ffmpeg -f image2 -framerate 15 -i demo%02d.ppm -loop -0 animation.gif
+
+图形渲染有两大典型应用场景：
+
+- 离线渲染 offline，典型的是电影中应用 Ray tracing 等高端技术和大量的算力生产极高质量的图形。
+- 实时光栅化渲染 real-time，典型的是游戏应用，需要权衡性能与体验，需要在保证流畅体验的前提下提高画质。
+
+光线追踪的两种基本形式如下：
+
+- Forward Tracing (light tracing) 向光线传播方向追踪；
+- Backward Tracing (eye tracing) 向光线来路方向追踪；
+
+眼睛观察到的世界，就是光线进入眼球，或者说眼球结构通过聚焦让感光细胞看到成像平面上的色彩。在成像平面
+上，有无数多的点，每个点都会有光子被反射到眼睛的视网膜上：
+
+![photons & eyes](https://www.scratchapixel.com/images/upload/introduction-to-ray-tracing/lighttoeyebounce.png)
+
+
+抽象的光线要以代码的形式表达实在是抽象上抽象的工作，但是还是要回到数学工具上来，向量是必不少的工具。
+Ray Tracing In One Weekend 教程将光线抽象地表达为一个射线类 ray class，这有助于直观地理解
+光线追踪里的射线如何工作。
+
+所有光线追踪器都会有 ray class 用于计算沿着光线前行的可以看到什么色彩。
+
+![Figure 2: Linear interpolation](https://raytracing.github.io/images/fig-1.02-lerp.jpg)
+
+先来假设一个函数 P(t) = A + t𝑏，这里 P 表示一个光子沿着光线上传播的 3D 坐标，A、𝑏 分别是光线的
+传播起点和方向。光线参数 t 是一个实数，在代码中用 double 类型表示。使用不同的 t 可以使用光子 P(t) 
+沿射线移动点。
+
+使用负值 t 可以在 3D 空间上沿光线的向后的任何位置移动。对于正值 t，只得到起点 A 前面的部分，这就是
+通常所说的半直线或射线。
+
+    P(t) = origin + t∗direction
+
+那么，函数 P(t) 可以表示光子的运动，用代码表示，就是 ray::at(t) 方法使原点发生变化，变化量就是
+沿着前进方向的单位向量与参数 t 的乘积：
+
+```c++
+#ifndef RAY_H
+#define RAY_H
+
+#include "vec3.h"
+
+class ray {
+    public:
+        ray() {}
+        ray(const point3& origin, const vec3& direction)
+            : orig(origin), dir(direction)
+        {}
+
+        point3 origin() const  { return orig; }
+        vec3 direction() const { return dir; }
+
+        point3 at(double t) const {
+            return orig + t*dir;
+        }
+
+    public:
+        point3 orig;
+        vec3 dir;
+};
+
+#endif
+// Listing 8: [ray.h] The ray class
+```
+
+有了这一层抽象后，接下来要做的事就是实现一个 ray tracer，最核心的是，假设它从相机位置发出射线，
+穿过屏幕上的像素，并计算沿射线方向上可以看到的色彩。
+
+当然，这里又引入了一层抽象，射线并非要真的穿透屏幕，而是 3D 空间抽象的相机成像平面，viewport，
+这个平面记录的是所有可以看到的色彩，最终会渲染到 frame buffer 并输出到屏幕上。
+
+所涉及的步骤是：
+
+1. 计算从眼睛到像素的光线，
+2. 确定光线与哪些对象相交，以及
+3. 计算该交点的颜色。
+
+![Ray trace diagram](http://suncio.me/images/RayTraceDiagram.svg)
+
+所以，光线追踪问题又回到了数学工具的使用上，几何图形的处理问题上。 
+
+例如下图，往成像平面每个像素打一道射线，并计算它会与什么光源接触，并将结果记录下来：
+
+![Lighting shadow](https://www.scratchapixel.com/images/upload/introduction-to-ray-tracing/lightingshadow.gif)
+![Pixeld render](https://www.scratchapixel.com/images/upload/introduction-to-ray-tracing/pixelrender.gif)
+
+尝试开发光线跟踪器时，可以用一个简单的相机来启动和运行代码，制作一个简单的 ray_color(ray) 函数，
+它只需要返回背景的颜色，例如一个简单渐变色即可。
+
+对于一个光线 r 和球体 p 求交运算，就是将光线方程代入球体方程中，这是解析几何问题：
+
+    Ray: r(t) = origin + t∗direction, t >= 0
+
+    Sphere: p: (p - c)² - R² = 0
+
+    Intersection: (origin + t*direction - c)² - R² = 0
+
+![GAMES101 Lecture 13 - Ray Intersection With Sphere](https://cdn.nlark.com/yuque/0/2021/png/12962324/1617257130807-a02c66ae-5d27-43d1-b53e-1e513f77d011.png)
+
+就是求解二次方程：
+
+    at² + bt + c = 0, where
+    a = direction · direction
+    b = 2(o - c) · direction
+    c = (o - c) · (o - c) - R²
+
+    t = (-b ± √(b² - 4ac)) / 2a
+
+对于任意隐式几何曲面，要求解与光线方程的交点，只需要将光线方程代入几何方程，并求解实数、正数根：
+
+    Ray: r(t) = origin + t∗direction, t >= 0
+
+    General implicit surface: p: f(p) = 0
+
+    Substitute ray equation: f(origin + t*direction) = 0
+    
+    Solve for real, positive roots
+
+对于显式几何体，一般就是三角的运算，三角形也是图形学中最基础最常用的几何体，模型中包含大量的三角或
+四边形，但能通常不会直接将光线与每个面进行运算，这个运算量极大。反而是平面的运算有非常大的用途，AABB
+算法中就需要计算光线与平面的交点。一个三角形就可以当作一个平面看待，通常使用法线向量和一个点表达。
+
+平面的隐式表达有代数方程方式 ax + by + cz + d = 0，也有点、法线定义方式：
+
+    p : (p - p‘) · N = 0
+
+上式意思是：所有 p 集合的点满足，与平面上一点 p‘ 的差值与法线的叉积为 0。要与光线相交，只需要将
+光线方程代入 p 参数，设 p = r(t) 并求解 t：
+
+    t = (p‘ - origin)·N /(d·N) = 0, 0<=t
+
+
+![GAMES101 Lecture 13 - Ray Intersection With Plane](https://cdn.nlark.com/yuque/0/2021/png/12962324/1617257167963-81fb43a2-ece1-4db3-8079-013020ed0b77.png)
+
+Möller Trumbore Algorithm 算法可以判断一个点是否在三角形内部。
+
+![GAMES101 Lecture 13 - Möller Trumbore Algorithm](https://cdn.nlark.com/yuque/0/2021/png/12962324/1617257174848-5dc69262-34b0-47ff-998f-9fb7c9415d5f.png)
+
+
+真实应用场景下的光线追踪面对的是一个复杂的环境，可能有多光源，多物体，有无数的运算需要处理，算法是
+必然需要做优化。Axis aligned bounding box (AABB) 轴对齐边界盒就是一个常用的空间求交简化算法。 
+AABB 基本思想是，用一个盒子的三对面，上下、左右、前后各面假设为无限延申的平面，盒子自身是它们的交集。
+然后，物体包裹在这个盒子内部，根据光线与三对面的关系来判断是否真正相交：
+
+- 显然，如果光线没有击中盒子，即没有同时穿过三对面，则不可能与物体相交；
+- 光线与三对面都相交，则光线可能与物体相关；
+
+并且 2D、3D 同样适用，只需要计算光线进入、穿透位置，光线进入、穿透一对面的位置记为 tmin 和 tmax，
+那么，光线进入、穿透盒子的位置(时间)就为：
+
+    tₗ = max(tmin)
+    tₒ = min(tmax)
+
+只要满足 tₗ < tₒ 即表示光线在盒子有停留，也就是同时穿透了三对面。如果 tₒ < 0 表示物体在光线后方，
+即没有相交。如果，tₗ < 0 并且 tₒ >= 0，即表示光源位于盒子内部。
+
+一般，tₗ < tₒ && tₒ >= 0 就认为光线与 AABB 相交。
+
+AABB 本质上是一种空间分割技术，Uniform Spatial Partitions (Grids)，也是树状数据结构算法。
+在图形学上，基于树状数据结构的算法可以带来非常大的性能的提升，相关算法比较如下：
+
+- BSP-tree 二叉树在游戏工业算是老功臣，是早期技术，将空间二等分，比较麻烦，如对象平面相交时。
+- Quad-tree、Oct-tree 四叉树/八叉树均匀切分三维空间，对象分布均匀时插入和查询效率较高，时间复杂度 O(logN)。
+- KD-tree 是定制的二叉树，K-Dimensional tree，节点记录一个 k 维坐标点。
+- Bounding Volume Hierarchy (BVH) 层次包围盒是多叉树。
+
+![GAMES101 Lecture 14 - Acceleration & Radiometry](https://cdn.nlark.com/yuque/0/2021/png/12962324/1617257855961-cd607ec6-e167-4ad9-aa80-6cd5ace37720.png)
+
+BSP Trees 全称二维空间分割树 Binary Space Partioning trees，使用二叉树的叶节点保存空间中的
+图元集合，主要用于 Z-depth 排序，实现背面剔除。因为在 90 年代初受硬件限制，只能使用 BSP 对空间中
+的图元进行排序，以保证渲染图元的顺序是按照由后至前进行的，换句话说，Z 值最小的物体总是最后被渲染。
+
+四叉树/八叉树这类紧密空间分割算法有一个问题是，物体有可能在边界处来回，从而导致物体总是在切换节点，
+使得数据结构中频繁做节点的增删操作，影响性能。而松散四叉树/八叉树正是解决这种边界问题的一种方式，
+它定义节点有出入口边界，inner boundary vs. outerboundary，边界区域作为一个缓冲地带避免频繁操作，
+就像施密特触发器 Schmitt Trigger 工作原理一样。
+
+KD 树的每层都是对应一个划分维度，取决于使用者如何定义各层使用哪个维度。树的每个节点代表一个超平面，
+该超平面垂直于当前层划分维度的坐标轴，并在该维度上将空间划分为两部分，一部分在其左子树，另一部分在
+其右子树每次只沿某一个轴划分。
+
+例如，以下为一个 2D 平面的 KD-tree，第一层划分维度为 X 轴，过节点坐标竖直分割；第二层为 Y 轴，
+过节点坐标水平分割；第三层又为 X 轴，过节点坐标竖直分割。
+
+![KD-tree](https://img2018.cnblogs.com/blog/1409576/201905/1409576-20190524233211006-2118364092.png)
+
+但是，这些节点树使用叶节点来记录空间中的物体，都存在一个问题：多个区域的分割线可能与同一物体有交集，
+这会导致同一个物体记录在不同的节点中。并且，KD-tree 还有更严重的问题，很难处理三角形和盒子求交。
+而直接对物体进行划分的 BVH 则可以解决这样的问题，子节点存包围盒，根节点代表大包围盒，叶节点记录物体，
+并约束一个物体只在一个包围盒内，包围盒可能相交，但问题不大，只要合理规划降低包围盒重合区。例如，沿长
+轴方向划分，平均地划分三角形数量。
+
+![Spatial vs. Object Partitions](https://cdn.nlark.com/yuque/0/2021/png/12962324/1617257912908-d9c99f26-76ad-4bd2-8e1d-6e5cd9d82750.png)
+
+
+在研究物理光照规律之前，需要了解一下辐射度量学理论的一些基础：
+
+- **Solid angle** 立体角，球面上的投影面积与半径的平方之比，类似圆有 2𝜋 弧度，球体有 4𝜋 立体弧度。
+- **Radiant Intensity** 辐射强度是单位立体角的辐射通量，不随半径变化，因为单位立体角对应面积占比恒定。
+- **Irradiance** 辐照度，单位面积接收到的辐射通量，称为该处的辐照度，会随着光源半径增加而衰减。
+- **Radiance** 辐射，单位投影面积或者单位立体角上的辐射通量，图形学中主要关心它代表的光线传播方向。
+- **Incident Radiance** 入射辐射，指到达表面的单位立体角的辐照度。
+- **Exiting Radiance** 出射辐射，离开表面的单位投影面积的辐射强度。
+
+![Radiosity Concepts](https://cdn.nlark.com/yuque/0/2021/png/12962324/1617258508714-099b7136-5b79-470a-b69e-c7cead25bdd5.png)
+![Differential solid angle](https://cdn.nlark.com/yuque/0/2021/png/12962324/1617258521227-d45f943e-ea8f-47d4-bb34-519b530998b3.png)
+
+在图形学中，关心的是光源发射的能量、受光体接受到的能量、光线传播方向：
+
+- Radiant Intensity - Light Emitted From A Source
+- Irradiance - Light Falling On A Surface
+- Radiance - Light Traveling Along A Ray
+
+![Light Source vs. Surface vs. Ray](https://cdn.nlark.com/yuque/0/2021/png/12962324/1617257932482-f621be8d-d5ce-4b61-a0be-40544395199a.png)
+
+光源上强调的是辐射强度越强，释放出来的能量越大，相对就越亮，光源一般只考虑对外的辐射，即 radiance。
+受光物体接受到的能量为入射光 irradiance，对外辐射为 radiances 也称亮度 luminance，相当光源。
+
+
+为了寻找一种能够更准确地渲染更具漫反射特征的环境的技术，20世纪80年代中期，Don Greenberg 和他在
+康奈尔大学的合作者设计了图像合成的辐射度方法 radiosity method，这就是 The Cornell Box 中遵循
+的渲染原理，这个盒子经常在图形学文章中看到。
+
+![The Cornell Box](http://www.graphics.cornell.edu/online/box/box.jpg)
+
+光能传递的基本原理如下：
+
+    radiosity = ∑(emissions + reflections + transmissions)
+
+- 在一个封闭系统环境中研究光能量的平衡；
+- 封闭环境是指这样的一个环境：从给定表面发射、反射的所有能量都被其他表面反射和吸收；
+- 可以定义曲面光能传递值：能量离开曲面的速率。
+
+光能传递计算有两个步骤：
+
+首先，根据环境中每个曲面的 path 与所有其他曲面面片之间的能量交互量（形状因子）计算其曲面光能传递。
+这是一个独立于视图的过程；虽然相当耗时，但每个场景只需要执行一次（前提是能量平衡不变）。
+
+然后，渲染场景时考虑 a）可见曲面 b）插值着色 (flat or Gouraud)。这是依赖于视图的过程，移动相机
+位置意味着需要重新计算图像，但这几乎可以足够快地实现实时渲染。当然，通过适当的技巧，光能传递可以以
+每秒 15-20 帧的速度动态生成渲染图像，可作为漫游的基础。
+
+与光线追踪一样，光能传递理论也研究许多问题领域，以及积极研究的领域：
+
+- 使用各种混合方法，结合镜面反射、真反射和透射效果是可能的；不幸的是，这些方法依赖于视图。
+- 必须在允许交互式调整照明参数的系统中重新计算光能传递解决方案，如剧院和照明设计，灯光颜色修改。
+- 光能传递解决方案（以及生成的图像）的质量在很大程度上取决于曲面面片的定义方式（曲面细分），以及在关键区域（尤其是阴影）中如何重新定义曲面面片。
+- 与光线跟踪一样，该技术的计算效率可以通过各种方式提高，特别是通过动态重新定义形状因子（渐进细化）。
+
+
+
+### 🟢🔵 Subsurface Scattering 次表面散射
+- Real-Time Rendering - CH9 Physically Based Shading
+- [The Last of Us 2 Wallpapers](https://wallpapercave.com/tlou2-wallpapers)
+- [角色渲染技术——皮肤 - 洛城](https://zhuanlan.zhihu.com/p/27014447)
+- [Real-Time Rendering 3rd 第七章 · 高级着色：BRDF及相关技术](https://zhuanlan.zhihu.com/p/28059221)
+- [GPU Gems 3 真实感皮肤渲染技术总结](https://zhuanlan.zhihu.com/p/42433792)
+- [GPU Gems 3 - 14. Advanced Techniques for Realistic Real-Time Skin Rendering](https://developer.nvidia.com/gpugems/gpugems3/part-iii-rendering/chapter-14-advanced-techniques-realistic-real-time-skin)
+
+半透明材质与次表面散射（Translucent and Subsurface Scattering）在生活中无处不在：树叶、纸、
+蜡烛、牛奶、布料、皮肤、贝壳、玛瑙等。非金属物体几乎都存在 Subsurface Light Transport (SSLT)
+次表面光传输现象，生物皮肤犹为明显。
+
+![Grapes](https://www.creativeshrimp.com/wp-content/uploads/2015/03/grapes_04.jpg)
+
+动物皮肤是一个多层结构，其表面油脂层主要贡献了皮肤光照的反射部分，约占入射光中的 6%。而油脂层下的
+表皮层、真皮层则主要贡献了次表面散射部分，约占入射光中的 94%。任何没有直接从皮肤表面反射出去的光，
+都会直接进入次表面层。这种占主要主导因素的次表面散射属性，决定了皮肤半透明的特征以及柔软的视觉外观。
+
+![Figure 14-3 A Multilayer Skin Model](https://developer.nvidia.com/sites/all/modules/custom/gpugems/books/GPUGems3/elementLinks/14fig03.jpg)
+![Figure 14-4 Scattering and Absorption in Multiple Tissue Layers](https://developer.nvidia.com/sites/all/modules/custom/gpugems/books/GPUGems3/elementLinks/14fig04.jpg)
+
+入射光与皮肤进行交互的过程中，被部分吸收（获取颜色）并经过多次散射，返回并从进入点周围的 3D 邻域处
+表面离开。而有时光线会完全穿过像耳朵这样的薄薄区域，形成透射（Transmittance）。
+
+
+Jensen 在 2001 年的论文 A Practical Model for Subsurface Light Transport 推导了许多
+重要的物理公式，计算模型，渲染时的参数转换，以及测量了许多生活中常见材质的散射系数等等。
+
+模拟半透明物体的方法有很多，例如：
+
+- Volumetric Path Tracing
+- Volumetric Photon Mapping
+- Bidirectional Scattering Distribution Function (BSDF)
+    - Bidirectional Reflectance Distribution Function (BRDF)
+    - Bidirectional Transmittance Distribution Function (BTDF)
+    - Bidirectional Surface Scattering Reflectance Distribution Function (BSSRDF)
+
+![BSDF BRDF BTDF BSSRDF关系演示](https://pic2.zhimg.com/80/v2-715d6ac94c5775ad60a1570703d9921d_1440w.webp)
+
+光线从一种介质射向另外一种介质时，可以根据光线行进路线分为两个部分：一部分光线在介质交界处发生了反射，
+并未进入另外一种介质；另外一部分光线则进入了另一种介质，可能发展为次表面反射或折射。
+
+反射光和入射光的辐射照度，radiance vs. irradiance，其比例是一个和入射角度、出射角度相关的函数，
+这个函数就被称之为**双向反射分布函数** BRDF。而穿越介质部分的光照比例就称之为**双向透射分布函数** BTDF。
+反射光与透射光总和，与入射光的辐射照度的比例就叫做**双向散射分布函数**，从能量守恒角度来说：
+
+    BSDF = BRDF + BTDF
+
+双向表面散射反射分布函数 BSSRDF 是目前的主流技术，简单来说，传统的 BRDF 模型是一种简化表达。两者
+不同之处在于，BSSRDF 可以指定不同的光线入射位置和出射的位置。
+
+- BRDF 模型中，一次反射光照的计算是在光线交点的法线半球上的球面积分。
+- BSSRDF 模型中，每一次反射在物体表面上每一个位置都要做一次半球面积分，是一个嵌套积分。
+
+
+
+
+
+
 ### 🟢🔵 Environment & post-processing 环境与后期处理
 - [Environment and post-processing](https://docs.godotengine.org/en/latest/tutorials/3d/environment_and_post_processing.html)
 - [Environment and post-processing](https://www.bilibili.com/video/BV1Km4y1X765/)
+- [Godot 4.0 gets SDF based real-time global illumination](https://godotengine.org/article/godot-40-gets-sdf-based-real-time-global-illumination)
+- [Volumetric fog and fog volumes](https://docs.godotengine.org/en/latest/tutorials/3d/volumetric_fog.html)
 
+Godot 3.x 重新设计提供了 Environment 资源，这是一个后期效果系统，每个场景中可以设置一个世界环境
+节点用来加载一个环境配置资源，WorldEnvironment 在场景树中只能有一个，但可以加载不同的环境配置。
+
+![project environment setting](https://docs.godotengine.org/en/3.5/_images/environment_default.png)
+
+环境配置资源包括 sky, ambient lighting, tone mapping, effects, adjustments 等配置选项，
+可以对现有的场景效果进行改头换脸般的后期处理。在一个工程中创建的环境配置资源本身不会起作用，除非将它
+通过世界环境节点加载到场景树中。或者通过摄像机的环境属性中指定一个环境配置，这种设置可以覆盖世界环境。
+可以通过工程设置，为工程指定一个默认环境配置，Project Settings -> Rendering -> Environment。
+
+
+环境配置中，提供了以下多种属性以产生相应的后期效果，只挑选重点内容说明：
+
+|       属性      |                        说明                       |
+|-----------------|---------------------------------------------------|
+| Background      | 背景色填充                                        |
+| Ambient         | Light 环境光                                      |
+| Fog             | 雾化效果                                          |
+| Tonemap         | 色调映射                                          |
+| Auto Exposure   | 自动曝光                                          |
+| SS Reflections  | 屏幕空间反射光 Screen-Space Reflections (SSR)     |
+| SSAO            | Screen-Space Ambient Occlusion 屏幕空间环境光遮蔽 |
+| DOF Far Blur    | 基于深度场的远景模糊，Depth of Field (DoF)        |
+| DOF Near Blun   | 基于深度场的近景模糊                              |
+| Glow            | 辉光效果                                          |
+| Adjustments     | 整体调整                                          |
+|-----------------|---------------------------------------------------|
+| Reflected Light | 反射光                                            |
+| SSIL            | Screen-Space Indirect Light                       |
+| SDFGI           | Signed Distance Fields Global Illumination        |
+| Volumetric Fog  | 体积雾                                            |
+
+其中，屏幕空间反射光及以下的选项都属于中后期效果处理，最后四种为 Godot 4.x 增加功能。
+
+SDFGI 近似于动态实时光照贴图（dynamic real-time lightmap），但不需要展 UV 也不需要使用贴图。
+开启 SDFGI 它会自动工作，并对静态物体生成全局光照。它不需要光线追踪，可以在绝大多数最新的 GPU 上
+甚至几年前的中档廉价 CPU 上运行。SDFGI 的开发和测试使用 Geforce 1060，一直保持着 60fps 帧率。
+SDFGI 也支持反射，无论是漫反射还是镜面反射，所以全 PBR 场景将不成问题。
+
+
+🟡**Background** 即用来指定场景中空白区域的背景色，可以使用图像、颜色，或者程序化背景，会影响物体的
+环境光与反射光，有多种模式：
+
+- **Clear Color** 使用工程默认的清屏色填充背景，rendering/environment/default_clear_color。
+- **Custom Color** 类似以上，但是由用户指定颜色。
+- **Sky** 使用程序化背景，提供一个 PanoramaSky 360° 天空球，或者 ProceduralSky 梯度渐变太阳，
+    提供了多种太阳选项设置。物体可以反射或吸收天空纹理的环境光，创建天空球时需要指定纹理。
+- **Color+Sky** 可定义天空，但使用纯颜色填充背景，天空球仅作用为反射光和环境光。
+- **Canvas** 画面模式可以配置 CanvasLayer 的渲染顺序使用。
+- **Keep** 保持残影。
+- **Camera feed** 
+
+![Environment Background](https://docs.godotengine.org/zh_CN/stable/_images/environment_background1.png)
+
+🟡**Ambient Light** 环境光，即几何体上每一块的光照强度都一样的光，与场景中具体的光源无关。
+
+所谓环境光 ambient 即经过无数折射后在空间上呈现极度均匀的柔和光，无论从什么角度看，物体的环境光
+都是一致的。所谓漫反射光 diffuse 即光线折射次数不是很多，并且对下一个物体的受光面有较大影响。
+
+![Ambient](https://docs.godotengine.org/en/latest/_images/environment_ambient2.png)
+
+环境光有两种，一是材质中的 Albedo 的环境光颜色 Ambient Color，以及从天空球获取到的环境背景色。
+
+当背景设置为天空(Sky)时，使用天空贡献度(Sky Contribution) 属性，设置环境颜色(ambient color)
+和天空色之间的混合比例，默认值为 1.0，因此只有天空色会影响对象。
+
+最后，能量(Energy) 属性是一个乘数，在使用 HDR 时非常有用。场景中设置的光源与环境光对物体的影响是
+一个混合过程，具体效果不仅取决于能量的级别大小，还决定于着色器的实现，默认着色器是一个颜色叠加关系。
+
+一般来说，环境光只用于简单场景、大型外景，或出于性能原因，因为环境光运算量少，不能提供最佳的照明质量。
+通过 ReflectionProbe 或 GIProbe 生成环境光是更好的方案，这样可以更真实地模拟间接光的传播方式。
+
+
+🟡**Fog** 雾，这是模拟真实感的一个重要因素，就像在现实生活中一样，使远处的物体逐渐消失在均匀的背景
+颜色中。物理效果实际上非常复杂, Godot 提供很好的近似效果，有两种雾：
+
+- **Depth Fog** 深度雾基于距相机的距离来应用雾化效果。
+- **Height Fog** 高度雾应用于任何高度位于 Height Min/Max 之间的物体，无论距离相机的距离如何。
+
+![Depth Fog vs. Height Fog](https://docs.godotengine.org/en/3.5/_images/environment_fog_depth_height.png)
+
+雾的本体颜色是改变雾化效果的直接因素，这两种雾类型都可以调整它们的曲线, 使它们的过渡或多或少变得清晰。
+
+可以调整两个属性以使雾效果更有趣:
+
+- **Sun Amount**，它利用 **Sun Color** 颜色，在视角朝向平行光的入射方向时，模拟穿过雾的阳光。
+- **Transmit Enabled** 模拟更逼真的透光率，在实践中，它使光线在雾中更加突出。
+
+🟡**Tonemap** 色调映射选项仅在 GLES3 适用。
+
+色调映射选择应用于场景的色调映射曲线，选项为电影和游戏工业中所使用的标准曲线。除线性模式外，色调映射
+运算可以使亮部和暗部更均匀，同时防止高亮区域受到裁剪。
+
+**Mode** 色调映射使用以下模式：
+
+- **Linear** 线性模式是默认值，是最快也是最简单的色调映射运算，会导致高亮区域过曝，有可见的裁剪。
+- **Reinhardt** 颜色影射为 color = color / (1 + color)，可以防止裁剪高亮区域，但可能会有些暗淡。
+- **Filmic** 防止裁剪高亮区域，最终的图像通常比前者鲜艳。
+- **ACES** 学院色彩编码系统色调映射器，Academy Color Encoding System。已废弃，Godot 4.0 中移除。
+- **ACES Fitted** 更耗算力，但对于高亮区域的处理方式更真实，光线越亮饱和度越低，输出的图像对比度更高。
+
+色调映射曝光 **Exposure** 模拟长时间获取的光照量，默认值 1.0。值越高，整体更亮。修改色调映射运算子
+或白点后，如果场景看上去太暗，请尝试将这个值略微调高。
+
+光照映射白点 **White** 模拟白色在整个尺度中所处的位置，默认值 1.0。推荐值 [6.0, 8.0]，以使得
+光照更真实。值越高，高光区域更少过曝，但会让场景整体看起来更暗。
+
+
+🟡**Auto Exposure (HDR)** 自动曝光选项仅在 GLES3 适用。
+
+尽管，大多数情况下艺术家会严格控制照明和纹理，出于真实性效果，通过自动曝光机制可以简单地支持高动态
+范围实现，如低光户内区域和高光户外相结合时的画面。自动曝光模拟相机或眼睛，适应明暗位置和不同光量。
+
+使用自动曝光的最简单方法是，确保室外灯光或其他强光的能量超过 1.0，通过调整灯光的 Energy 乘数实现。
+为了使其保持一致，Sky 通常也需要使用能量乘数，以配合平行光。通常情况下，数值在 3.0 到 6.0 之间，
+就足以模拟室内室外条件。
+
+通过将自动曝光与 Glow 后处理相结合，超过色调映射 White 的像素将会逸出至辉光缓冲区，从而在摄影中
+创造典型的泛光效果。
+
+自动曝光部分中的用户可控值具有合理的默认值, 但仍然可以调整它们：
+
+- **Scale** 用于比例缩放照明，较大的比例值会产生较亮的图像，较小的值会产生较暗的图像。
+- **Min Luma** 自动曝光调整的最小亮度，亮度是屏幕所有像素中光线的平均值。
+- **Max Luma** 自动曝光调整的最大亮度。
+- **Spped** 亮度校正的速度，值越高，校正效果出现速度越快。
+
+
+🟡**Glow** 辉光是指超饱和的高光对周围颜色产生的影响，在摄影和胶片中，当光量超过介质支持的最大值时，
+无论是模拟还是数字技术，这些高光通常会向图像周围较暗区域渗出。
+
+默认情况下，即使启用了效果，可能也会变弱或不可见。实际辉光发生需要两个条件之一：HDR 阈值和 Bloom。
+
+像素中的光线超过 HDR 阈值，其中 0 表示所有光线都超过该阈值，1.0 表示光线超过色调映射器白值即溢出。
+通常情况下，这个值应该在 1.0，但它可以调低以允许更多的光线渗入。还有，额外的参数 HDR Scale 允许
+对超过阈值的光线进行缩放，使其更亮或更暗。
+
+泛光效果 Bloom effect 值设置大于 0。随着它的增加，它会以更高的数量将整个屏幕发送到辉光处理器。
+
+以上两者都会导致光从较亮的区域开始逸出，一旦看到辉光，就可以通过一些额外的参数来控制它：
+
+- **Intensity** 强度是效果的整体比例，可以将其增强或减弱，0.0 可以将其删除。
+- **Strength** 调整高斯滤波器内核的处理强度，数值越大，滤波器越饱和并向外扩展。一般来说，修改 Levels 更有效地调整大小。
+
+效果的混合模式如下：
+
+- **Additive** 添加是最强的一种，因为它只在图像上添加辉光效果，不涉及混合。一般来说，它太强了，不能使用，但在低强度的泛光下可能看起来很好，会产生一种梦幻般的效果。
+- **Screen** 确保辉光永远不会比自己更亮，它作为一个周围的方式将非常好。
+- **Softlight** 是默认的，也是最弱的一种，只在物体周围产生细微的颜色扰动，在黑暗场景中效果最好。
+- **Replace** 用来模糊整个屏幕或调试辉光效果，它只显示辉光的效果，没有后面的图像。
+
+辉光等级 Levels 提供了 7 个用于改变辉光效果的大小和形状配置，较小的级别在物体周围出现较强的辉光，
+而大的级别是覆盖整个屏幕的朦胧辉光。然而，这个系统的真正优势在于结合 Levels 来创造更有趣的辉光模式。
+
+最后，随着最高的图层在对微小模糊图像的拉伸中被创建，可能会看到一些块状模糊。启用 Bicubic Upscaling
+可以以最低的性能成本处理这种问题，注意这只在 GLES3 中有效。
+
+![Bicubic Upscaling](https://docs.godotengine.org/zh_CN/stable/_images/environment_glow_bicubic.png)
+
+
+🟡**Screen-Space Reflections (SSR)** 屏幕空间反射只在 GLES3 中有效。
+
+![SSR effect](https://docs.godotengine.org/zh_CN/stable/_images/environment_ssr.png)
+
+Godot 支持三种反射数据源，Sky、ReflectionProbe、GIProbe，但它们可能无法为所有情况提供足够的细节。
+SSR 最有意义的场景是物体彼此接触，例如地板上的物体、桌子上的物体、漂浮在水面上的物体呈现的倒影等。
+
+SSR 另一个优点是实时工作，而其他类型的反射是预先计算，实时运算的反射光可以用来生成人物、汽车等移动
+物体的实时反射光到周围的物体表面上。
+
+以下是一些用户可以细调的参数：
+
+- **Max Steps** 确定反射的长度，最小为 1，这个数字越大，计算成本就越高，效果也越精细。
+- **Fade In** 调整淡入曲线，这有助于使接触区域更柔和。
+- **Fade Out** 调整淡出曲线，因此步长限制会轻微淡出。
+- **Depth Tolerance** 屏幕空间射线对间隙的容差，容差值越大，忽略的间隙就越大。
+- **Roughness** 勾选时 SSR 会考虑材质的粗糙度以产生接近的 screen-space blur 效果。
+
+请记住, 屏幕空间反射仅适用于反射不透明几何体，透明对象无法反射光线。因为它们不会写入深度缓冲区，这也
+适用于使用 SCREEN_TEXTURE 或 DEPTH_TEXTURE 的着色器。
+
+
+🟡**Screen-Space Ambient Occlusion (SSAO)** 屏幕空间环境光遮蔽只在 GLES3 中有效。
+
+环境光部分提到，光源节点的光线无法到达的区域，要么是阴影或是在光源半径之外，这些区域会被环境光照亮。
+Godot 可以使用 GIProbe, ReflectionProbe, Sky 或恒定的环境色来模拟环境光，但问题是，之前提出
+的所有方法都更多地作用于较大的尺度或大区域，而不是较小的几何体层面。
+
+恒定环境色和 Sky 在任何地方都是一样的，而 GI 和反射探针的局部细节较多，但不足以模拟光线无法填充到
+中空或凹面特征内部的情况。
+
+这可以用屏幕空间环境遮挡来模拟，它的目的是确保几何体凹陷区域更暗，模拟光线进入的较窄路径。
+
+启用此效果，打开灯光却无法欣赏到相应的效果是一个常见的错误，这是因为 SSAO 仅作用于 Ambient light
+环境光，而不是直接光。这就是在使用直射光的条件下，效果不太明显的原因。如果想强制 SSAO 也在直射光下工作，
+请使用 Light Affect 光线影响参数，尽管并这不好，但有些设计师喜欢。
+
+当与真正的间接光源结合时，SSAO 效果看起来最好，比如 GIProbe。
+
+可以使用以下几个参数调整 SSAO：
+
+- **Radius/Intensity** 控制遮挡的半径或强度，半径是世界(公制)单位，从视口开始计算距离。
+- **Radius2/Intensity2** 辅助半径和强度，通常结合大半径和小半径 AO 效果很好。
+- **Bias** 偏置调整可以解决自遮挡问题，但通常默认情况下效果不错。
+- **Light Affect** 设置对直射光线的影响量，而不仅仅对环境光作用，有些艺术家喜欢这种效果。
+- **Ao Channel Affect** 零值表示仅将材质的 AO 纹理用于环境光遮挡，SSAO 不应用。大于 0 的值会
+    在不同程度上将 AO 纹理与 SSAO 效果相乘，对没有 AO 纹理的材质无效。
+- **Quality** SSAO 将根据质量针对每个像素对球体进行更多采样，仅适用于现代 GPU。
+- **Blur** 模糊采样核的大小，1x1 kernel 是最粗糙的，3x3 模糊最细致，更柔化图像，但不保留局部细节。
+- **Edge Sharpness** 用于保持边缘的清晰度，避免折痕处没有 AO 的区域。
+
+
+
+🟡**Adjustments** 是在处理结束时阶段的标准图像调整功能，包含：
+
+- Brightness 亮度调整；
+- Contrast 对比度调整；
+- Saturation 饱和度调整；
+- Color Correction 颜色校正；
+
+第一个调整功能是能够改变典型的亮度、对比度和饱和度：
+
+![Brightness Contrast Saturation](https://docs.godotengine.org/en/3.5/_images/environment_adjustments_bcs.png)
+
+第二种是通过提供颜色校正梯度映射来改变色彩，但是常规黑色到白色渐变将不起作用，这种映射就是保持原色。
+创建自定义 **GradientTexture** 允许将每个通道映射到不同的颜色，在映射纹理图中，从左往右对应原图的
+黑色到白色的变化。使用常规黑色到白色渐变，只可以调整两者的位置来改变原图的亮暗关系。通过改变映射色彩，
+就可以实现调整个原图的色彩关系，原图像的 RGB 映射到新的 RGB 通道上。
 
 
 
@@ -3712,6 +5948,8 @@ Ken Perlin 对 Simplex Noise 算法的一个优化是将三次 Hermite 函数即
 ## 🟡🟠 Shader Programming 着色器 - GPU 编程
 - [GAMES101-现代计算机图形学入门-闫令琪](https://www.bilibili.com/video/BV1X7411F744/)
 - [龚大的上帝视角看GPU教程](https://www.bilibili.com/video/BV1P44y1V7bu/)
+- [Real-Time Rendering 3rd 渲染管线优化提炼总结](https://zhuanlan.zhihu.com/p/32928016)
+- [Real-Time Rendering 3rd 渲染加速算法提炼总结](https://zhuanlan.zhihu.com/p/32300891)
 - [The Book of Shaders by Patricio Gonzalez Vivo & Jen Lowe](https://thebookofshaders.com/?lan=ch)
 - [OpenGL Wiki](https://www.khronos.org/opengl/wiki/Main_Page)
 - [Real-Time Rendering, Fourth Edition](http://www.realtimerendering.com/)
@@ -3730,6 +5968,7 @@ Ken Perlin 对 Simplex Noise 算法的一个优化是将三次 Hermite 函数即
 - [The OpenGL Shading Language](https://www.khronos.org/opengl/wiki/OpenGL_Shading_Language)
 - [Rendering Pipeline Overview - Vertex Specification](https://www.khronos.org/opengl/wiki/Vertex_Specification)
 - [Leanr OpenGL - Hello Traiangle](https://learnopengl.com/Getting-started/Hello-Triangle)
+- [Leanr OpenGL zh_CN](https://github.com/LearnOpenGL-CN/LearnOpenGL-CN/)
 
 说到计算机图形学，就不得不说从 OpenGL 到 Vulkan 规范的演化过程，以及从 CPU 到 GPU 绘图方式的转变。
 
@@ -4069,7 +6308,6 @@ OpenGL 和 Vulkan 的构架对比：
 - [Inigo Quilez - 2D distance functions](https://iquilezles.org/articles/distfunctions2d/)
 - [Inigo Quilez - 3D distance functions](https://iquilezles.org/articles/distfunctions)
 - [Ray Marching and Signed Distance Functions](https://jamie-wong.com/2016/07/15/ray-marching-signed-distance-functions/)
-- https://www.scratchapixel.com/lessons/3d-basic-rendering/introduction-to-ray-tracing/how-does-it-work
 - [傅里叶级数、傅里叶变换与频谱 by Eugene Khutoryansky](https://www.bilibili.com/video/BV1sS4y1G7WF)
 - [什么是傅立叶级数呢？-从热流到画圈圈 by 3Blue1Brown](https://www.bilibili.com/video/BV1vt411N7Ti)
 - [But what is the Fourier Transform? A visual introduction by 3Blue1Brown](https://www.bilibili.com/video/BV1pW411J7s8)
@@ -4079,7 +6317,9 @@ OpenGL 和 Vulkan 的构架对比：
 - [Fourier transforms of images by Rachel Thomas](https://plus.maths.org/content/fourier-transforms-images)
 - [How to Use Blender's New Ultimate Shader - Principled BSDF](https://www.bilibili.com/video/av27998058/)
 - [Spatial Material](https://docs.godotengine.org/en/3.5/tutorials/3d/spatial_material.html)
-
+- [Principled BSDF](https://docs.blender.org/manual/en/latest/render/shader_nodes/shader/principled.html)
+- [Physically Based Rendering: From Theory to Implementation, Third Edition](http://www.pbr-book.org/3ed-2018/contents.html)
+- [基于物理的渲染（PBR）白皮书 - 毛星云](https://zhuanlan.zhihu.com/p/53086060)
 
 虽然，这小节内容是讲材质与着色器编程，但本质上，是在讲数学的应用。编程只是使用数学工具的手段，作品效果
 就是最终产品。这中间要经历的内容很多，根据不同数学基础的人自然有不同的理解或不理解，或者难以理解。到目前
@@ -4116,6 +6356,8 @@ Blender 动画软件中也基于 PBR 提供原理化 BSDF 着色器节点 Princi
 
 PBR 模型将物体按表面光的反射、折射与吸收等物理特性分成电介质 Dielectrics、金属物质 Metals，对
 光学特性影响上考虑了 Fresnel 菲涅尔效应、 粗糙度、 金属性。
+
+![Disney Principled BSDF](https://docs.blender.org/manual/en/latest/_images/render_shader-nodes_shader_principled_example-1a.jpg)
 
 Fresnel 效应解析光波通过不同介质的分界面时发生反射和折射，入射光分为反射光 Reflection 和折射光
 Refraction 两部分。浅入射角获得的反射光更多，比如看湖面反射的景物倒影，远处比近处的倒影清晰明亮，
@@ -4259,6 +6501,63 @@ Particle shaders render modes
 | **disable_force**     | Disable attractor force.               |
 | **disable_velocity**  | Ignore **VELOCITY** value.             |
 +-----------------------+----------------------------------------+
+
+
+### 🟢🔵 OSL 着色器编程
+- [Open Shading Language](https://docs.blender.org/manual/en/latest/render/shader_nodes/osl.html)
+- https://github.com/AcademySoftwareFoundation/OpenShadingLanguage/blob/master/src/doc/osl-languagespec.pdf
+- [Real-Time Rendering 3rd 非真实感渲染(NPR)相关技术提炼总结](https://zhuanlan.zhihu.com/p/31194204)
+
+开放式着色语言 OSL 是一种小型但丰富的着色器语言，用于高级渲染器和其他应用程序中的可编程着色，非常
+适合描述材质、灯光、置换和图案生成。最初由 Sony Pictures Imageworks 开发，用于其内部渲染器，
+用于故事片动画和视觉效果，作为开源发布，以便其他视觉效果、动画工作室和渲染软件供应商使用。现在，它是
+VFX 和动画功能的事实上的标准着色语言，在许多商业和工作室专有渲染器中广泛使用。
+
+Blender 中支持在 Cycles 渲染引擎中进行 OGL 着色器编程，但只能在 CPU 模式下运行着色器。在属性面板
+选择 Cycles 渲染器，以及 CPU 模式，勾选 Open Shading Language 选项。
+
+在着色器编辑器中，添加 Script 节点，并为脚本节点指定着色器文本。右侧有按键可以重新编译着色器程序，
+编译成功后会显示其输入和输出参数相应端口。若着色器为材质，则直接与材质输出节点的 Surface 输入连接，
+即 Surface 输入体积或纹理。
+
+执行菜单 Window -> Toggle System Console 打开系统控制台可以查看编译着色器产生的错误信息。在
+脚本编辑器中，选择 Templates - Open Shading Language 可以打开示范代码。
+
+OSL 是个没有光照能力的不完全着色器，光照依靠渲染引擎完成，OSL 只提供光照需要的 PBR 等信息。而且，
+OSL 目前是个软件着色器，只能在 CPU 上运行，所以换到 GPU 模式就没用了，是个很鸡肋的功能。OSL 对于
+3dmax 来说，意义还很大，因为 3dmax 传统 shader 的封闭性很难开发，OSL 完美的解决了这个问题。 
+
+以下代码创建简单的卡通着色效果，会创建三个颜色输入，和一个光线入射方向：
+
+```c
+#include "stdosl.h"
+
+// OLS Toon Shading
+shader BaseToon(
+    color Albedo = color(1, 1, 1),
+    color LightColor = color(1, 1, 1),
+    color ShadowColor = color(0, 0, 0),
+    vector LightDirection = vector(0, 0, 0),
+    output color Final = 0
+)
+{
+    // get light direction use toon kit object info node 
+    // or use vector node dirver.
+    vector L = LightDirection;
+    
+    // lambert NdotL
+    float NdotL = dot(N, L);
+    
+    // use round
+    float Cel = round(NdotL);
+    
+    // mix shadow and light color
+    color celShading = mix(ShadowColor, LightColor, Cel);
+    
+    Final = Albedo * celShading;
+}
+```
+
 
 
 ### 🟢🔵 from GLSL to Godot
@@ -4429,17 +6728,6 @@ Perspective Projection vs. orthographic Projection:
 
 ![https://stackoverflow.com/questions/36573283/from-perspective-picture-to-orthographic-picture](https://github.com/jimboyeah/spine-sfml-demo/raw/master/images/From_perspective_picture_to_orthographic_picture.png)
 
-在 2D 纹理处理中需要使用 UV 坐标，3D 纹理则使用 UVW 坐标，因为表示位置的坐标使用 XYZ 表示，为了
-区别开来，所以使用 UVW 三个量表示三个轴向，以和位置坐标区分。
-
-![UV Mapping](https://docs.godotengine.org/en/3.5/_images/iconuv.png)
-
-UV 坐标取值范围在 [0,1] 区间，在屏幕空间看起来就是 U 对应从左到右的方向，V 对应从上到下的方向。
-在给 GPU 传递顶点数据时，一般包含位置坐标及顶点对应的 UV 坐标，这样就可以按 UV 坐标给表面贴纹理。
-通过设置 UV Mapping 映射关系，可以将纹理图按坐标对应贴紧模式表面，可以原点、大小一一对齐，也可以
-不对齐，例如，将图片原点对应到模型 UV 最大值指向的位置，而将图片的最大尺寸位置对应到模型原点，就
-将纹理图反转。
-
 第一个着色器，在编写代码前，需要了解以下函数及内置变量：
 
 - gl_Position 顶点着色器输出的顶点坐标，这是顶点着色器输出的最主要的数据。
@@ -4576,6 +6864,14 @@ void fragment() {
 对于 Alpha 分量，则特殊点，根据图像数据无符号数、有符号数格式差别，Alpha 对应归一化为两种区间表达
 [0,1] 或者 [−1,1]。但 Alpha 值超出这个范围时，并不会你 RGB 分量一样被 clamp 约束在正常值区间，
 在 OpenGL 对纹理进行混合处理时，Alph 值就会按混合方程式进行处理。
+
+Godot 在绘制透明图像时，透明会区也会一并处理，这对于大尺寸的图像来说并不是很好的做法，通过转换带
+透明纹理的 Sprite 为 MeshInatance2D，可以路过大量透明区的渲染。例如，以下这棵带透明区的树，
+在场景中选中 Sprite，在视图中的工具栏执行 "Convert to 2D Mesh" 即可以进行转换，另一种生成 2D 
+网格的方法是通过 OBJ 导入。
+
+![2D meshes - Sprite to Mesh](https://docs.godotengine.org/en/3.5/_images/mesh2d1.png)
+
 
 在 Godot 默认着色器混合模式下，负值的 Alpha 影响最终混合结果，如下两组的颜色，分别是等效的：
 
@@ -4980,6 +7276,9 @@ void fragment()
 再次加载是会直接读取工程中的保留值，而不能通过修改代码来改变取值。这时可能需要将着色器材质清理掉，再
 重新关联着色器，这样才能使着色器中的 uniform 初始化赋值生效。
 
+
+
+
 ### 🟢🔵 Convolution Shader 卷积边缘检测算法
 - [从图(Graph)到图卷积(Graph Convolution)：漫谈图神经网络模型](https://www.cnblogs.com/SivilTaram/p/graph_neural_network_2.html)
 - [卷积变体](https://zhuanlan.zhihu.com/p/393200454)
@@ -5038,6 +7337,18 @@ void fragment()
 
 ## 🟡🟠 Physics 物理系统
 - [Physics](https://docs.godotengine.org/en/3.5/tutorials/physics/index.html)
+- [Godot 平台跳跃游戏教程 - 如何实现攻击判定](https://www.bilibili.com/video/BV1Nt4y1e7yd?p=9)
+
+在游戏中，NPC 或敌人之类的运动可以通过 VisibilityEnabler 来控制，它会在进入玩家视野后才会运动，
+通过控制 RigidBody 或 AnimationPlayer 等父节点的 disabled 状态来实现这一效果，或者冻结状态，
+通过监听 screen_enterd 或 viewport_enterd 等信号，可以改变其本身的行为。
+
+**VisibilityEnabler** 只能在场景初始化之前添加才会生效，并且保对同一个场景下的节点有影响。如果，只
+需要处理相关通知，可以使用父类型 **VisibilityNotifier** 替代。
+
+Godot 4.x 添加了新功能，与旧版本有差别。
+
+
 
 
 ## 🟡🟠 Godot AI 有思想的精灵
@@ -5046,6 +7357,7 @@ void fragment()
 - [Navigation Polygon 2D](https://github.com/godotengine/godot-demo-projects/tree/master/2d/navigation)
 - [Grid-based Navigation with Astar](https://github.com/godotengine/godot-demo-projects/tree/master/2d/navigation-astar)
 - [Godot导航系统详解:导航基础](https://www.bilibili.com/video/BV1CG411g7P9/)
+- [17.游戏引擎Gameplay玩法系统：高级AI | GAMES104-现代游戏引擎：从入门到实践](https://www.bilibili.com/video/BV1iG4y1i78Q/)
 
 Godot 中的 AI 寻路方案大概有以下几种：
 
@@ -5054,6 +7366,15 @@ Godot 中的 AI 寻路方案大概有以下几种：
 - RayCast2D 射线检测，对路径进行判断，有比较好的解决方案，但是算法复杂；
 - 使用大量的 Area2D 对地图可行路径进行判断；
 
+
+
+## 🟡🟠 Network Multiplayer 联网游戏
+- [High-level multiplayer](https://docs.godotengine.org/en/stable/tutorials/networking/high_level_multiplayer.html)
+- [18.网络游戏的架构基础 | GAMES104-现代游戏引擎：从入门到实践](https://www.bilibili.com/video/BV1La411o7kG/)
+- [What Every Programmer Needs To Know About Game Networking](https://gafferongames.com/post/what_every_programmer_needs_to_know_about_game_networking/)
+- [Making HTTP requests](https://docs.godotengine.org/en/stable/tutorials/networking/http_request_class.html)
+- [HTML5 and WebSocket](https://docs.godotengine.org/en/stable/tutorials/networking/websocket.html)
+- [HTML5, WebSocket, WebRTC](https://docs.godotengine.org/en/stable/tutorials/networking/webrtc.html)
 
 
 ## 🟡🟠 GDScript MySprite 精灵类派生演示
@@ -5067,8 +7388,7 @@ Godot 中的 AI 寻路方案大概有以下几种：
 - [GDScript 2.0 reference](https://docs.godotengine.org/en/latest/tutorials/scripting/gdscript/gdscript_basics.html)
 - [Godot 4 GDScript Features - GDScript 2.0](https://gdscript.com/articles/godot-4-gdscript/)
 - [Data preferences](https://docs.godotengine.org/en/3.5/tutorials/best_practices/data_preferences.html)
-
-Godot 自带的 GDScript 脚本和 Python 语法非常相似，但是在多线程支持上要好很多。
+- [Using multiple threads](https://docs.godotengine.org/en/stable/tutorials/performance/threads/using_multiple_threads.html)
 
 Godot 4 GDScript 2.0 Features:
 
@@ -5081,36 +7401,110 @@ Godot 4 GDScript 2.0 Features:
 - built-in annotations
 - automatically generate documentation
 
-新版本的 GDScript 语法上有些变动，如 onready、export 这类关键字使用 @onready、@export 这样的
-标注方式，并增加了一些新标注。在将 Godot 3.x 工程迁移到 Godot 4.x 时，可能因为这些语法兼容问题，
-导致新版本中不能正确打开脚本，并显示脚本内容。
+Godot 自带的 GDScript 脚本和 Python 语法非常相似，但是在多线程支持上要好很多。例如，以下使用
+Thread 类创建一个线程对象，然后，执行 **start()** 就会在另一个线程种执行 GDScript 函数，调用
+线程对象的 **wait_to_finish()** 进入阻塞以等待线程完成工作。
 
-|        Annotation        |                           Description                           |
-|--------------------------|-----------------------------------------------------------------|
-| @tool                    | Enable the Tool mode.                                           |
-| @onready                 | Defer initialization of variable until the node is in the tree. |
-| @icon(path)              | Set the class icon to show in editor, used with class_name.     |
-| @rpc                     | RPC modifiers. See high-level multiplayer docs.                 |
-|--------------------------|-----------------------------------------------------------------|
-| @export                  | Export hints for the editor. See GDScript exports.              |
-| @export_enum             |                                                                 |
-| @export_file             |                                                                 |
-| @export_dir              |                                                                 |
-| @export_global_file      |                                                                 |
-| @export_global_dir       |                                                                 |
-| @export_multiline        |                                                                 |
-| @export_placeholder      |                                                                 |
-| @export_range            |                                                                 |
-| @export_exp_easing       |                                                                 |
-| @export_color_no_alpha   |                                                                 |
-| @export_node_path        |                                                                 |
-| @export_flags            |                                                                 |
-| @export_flags_2d_render  |                                                                 |
-| @export_flags_2d_physics |                                                                 |
-| @export_flags_3d_render  |                                                                 |
-| @export_flags_3d_physics |                                                                 |
+```py
+var thread
+
+# The thread will start here.
+func _ready():
+    thread = Thread.new()
+    # Third argument is optional userdata, it can be any variable.
+    thread.start(self, "_thread_function", "Wafflecopter")
 
 
+# Run here and exit.
+# The argument is the userdata passed from start().
+# If no argument was passed, this one still needs to
+# be here and it will be null.
+func _thread_function(userdata):
+    # Print the userdata ("Wafflecopter")
+    print("I'm a thread! Userdata is: ", userdata)
+
+# Thread must be disposed (or "joined"), for portability.
+func _exit_tree():
+    thread.wait_to_finish()
+```
+
+多线程编程中数据竞态问题 Data race 是普遍的，即不同线程在同一时间读写同一份数据可能会导致数据不
+完整，出现逻辑错误。而为了保证关键数据的逻辑一致性，通常需要引入各种同步技术，包括各种同步锁，这也
+就引入额外的多线程编程问题。例如，线程的死锁问题，一个线程可能先获取到资源，并锁定它，但后续可能某些
+异常导致线程卡死，从而又导致了资源被锁死得不到释放。
+
+Godot 提供了两种线程同步工具：
+
+- **Mutex** 互斥锁，通过 lock() 和 unlock() 方法锁定、解锁资源，资源读写操作在两个方法之间；
+- **Semaphore** 信号量，通过 wait() 和 post() 方法使用线程挂起或恢复执行；
+
+使用信号量可以按需要运行线程，换句话说，告诉它什么时候工作，当它什么都不做时让它暂停。信号量 **wait()**
+函数用来挂起线程，直到一些数据到达。相反，主线程使用信号量 **post()** 表示数据已准备好处理。
+
+信号量起始计数为 0，表示资源没有执行权，wait() 函数后的代码就会被阻塞，阻止其它线程执行直到有数据。
+
+```py
+    var counter = 0
+    var mutex
+    var semaphore
+    var thread
+    var exit_thread = false
+
+
+    # The thread will start here.
+    func _ready():
+        mutex = Mutex.new()
+        semaphore = Semaphore.new()
+        exit_thread = false
+
+        thread = Thread.new()
+        thread.start(self, "_thread_function")
+
+
+    func _thread_function(userdata):
+        while true:
+            semaphore.wait() # Wait until posted.
+
+            mutex.lock()
+            var should_exit = exit_thread # Protect with Mutex.
+            mutex.unlock()
+
+            if should_exit:
+                break
+
+            mutex.lock()
+            counter += 1 # Increment counter, protect with Mutex.
+            mutex.unlock()
+
+
+    func increment_counter():
+        semaphore.post() # Make the thread process.
+
+
+    func get_counter():
+        mutex.lock()
+        # Copy counter, protect with Mutex.
+        var counter_value = counter
+        mutex.unlock()
+        return counter_value
+
+
+    # Thread must be disposed (or "joined"), for portability.
+    func _exit_tree():
+        # Set exit condition to true.
+        mutex.lock()
+        exit_thread = true # Protect with Mutex.
+        mutex.unlock()
+
+        # Unblock by posting.
+        semaphore.post()
+
+        # Wait until it exits.
+        thread.wait_to_finish()
+
+        # Print the counter.
+        print("Counter is: ", counter)
+```
 
 Godot 全局空间 @GDScript 和 @GlobalScope 包含所有脚本中可以直接使用的函数，用户要向全局空间
 添加对象，可以使用工程设置自动加载，Singletons (AutoLoad)，自动加载得到位于全局空间的单态对象。
@@ -5268,7 +7662,10 @@ Resource load(path: String)
 Resource preload(path: String)
 ```
 
-GDScript 的对象一般使用 new() 方法进行实例化，并执行类型中的 `_init()` 方法，参数可以在此传递：
+GDScript 对象生命周期主要有两个，一般使用 new() 方法进行实例化，并执行类型中的 `_init()` 方法，
+参数可以在此传递，另外一个就是 **free()** 销毁实例回收内存。在场景中设置好的所有属性数据，构造过程
+中会自动加载，在初始化方法 **_init()** 执行前就设置好。
+
 
 ```py
 # MyObject.new("argument pass to _init()")
@@ -5278,6 +7675,310 @@ func _init(arg):
 ```
 
 
+
+## 🟡🟠 Godot 3.x to 4.x 版本差异
+- godot-docs\development\file_formats\gdscript_grammar.rst
+- godot-docs\tutorials\scripting\gdscript\gdscript_exports.rst
+- godot-docs\tutorials\scripting\gdscript\gdscript_basics.rst
+- godot-docs\tutorials\scripting\gdscript\gdscript_advanced.rst
+- godot-docs/tutorials/editor/upgrading_to_godot_4.rst
+- [GDScript documentation comments](https://docs.godotengine.org/en/latest/tutorials/scripting/gdscript/gdscript_documentation_comments.html)
+- [Add a Godot 3 to Godot 4 upgrade guide #6393](https://github.com/godotengine/godot-docs/pull/6393/files)
+
+新版本引入了两种新的字面量表达，StringName 和 % ^ 节点路径表达
+
++--------------------------+----------------------------------------+
+| **Literal**              | **Type**                               |
++--------------------------+----------------------------------------+
+| ``45``                   | Base 10 integer                        |
+| ``0x8f51``               | Base 16 (hexadecimal) integer          |
+| ``0b101010``             | Base 2 (binary) integer                |
+| ``3.14``, ``58.1e-10``   | Floating-point number (real)           |
+| ``"Hello"``, ``"Hi"``    | Strings                                |
+| ``"""Hello"""``          | Multiline string                       |
+| ``&"name"``              | :ref:`StringName <class_StringName>`   |
+| ``^"Node/Label"``        | :ref:`NodePath <class_NodePath>`       |
+| ``$NodePath``            | Shorthand for ``get_node("NodePath")`` |
++--------------------------+----------------------------------------+
+
+内存管理上，一般使用 free() 或 queue_free() 来释放节点及其子节点，另外，使用弱引用 weakref()
+可以避免循环引用而导致的内存泄露问题。
+
+```py
+    extends Node
+
+    var my_node_ref
+
+    func _ready():
+        my_node_ref = weakref(get_node("MyNode"))
+
+    func _this_is_called_later():
+        var my_node = my_node_ref.get_ref()
+        if my_node:
+            my_node.do_something()
+```
+
+类形继承上，引入了 `super` 关键字用于访问父类构造函数，或者成员。
+
+变量导出 @export 语法变化，旧版使用圆括号指示导出类型及参数，新版导出类型自动识别，或者关键字后缀表明。
+
+新版本的 GDScript 语法上有些变动，如 onready、export 这类关键字使用 @onready、@export 这样的
+标注方式，并增加了一些新标注。在将 Godot 3.x 工程迁移到 Godot 4.x 时，可能因为这些语法兼容问题，
+导致新版本中不能正确打开脚本，并显示脚本内容。
+
+|        Annotation        |                           Description                           |
+|--------------------------|-----------------------------------------------------------------|
+| @tool                    | Enable the Tool mode.                                           |
+| @onready                 | Defer initialization of variable until the node is in the tree. |
+| @icon(path)              | Set the class icon to show in editor, used with class_name.     |
+| @rpc                     | RPC modifiers. See high-level multiplayer docs.                 |
+|--------------------------|-----------------------------------------------------------------|
+| @export                  | Export hints for the editor. See GDScript exports.              |
+| @export_enum             |                                                                 |
+| @export_file             |                                                                 |
+| @export_dir              |                                                                 |
+| @export_global_file      |                                                                 |
+| @export_global_dir       |                                                                 |
+| @export_multiline        |                                                                 |
+| @export_placeholder      |                                                                 |
+| @export_range            |                                                                 |
+| @export_exp_easing       |                                                                 |
+| @export_color_no_alpha   |                                                                 |
+| @export_node_path        |                                                                 |
+| @export_flags            |                                                                 |
+| @export_flags_2d_render  |                                                                 |
+| @export_flags_2d_physics |                                                                 |
+| @export_flags_3d_render  |                                                                 |
+| @export_flags_3d_physics |                                                                 |
+
+
+```py
+    # (optional) class definition:
+    class_name MyClass
+ 
+    # Inheritance:
+    extends BaseClass
+ 
+    # (optional) icon to show in the editor dialogs:
+    @icon("res://path/to/optional/icon.svg")
+```
+
+属性（Properties）的定义语法糖变更，旧版本属性使用 setget 指定属性读写器，新版本借鉴了更简洁的
+C# 语法格式，直接在属性定义后使用 ``set`` 和 ``get`` 定义访问器，并且在 setter 或 getter 
+中直接访问属性而不会引起循环引用问题。需要设置默认值，可以在默认值后面添加冒号再定义属性访问器。
+
+```py
+    var milliseconds: int = 0
+    var seconds: int = 123:
+        get:
+            return milliseconds / 1000
+        set(value):
+            milliseconds = value * 1000
+```
+
+新增加 Lambda functions，定义匿名函数更方便，不必实例化 Callable 类就只可以通过函数创建一个
+可调用对象。为了调试目的，可以给匿名函数指定一个名称。匿名函数会捕捉当前局部环境，变量会按值传递，所以
+局部变量的后续变动不会反映到匿名函数内：
+
+```py
+    var lambda = func(x): print(x)
+    lambda.call(42) # Prints "42"
+
+    # Lambda functions can be named for debugging purposes::
+
+    var lambda = func my_lambda(x):
+        print(x)
+
+    # Lambda functions capture the local environment. Local variables are passed by value, 
+    # so they won't be updated in the lambda if changed in the local function::
+
+    var x = 42
+    var my_lambda = func(): print(x)
+    my_lambda.call() # Prints "42"
+    x = "Hello"
+    my_lambda.call() # Prints "42"
+```
+
+信号链接处理方法的变化，Callable 可以直接获取类型方法成员而来，也可以和 lambda 表达配合使用。对于
+要绑定参数的需求，就直接使用 Callable 对象的 bind() 方法来绑定。
+
+另外，单次触发常量名字变更为 CONNECT_ONE_SHOT，旧版为 CONNECT_ONESHOT。
+
+```py
+Error connect(signal: StringName, callable: Callable, flags: int = 0)
+void disconnect(signal: StringName, callable: Callable)
+bool is_connected(signal: StringName, callable: Callable) const
+```
+
+新版本引入 `await` 关键字取代 yield 用于协程的异步编程，Awaiting for signals。例如，以下代码
+片断演示等待按钮的按下并释放时才继续运行函数。使用了 await 语句的函数就不是一般的函数，而是协程，调用
+协程时同样需要使用 await 关键字。
+
+```py
+await self.process_frame
+yield(get_tree(), "idle_frame") # 下一帧恢复执行
+
+GDScriptFunctionStateyield(object: Object = null, signal: String = "")
+
+
+    func wait_confirmation():
+        print("Prompting user")
+        await $Button.button_up # Waits for the button_up signal from Button node.
+        print("User confirmed")
+        return true
+
+    func request_confirmation():
+        print("Will ask the user")
+        var confirmed = await wait_confirmation()
+        if confirmed:
+            print("User confirmed")
+        else:
+            print("User cancelled")
+
+    func wrong():
+        var confirmed = wait_confirmation() # Will give an error.
+```
+
+作为一个不直接添加到场景树的节点类型，CanvasItem 在旧版本中可以在节点脚本中继承，但在 Godot 4.x
+中可能引起 Could not find base class "CanvasItem"。
+
+全局空间中 OS 的变动，将窗口相关的 API 调整到 DisplayServer 类型中，以及 Clipboard API：
+
+```py
+    # Godot 4
+    var id = DisplayServer.window_get_current_screen()
+    var wsize = DisplayServer.window_get_size()
+    var ssize = DisplayServer.screen_get_size(id)
+    var center = (ssize - wsize) / 2
+    DisplayServer.window_set_position(center)
+    
+    # Center window on screen in GDScript 1.0
+    var screen_size = OS.get_screen_size(OS.get_current_screen())
+    var window_size = OS.get_window_size()
+    var centered_pos = (screen_size - window_size) / 2
+    OS.set_window_position(centered_pos)
+```
+
+其它节点对象名称及 API 调整：
+
++-----------------------------------------+-------------------------------------------+
+| Old name (Godot 3.x)                    | New name (Godot 4)                        |
++=========================================+===========================================+
+| AnimatedSprite                          | AnimatedSprite2D                          |
+| ARVRCamera                              | XRCamera3D                                |
+| ARVRController                          | XRController3D                            |
+| ARVRAnchor                              | XRAnchor3D                                |
+| ARVRInterface                           | XRInterface                               |
+| ARVROrigin                              | XROrigin3D                                |
+| ARVRPositionalTracker                   | XRPositionalTracker                       |
+| ARVRServer                              | XRServer                                  |
+| CubeMesh                                | BoxMesh                                   |
+| EditorSpatialGizmo                      | EditorNode3DGizmo                         |
+| EditorSpatialGizmoPlugin                | EditorNode3DGizmoPlugin                   |
+| GIProbe                                 | VoxelGI                                   |
+| GIProbeData                             | VoxelGIData                               |
+| GradientTexture                         | GradientTexture1D                         |
+| KinematicBody                           | CharacterBody3D                           |
+| KinematicBody2D                         | CharacterBody2D                           |
+| Light2D                                 | PointLight2D                              |
+| LineShape2D                             | WorldBoundaryShape2D                      |
+| Listener                                | AudioListener3D                           |
+| NavigationMeshInstance                  | NavigationRegion3D                        |
+| NavigationPolygonInstance               | NavigationRegion2D                        |
+| Navigation2DServer                      | NavigationServer2D                        |
+| PanoramaSky                             | Sky                                       |
+| Particles                               | GPUParticles3D                            |
+| Particles2D                             | GPUParticles2D                            |
+| ParticlesMaterial                       | ParticleProcessMaterial                   |
+| Physics2DDirectBodyState                | PhysicsDirectBodyState2D                  |
+| Physics2DDirectSpaceState               | PhysicsDirectSpaceState2D                 |
+| Physics2DServer                         | PhysicsServer2D                           |
+| Physics2DShapeQueryParameters           | PhysicsShapeQueryParameters2D             |
+| Physics2DTestMotionResult               | PhysicsTestMotionResult2D                 |
+| PlaneShape                              | WorldBoundaryShape3D                      |
+| Position2D                              | Marker2D                                  |
+| Position3D                              | Marker3D                                  |
+| ProceduralSky                           | Sky                                       |
+| RayShape                                | SeparationRayShape3D                      |
+| RayShape2D                              | SeparationRayShape2D                      |
+| ShortCut                                | Shortcut                                  |
+| Spatial                                 | Node3D                                    |
+| Camera                                  | Camera3D                                    |
+| SpatialGizmo                            | Node3DGizmo                               |
+| SpatialMaterial                         | StandardMaterial3D                        |
+| Sprite                                  | Sprite2D                                  |
+| StreamTexture                           | CompressedTexture2D                       |
+| TextureProgress                         | TextureProgressBar                        |
+| VideoPlayer                             | VideoStreamPlayer                         |
+| ViewportContainer                       | SubViewportContainer                      |
+| Viewport                                | SubViewport                               |
+| VisibilityEnabler                       | VisibleOnScreenEnabler3D                  |
+| VisibilityNotifier                      | VisibleOnScreenNotifier3D                 |
+| VisibilityNotifier2D                    | VisibleOnScreenNotifier2D                 |
+| VisibilityNotifier3D                    | VisibleOnScreenNotifier3D                 |
+| VisualServer                            | RenderingServer                           |
+| VisualShaderNodeScalarConstant          | VisualShaderNodeFloatConstant             |
+| VisualShaderNodeScalarFunc              | VisualShaderNodeFloatFunc                 |
+| VisualShaderNodeScalarOp                | VisualShaderNodeFloatOp                   |
+| VisualShaderNodeScalarClamp             | VisualShaderNodeClamp                     |
+| VisualShaderNodeVectorClamp             | VisualShaderNodeClamp                     |
+| VisualShaderNodeScalarInterp            | VisualShaderNodeMix                       |
+| VisualShaderNodeVectorInterp            | VisualShaderNodeMix                       |
+| VisualShaderNodeVectorScalarMix         | VisualShaderNodeMix                       |
+| VisualShaderNodeScalarSmoothStep        | VisualShaderNodeSmoothStep                |
+| VisualShaderNodeVectorSmoothStep        | VisualShaderNodeSmoothStep                |
+| VisualShaderNodeVectorScalarSmoothStep  | VisualShaderNodeSmoothStep                |
+| VisualShaderNodeVectorScalarStep        | VisualShaderNodeStep                      |
+| VisualShaderNodeScalarSwitch            | VisualShaderNodeSwitch                    |
+| VisualShaderNodeScalarTransformMult     | VisualShaderNodeTransformOp               |
+| VisualShaderNodeScalarDerivativeFunc    | VisualShaderNodeDerivativeFunc            |
+| VisualShaderNodeVectorDerivativeFunc    | VisualShaderNodeDerivativeFunc            |
+| VisualShaderNodeBooleanUniform          | VisualShaderNodeBooleanParameter          |
+| VisualShaderNodeColorUniform            | VisualShaderNodeColorParameter            |
+| VisualShaderNodeScalarUniform           | VisualShaderNodeFloatParameter            |
+| VisualShaderNodeCubeMapUniform          | VisualShaderNodeCubeMapParameter          |
+| VisualShaderNodeTextureUniform          | VisualShaderNodeTexture2DParameter        |
+| VisualShaderNodeTextureUniformTriplanar | VisualShaderNodeTextureParameterTriplanar |
+| VisualShaderNodeTransformUniform        | VisualShaderNodeTransformParameter        |
+| VisualShaderNodeVec3Uniform             | VisualShaderNodeVec3Parameter             |
+| VisualShaderNodeUniform                 | VisualShaderNodeParameter                 |
+| VisualShaderNodeUniformRef              | VisualShaderNodeParameterRef              |
+| File                                    | FileAccess                                |
+| Directory                               | DirAccess                                 |
+| SceneTreeTween                          | Tween                                     |
++-----------------------------------------+-------------------------------------------+
+
+
+|-----------------|-------------------------------------|------------------------------------------|
+|      Object     |              Godot 3.x              |                Godot 4.x                 |
+|-----------------|-------------------------------------|------------------------------------------|
+| CanvasItem      | update()                            | queue_redraw()                           |
+| ClassDB         | instance()                          | instantiate()                            |
+| PackedScene     | instance()                          | instantiate()                            |
+| Object          | property_list_changed_notify()      | notify_property_list_changed()           |
+| Control         | rect_min_size                       | custom_minimum_size                      |
+|                 | rect_size                           | size                                     |
+| Label           | ALIGN_CENTER                        | HORIZONTAL_ALIGNMENT_CENTER              |
+| Color           | darkorange                          | DARK_ORANGE                              |
+| Engine          | editor_hint                         | is_editor_hint()                         |
+| Sprite          | Sprite.rotation_degrees             | Sprite2D.rotation                        |
+|-----------------|-------------------------------------|------------------------------------------|
+| Theme Overrides | custom_colors/font_color            | theme_override_colors/font_color         |
+|                 | custom_colors/font_color_shadow     | theme_override_colors/font_shadow_color  |
+|                 | custom_colors/font_outline_modulate | theme_override_colors/font_outline_color |
+|                 | custom_constants/shadow_offset_y    | theme_override_constants/shadow_offset_x |
+|-----------------|-------------------------------------|------------------------------------------|
+| Anchor & Margin | anchor_left & margin_left           | anchors_preset                           |
+| Rect Position   | rect_position                       | position                                 |
+| Node            | name: String                        | name: StringName                         |
+| SceneTree       | idle_frame                          | process_frame                            |
+| EditorInterface | get_editor_viewport()               | get_base_control()                       |
+| OS              | get_scancode_string                 | get_keycode_string()                     |
+|                 |                                     |                                          |
+|-----------------|-------------------------------------|------------------------------------------|
+| InputEventKey   | scancode                            | keycode                                  |
+|                 | physical_scancode                   | physical_keycode                         |
+|                 |                                     |                                          |
 
 ## 🟡🟠 GDScript Plugins 插件扩展
 - [Editor plugins](https://docs.godotengine.org/en/stable/tutorials/plugins/editor/index.html)
@@ -5323,7 +8024,7 @@ class_name MyTitle, "res://icon.png" extends Label
 export var resource: Resource setget set_resource
 export var ResourceInfo:String
 
-## 🟡🟠 Auto Refresh inspector property list
+# Auto Refresh inspector property list
 export var AutoRefresh:bool = true
 
 func set_resource(res: Resource):
@@ -5796,6 +8497,18 @@ keyValue
     = expression ":" expression
     | IDENTIFIER "=" expression
     ;
+```
+
+新版本规范变化主要有两处：
+
+```py
+    assignmentStmt = subscription ( "=" | "+=" | "-=" | "*=" | "/="
+    | "%=" | "&=" | "|=" | "^=" ) expression stmtEnd;
+
+    call
+        = (attribute [ "(" [ argList ] ")" ])
+        | "." IDENTIFIER "(" [ argList ] ")"
+        | "$" ( STRING | IDENTIFIER { '/' IDENTIFIER } );
 ```
 
 
@@ -6561,13 +9274,13 @@ GPU Gems 1 contents
     - [Chapter 7. Rendering Countless Blades of Waving Grass](https://developer.nvidia.com/gpugems/gpugems/part-i-natural-effects/chapter-7-rendering-countless-blades-waving-grass)
     - [Chapter 8. Simulating Diffraction](https://developer.nvidia.com/gpugems/gpugems/part-i-natural-effects/chapter-8-simulating-diffraction)
 - [Part II: Lighting and Shadows](https://developer.nvidia.com/gpugems/gpugems/part-ii-lighting-and-shadows)
+    - [Chapter 9. Efficient Shadow Volume Rendering](https://developer.nvidia.com/gpugems/gpugems/part-ii-lighting-and-shadows/chapter-9-efficient-shadow-volume-rendering)
     - [Chapter 10. Cinematic Lighting](https://developer.nvidia.com/gpugems/gpugems/part-ii-lighting-and-shadows/chapter-10-cinematic-lighting)
     - [Chapter 11. Shadow Map Antialiasing](https://developer.nvidia.com/gpugems/gpugems/part-ii-lighting-and-shadows/chapter-11-shadow-map-antialiasing)
     - [Chapter 12. Omnidirectional Shadow Mapping](https://developer.nvidia.com/gpugems/gpugems/part-ii-lighting-and-shadows/chapter-12-omnidirectional-shadow-mapping)
     - [Chapter 13. Generating Soft Shadows Using Occlusion Interval Maps](https://developer.nvidia.com/gpugems/gpugems/part-ii-lighting-and-shadows/chapter-13-generating-soft-shadows-using-occlusion)
     - [Chapter 14. Perspective Shadow Maps: Care and Feeding](https://developer.nvidia.com/gpugems/gpugems/part-ii-lighting-and-shadows/chapter-14-perspective-shadow-maps-care-and-feeding)
     - [Chapter 15. Managing Visibility for Per-Pixel Lighting](https://developer.nvidia.com/gpugems/gpugems/part-ii-lighting-and-shadows/chapter-15-managing-visibility-pixel-lighting)
-    - [Chapter 9. Efficient Shadow Volume Rendering](https://developer.nvidia.com/gpugems/gpugems/part-ii-lighting-and-shadows/chapter-9-efficient-shadow-volume-rendering)
 - [Part III: Materials](https://developer.nvidia.com/gpugems/gpugems/part-iii-materials)
     - [Chapter 16. Real-Time Approximations to Subsurface Scattering](https://developer.nvidia.com/gpugems/gpugems/part-iii-materials/chapter-16-real-time-approximations-subsurface-scattering)
     - [Chapter 17. Ambient Occlusion](https://developer.nvidia.com/gpugems/gpugems/part-iii-materials/chapter-17-ambient-occlusion)
@@ -6619,6 +9332,7 @@ GPU Gems 2 contents
     - [Chapter 7. Adaptive Tessellation of Subdivision Surfaces with Displacement Mapping](https://developer.nvidia.com/gpugems/gpugems2/part-i-geometric-complexity/chapter-7-adaptive-tessellation-subdivision-surfaces)
     - [Chapter 8. Per-Pixel Displacement Mapping with Distance Functions](https://developer.nvidia.com/gpugems/gpugems2/part-i-geometric-complexity/chapter-8-pixel-displacement-mapping-distance-functions)
 - [Part II: Shading, Lighting, and Shadows](https://developer.nvidia.com/gpugems/gpugems2/part-ii-shading-lighting-and-shadows)
+    - [Chapter 9. Deferred Shading in S.T.A.L.K.E.R.](https://developer.nvidia.com/gpugems/gpugems2/part-ii-shading-lighting-and-shadows/chapter-9-deferred-shading-stalker)
     - [Chapter 10. Real-Time Computation of Dynamic Irradiance Environment Maps](https://developer.nvidia.com/gpugems/gpugems2/part-ii-shading-lighting-and-shadows/chapter-10-real-time-computation-dynamic)
     - [Chapter 11. Approximate Bidirectional Texture Functions](https://developer.nvidia.com/gpugems/gpugems2/part-ii-shading-lighting-and-shadows/chapter-11-approximate-bidirectional-texture)
     - [Chapter 12. Tile-Based Texture Mapping](https://developer.nvidia.com/gpugems/gpugems2/part-ii-shading-lighting-and-shadows/chapter-12-tile-based-texture-mapping)
@@ -6629,7 +9343,6 @@ GPU Gems 2 contents
     - [Chapter 17. Efficient Soft-Edged Shadows Using Pixel Shader Branching](https://developer.nvidia.com/gpugems/gpugems2/part-ii-shading-lighting-and-shadows/chapter-17-efficient-soft-edged-shadows-using)
     - [Chapter 18. Using Vertex Texture Displacement for Realistic Water Rendering](https://developer.nvidia.com/gpugems/gpugems2/part-ii-shading-lighting-and-shadows/chapter-18-using-vertex-texture-displacement)
     - [Chapter 19. Generic Refraction Simulation](https://developer.nvidia.com/gpugems/gpugems2/part-ii-shading-lighting-and-shadows/chapter-19-generic-refraction-simulation)
-    - [Chapter 9. Deferred Shading in S.T.A.L.K.E.R.](https://developer.nvidia.com/gpugems/gpugems2/part-ii-shading-lighting-and-shadows/chapter-9-deferred-shading-stalker)
 - [Part III: High-Quality Rendering](https://developer.nvidia.com/gpugems/gpugems2/part-iii-high-quality-rendering)
     - [Chapter 20. Fast Third-Order Texture Filtering](https://developer.nvidia.com/gpugems/gpugems2/part-iii-high-quality-rendering/chapter-20-fast-third-order-texture-filtering)
     - [Chapter 21. High-Quality Antialiased Rasterization](https://developer.nvidia.com/gpugems/gpugems2/part-iii-high-quality-rendering/chapter-21-high-quality-antialiased-rasterization)
@@ -6679,12 +9392,12 @@ GPU Gems 3 contents
     - [Chapter 6. GPU-Generated Procedural Wind Animations for Trees](https://developer.nvidia.com/gpugems/gpugems3/part-i-geometry/chapter-6-gpu-generated-procedural-wind-animations-trees)
     - [Chapter 7. Point-Based Visualization of Metaballs on a GPU](https://developer.nvidia.com/gpugems/gpugems3/part-i-geometry/chapter-7-point-based-visualization-metaballs-gpu)
 - [Part II: Light and Shadows](https://developer.nvidia.com/gpugems/gpugems3/part-ii-light-and-shadows)
+    - [Chapter 8. Summed-Area Variance Shadow Maps](https://developer.nvidia.com/gpugems/gpugems3/part-ii-light-and-shadows/chapter-8-summed-area-variance-shadow-maps)
+    - [Chapter 9. Interactive Cinematic Relighting with Global Illumination](https://developer.nvidia.com/gpugems/gpugems3/part-ii-light-and-shadows/chapter-9-interactive-cinematic-relighting-global)
     - [Chapter 10. Parallel-Split Shadow Maps on Programmable GPUs](https://developer.nvidia.com/gpugems/gpugems3/part-ii-light-and-shadows/chapter-10-parallel-split-shadow-maps-programmable-gpus)
     - [Chapter 11. Efficient and Robust Shadow Volumes Using Hierarchical Occlusion Culling and Geometry Shaders](https://developer.nvidia.com/gpugems/gpugems3/part-ii-light-and-shadows/chapter-11-efficient-and-robust-shadow-volumes-using)
     - [Chapter 12. High-Quality Ambient Occlusion](https://developer.nvidia.com/gpugems/gpugems3/part-ii-light-and-shadows/chapter-12-high-quality-ambient-occlusion)
     - [Chapter 13. Volumetric Light Scattering as a Post-Process](https://developer.nvidia.com/gpugems/gpugems3/part-ii-light-and-shadows/chapter-13-volumetric-light-scattering-post-process)
-    - [Chapter 8. Summed-Area Variance Shadow Maps](https://developer.nvidia.com/gpugems/gpugems3/part-ii-light-and-shadows/chapter-8-summed-area-variance-shadow-maps)
-    - [Chapter 9. Interactive Cinematic Relighting with Global Illumination](https://developer.nvidia.com/gpugems/gpugems3/part-ii-light-and-shadows/chapter-9-interactive-cinematic-relighting-global)
 - [Part III: Rendering](https://developer.nvidia.com/gpugems/gpugems3/part-iii-rendering)
     - [Chapter 14. Advanced Techniques for Realistic Real-Time Skin Rendering](https://developer.nvidia.com/gpugems/gpugems3/part-iii-rendering/chapter-14-advanced-techniques-realistic-real-time-skin)
     - [Chapter 15. Playable Universal Capture](https://developer.nvidia.com/gpugems/gpugems3/part-iii-rendering/chapter-15-playable-universal-capture)

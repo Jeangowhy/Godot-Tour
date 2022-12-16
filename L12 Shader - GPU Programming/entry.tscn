@@ -39,6 +39,8 @@ __meta__ = {
 }
 
 [node name="MyTitle" parent="bg" index="0"]
+custom_colors/font_color = Color( 0.960784, 0.960784, 0.960784, 1 )
+custom_colors/font_color_shadow = Color( 1, 0.54902, 0, 1 )
 text = "Shader Programming"
 
 [node name="circle" parent="bg" index="1"]

@@ -1,6 +1,6 @@
 extends Node
 
-onready var aniplayer:AnimationPlayer = $"../../AnimationPlayer"
+onready var aniplayer:AnimationPlayer = $"%AnimationPlayer"
 onready var sprite = $"."
 onready var player = $".."
 

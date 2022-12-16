@@ -1,4 +1,4 @@
-[gd_scene load_steps=31 format=2]
+[gd_scene load_steps=32 format=2]
 
 [ext_resource path="res://L10 Animation Blending/ColorRect.gd" type="Script" id=1]
 [ext_resource path="res://L0 Basic Guide/entry.tscn" type="PackedScene" id=2]
@@ -16,6 +16,7 @@
 [ext_resource path="res://L10 Animation Blending/Sprite-by-transition.gd" type="Script" id=14]
 [ext_resource path="res://L10 Animation Blending/animationnodeblendtree.tres" type="AnimationNodeBlendTree" id=15]
 [ext_resource path="res://L0 Basic Guide/Circle.gd" type="Script" id=16]
+[ext_resource path="res://abstract-platformer/PNG/Items/puzzleGreen.png" type="Texture" id=17]
 
 [sub_resource type="Animation" id=3]
 length = 0.001
@@ -484,23 +485,30 @@ script = ExtResource( 5 )
 
 [node name="MyTitle" parent="bg" index="0"]
 text = " Spritesheet & Animation Blending"
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="note" parent="bg" index="2"]
 visible = false
 
-[node name="Camera2D" type="Camera2D" parent="." index="1"]
-position = Vector2( 511, 292 )
+[node name="Light2D" type="Light2D" parent="." index="1"]
+position = Vector2( 508, 37 )
+scale = Vector2( 85.7334, 5.46827 )
+texture = ExtResource( 17 )
+texture_scale = 0.19
+energy = 1.69
+
+[node name="Camera2D" type="Camera2D" parent="." index="2"]
+position = Vector2( -4, 3 )
 anchor_mode = 0
 current = true
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="." index="2"]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." index="3"]
 environment = ExtResource( 6 )
 
-[node name="CanvasLayer" type="CanvasLayer" parent="." index="3"]
-
-[node name="AnimationPlayer" type="AnimationPlayer" parent="CanvasLayer" index="0"]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." index="4"]
 unique_name_in_owner = true
-root_node = NodePath("../..")
 anims/RESET = SubResource( 3 )
 anims/bullet = SubResource( 26 )
 "anims/fog jump" = SubResource( 4 )
@@ -514,7 +522,7 @@ anims/jump_right_aniplayer = SubResource( 19 )
 anims/jump_right_sm = SubResource( 22 )
 anims/jump_right_trans = SubResource( 8 )
 
-[node name="AnimationTree" type="AnimationTree" parent="CanvasLayer" index="1"]
+[node name="AnimationTree" type="AnimationTree" parent="." index="5"]
 unique_name_in_owner = true
 tree_root = ExtResource( 15 )
 anim_player = NodePath("../AnimationPlayer")
@@ -526,7 +534,9 @@ parameters/OneShot/active = false
 parameters/StateMachine/playback = SubResource( 23 )
 parameters/Transition/current = 1
 
-[node name="MyAnimatedSprite" type="Sprite" parent="CanvasLayer" index="2"]
+[node name="CanvasLayer" type="CanvasLayer" parent="." index="6"]
+
+[node name="MyAnimatedSprite" type="Sprite" parent="CanvasLayer" index="0"]
 position = Vector2( 902, 410 )
 texture = ExtResource( 11 )
 hframes = 4
@@ -536,11 +546,11 @@ script = ExtResource( 7 )
 loop = true
 TextureMovtion = false
 
-[node name="bullet" type="Node2D" parent="CanvasLayer" index="3"]
+[node name="bullet" type="Node2D" parent="CanvasLayer" index="1"]
 position = Vector2( 195, 410 )
 script = ExtResource( 13 )
 
-[node name="player_relocated" type="Node2D" parent="CanvasLayer" index="4"]
+[node name="player_relocated" type="Node2D" parent="CanvasLayer" index="2"]
 position = Vector2( 741, 412 )
 script = ExtResource( 16 )
 color = Color( 0.780392, 0.835294, 0.294118, 0.501961 )
@@ -553,7 +563,7 @@ frame = 7
 region_rect = Rect2( 64, 0, 64, 64 )
 script = ExtResource( 10 )
 
-[node name="player_relocated2" type="Node2D" parent="CanvasLayer" index="5"]
+[node name="player_relocated2" type="Node2D" parent="CanvasLayer" index="3"]
 position = Vector2( 120, 410 )
 script = ExtResource( 14 )
 color = Color( 0.890196, 0.878431, 0.878431, 0.501961 )
@@ -564,7 +574,7 @@ texture = ExtResource( 11 )
 hframes = 4
 vframes = 2
 
-[node name="player_relocated3" type="Node2D" parent="CanvasLayer" index="6"]
+[node name="player_relocated3" type="Node2D" parent="CanvasLayer" index="4"]
 position = Vector2( 280, 410 )
 script = ExtResource( 12 )
 color = Color( 0.678431, 0.65098, 0.65098, 0.501961 )
@@ -574,7 +584,7 @@ texture = ExtResource( 11 )
 hframes = 4
 vframes = 2
 
-[node name="ColorRect" type="ColorRect" parent="CanvasLayer" index="7"]
+[node name="ColorRect" type="ColorRect" parent="CanvasLayer" index="5"]
 margin_left = 575.0
 margin_top = 380.0
 margin_right = 615.0
@@ -586,10 +596,10 @@ script = ExtResource( 1 )
 position = Vector2( 20, 20 )
 frames = ExtResource( 4 )
 animation = "spikey"
-frame = 3
+frame = 2
 playing = true
 
-[node name="ViewportContainer" type="ViewportContainer" parent="CanvasLayer" index="8"]
+[node name="ViewportContainer" type="ViewportContainer" parent="CanvasLayer" index="6"]
 margin_left = 410.0
 margin_top = 391.0
 margin_right = 458.0
@@ -604,7 +614,7 @@ render_target_update_mode = 3
 [node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="CanvasLayer/ViewportContainer/Viewport" index="0"]
 frames = ExtResource( 4 )
 animation = "fly"
-frame = 4
+frame = 5
 playing = true
 
 [node name="Camera" type="Camera" parent="CanvasLayer/ViewportContainer/Viewport" index="1"]
@@ -612,7 +622,7 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.00654733, 0.972104 )
 current = true
 fov = 36.0
 
-[node name="Parallax" type="ParallaxBackground" parent="." index="4"]
+[node name="Parallax" type="ParallaxBackground" parent="." index="7"]
 layer = 3
 
 [node name="background" type="ParallaxBackground" parent="Parallax" index="0"]
@@ -678,14 +688,17 @@ texture = ExtResource( 9 )
 position = Vector2( 277, 500 )
 texture = ExtResource( 9 )
 
-[node name="TileMap" type="TileMap" parent="." index="5"]
+[node name="TileMap" type="TileMap" parent="." index="8"]
 mode = 2
 tile_set = ExtResource( 3 )
 format = 1
 
-[connection signal="animation_changed" from="CanvasLayer/AnimationPlayer" to="CanvasLayer/player_relocated3" method="_on_AnimationPlayer_animation_changed"]
-[connection signal="animation_finished" from="CanvasLayer/AnimationPlayer" to="CanvasLayer/player_relocated/Sprite-by-animationplayer" method="_on_AnimationPlayer_animation_finished"]
-[connection signal="animation_started" from="CanvasLayer/AnimationPlayer" to="CanvasLayer/player_relocated/Sprite-by-animationplayer" method="_on_AnimationPlayer_animation_started"]
+[node name="CanvasModulate" type="CanvasModulate" parent="." index="9"]
+color = Color( 0, 0, 0, 1 )
+
+[connection signal="animation_changed" from="AnimationPlayer" to="CanvasLayer/player_relocated3" method="_on_AnimationPlayer_animation_changed"]
+[connection signal="animation_finished" from="AnimationPlayer" to="CanvasLayer/player_relocated/Sprite-by-animationplayer" method="_on_AnimationPlayer_animation_finished"]
+[connection signal="animation_started" from="AnimationPlayer" to="CanvasLayer/player_relocated/Sprite-by-animationplayer" method="_on_AnimationPlayer_animation_started"]
 [connection signal="circle_hit" from="CanvasLayer/player_relocated2" to="CanvasLayer/player_relocated2" method="_on_player_relocated2_circle_hit"]
 [connection signal="gui_input" from="CanvasLayer/ColorRect" to="CanvasLayer/ColorRect" method="_on_ColorRect_gui_input"]
 [connection signal="animation_finished" from="CanvasLayer/ColorRect/AnimatedSprite" to="CanvasLayer/ColorRect" method="_on_AnimatedSprite_animation_finished"]

@@ -6,7 +6,7 @@
  ⚡ Windows Resource(ICO) 
  ⚡ mdBook 电子书框架
  ⚡ Packages Crates Modules
- ⚡ HelloWorld🔆🔅
+ ⚡ HelloWorld
  ⚡ Printing 打印信息
  ⚡ Guessing Game
  ⚡ Basic Concepts & Data Types
@@ -88,8 +88,6 @@
  ⚡ Thread Pool 线程池实现
  🟡🟠 Game
  🟡🟠 OpenCV in Rust
- 🟡🟠 Compilers Principles
- 🟡🟠 Structure and Interpretation of Computer Programs, SICP
  🟡🟠 rustc-serialize
  🟡🟠 webview_sys
  🟡🟠 Ruffle SWF Player
@@ -111,6 +109,9 @@
 如果要查看本身 HTML 文档，使用 rustup docs 命令打开相应的文档页面：
 
 ```sh
+    > rustup doc std::fmt::Display
+    > rustup doc --book
+
     > rustup docs --help
     rustup.exe-doc
     Open the documentation for the current toolchain
@@ -211,9 +212,11 @@ Rust 官方文档包含在标准库源代码仓库中，并作为子模块引用
     git clone --depth=1 git@github.com:DanielKeep/tlborm         src/doc/macros_little
     git clone --depth=1 git@github.com:veykril/tlborm            src/doc/macros_little2
 
+    git clone --depth=1 git@github.com:rust-lang-nursery/rust-cookbook src/doc/rust-cookbook
 ```
 
-## 🟢🔵The Rust Programming Language
+## 🟢🔵 The Rust Programming Language
+- [The Rust Programming Language](https://doc.rust-lang.org/book/)
 
 [Foreword](book/src/foreword.md)
 [Introduction](ch00-00-introduction.md)
@@ -347,7 +350,8 @@ Rust 官方文档包含在标准库源代码仓库中，并作为子模块引用
     - [G - How Rust is Made and “Nightly Rust”](appendix-07-nightly-rust.md)
 
 
-## 🟢🔵The Rustdoc Book
+## 🟢🔵 The Rustdoc Book
+- [The rustc book](https://doc.rust-lang.org/rustc/what-is-rustc.html)
 
 - [What is rustdoc?](rustdoc/src/what-is-rustdoc.md)
 - [How to write documentation](rustdoc/src/how-to-write-documentation.md)
@@ -363,7 +367,8 @@ Rust 官方文档包含在标准库源代码仓库中，并作为子模块引用
 - [References](rustdoc/src/references.md)
 
 
-## 🟢🔵Rust By Example
+## 🟢🔵 Rust By Example
+- [Rust by Example](https://doc.rust-lang.org/rust-by-example/index.html)
 
 [Introduction](rust-by-example/src/index.md)
 
@@ -588,7 +593,78 @@ Rust 官方文档包含在标准库源代码仓库中，并作为子模块引用
     - [Playground](rust-by-example/src/meta/playground.md)
 
 
-## 🟢🔵Asynchronous Programming in Rust
+## 🟢🔵 Rust Cookbook
+[Rust Cookbook](https://rust-lang-nursery.github.io/rust-cookbook/intro.html)
+
+[Table of Contents](rust-cookbook/src/intro.md)
+[About](rust-cookbook/src/about.md)
+- [Algorithms](rust-cookbook/src/algorithms.md)
+  - [Generate Random Values](rust-cookbook/src/algorithms/randomness.md)
+  - [Sort a Vector](rust-cookbook/src/algorithms/sorting.md)
+- [Command Line](rust-cookbook/src/cli.md)
+  - [Argument Parsing](rust-cookbook/src/cli/arguments.md)
+  - [ANSI Terminal](rust-cookbook/src/cli/ansi_terminal.md)
+- [Compression](rust-cookbook/src/compression.md)
+  - [Working with Tarballs](rust-cookbook/src/compression/tar.md)
+- [Concurrency](rust-cookbook/src/concurrency.md)
+  - [Explicit Threads](rust-cookbook/src/concurrency/threads.md)
+  - [Data Parallelism](rust-cookbook/src/concurrency/parallel.md)
+- [Cryptography](rust-cookbook/src/cryptography.md)
+  - [Hashing](rust-cookbook/src/cryptography/hashing.md)
+  - [Encryption](rust-cookbook/src/cryptography/encryption.md)
+- [Data Structures](rust-cookbook/src/data_structures.md)
+  - [Bitfield](rust-cookbook/src/data_structures/bitfield.md)
+- [Database](rust-cookbook/src/database.md)
+  - [SQLite](rust-cookbook/src/database/sqlite.md)
+  - [Postgres](rust-cookbook/src/database/postgres.md)
+- [Date and Time](rust-cookbook/src/datetime.md)
+  - [Duration and Calculation](rust-cookbook/src/datetime/duration.md)
+  - [Parsing and Displaying](rust-cookbook/src/datetime/parse.md)
+- [Development Tools](rust-cookbook/src/development_tools.md)
+  - [Debugging](rust-cookbook/src/development_tools/debugging.md)
+    - [Log Messages](rust-cookbook/src/development_tools/debugging/log.md)
+    - [Configure Logging](rust-cookbook/src/development_tools/debugging/config_log.md)
+  - [Versioning](rust-cookbook/src/development_tools/versioning.md)
+  - [Build Time Tooling](rust-cookbook/src/development_tools/build_tools.md)
+- [Encoding](rust-cookbook/src/encoding.md)
+  - [Character Sets](rust-cookbook/src/encoding/strings.md)
+  - [CSV processing](rust-cookbook/src/encoding/csv.md)
+  - [Structured Data](rust-cookbook/src/encoding/complex.md)
+- [Error Handling](rust-cookbook/src/errors.md)
+  - [Handle Error Variants](rust-cookbook/src/errors/handle.md)
+- [File System](rust-cookbook/src/file.md)
+  - [Read & Write](rust-cookbook/src/file/read-write.md)
+  - [Directory Traversal](rust-cookbook/src/file/dir.md)
+- [Hardware Support](rust-cookbook/src/hardware.md)
+  - [Processor](rust-cookbook/src/hardware/processor.md)
+- [Memory Management](rust-cookbook/src/mem.md)
+  - [Global Static](rust-cookbook/src/mem/global_static.md)
+- [Network](rust-cookbook/src/net.md)
+  - [Server](rust-cookbook/src/net/server.md)
+- [Operating System](rust-cookbook/src/os.md)
+  - [External Command](rust-cookbook/src/os/external.md)
+- [Science](rust-cookbook/src/science.md)
+  - [Mathematics](rust-cookbook/src/science/mathematics.md)
+    - [Linear Algebra](rust-cookbook/src/science/mathematics/linear_algebra.md)
+    - [Trigonometry](rust-cookbook/src/science/mathematics/trigonometry.md)
+    - [Complex Numbers](rust-cookbook/src/science/mathematics/complex_numbers.md)
+    - [Statistics](rust-cookbook/src/science/mathematics/statistics.md)
+    - [Miscellaneous](rust-cookbook/src/science/mathematics/miscellaneous.md)
+- [Text Processing](rust-cookbook/src/text.md)
+  - [Regular Expressions](rust-cookbook/src/text/regex.md)
+  - [String Parsing](rust-cookbook/src/text/string_parsing.md)
+- [Web Programming](rust-cookbook/src/web.md)
+  - [Extracting Links](rust-cookbook/src/web/scraping.md)
+  - [URL](rust-cookbook/src/web/url.md)
+  - [Media Types](rust-cookbook/src/web/mime.md)
+  - [Clients](rust-cookbook/src/web/clients.md)
+    - [Making Requests](rust-cookbook/src/web/clients/requests.md)
+    - [Calling a Web API](rust-cookbook/src/web/clients/apis.md)
+    - [Downloads](rust-cookbook/src/web/clients/download.md)
+    - [Web Authentication](rust-cookbook/src/web/clients/authentication.md)
+
+
+## 🟢🔵 Asynchronous Programming in Rust
 
 - [Getting Started](async-book/src/01_getting_started/01_chapter.md)
   - [Why Async?](async-book/src/01_getting_started/02_why_async.md)
@@ -628,7 +704,7 @@ Rust 官方文档包含在标准库源代码仓库中，并作为子模块引用
 
 
 
-## 🟢🔵The Little Book of Rust Macros
+## 🟢🔵 The Little Book of Rust Macros
 
 
 * [Macros, A Methodical Introduction](macros_little/text/mbe-README.md)
@@ -663,7 +739,7 @@ Rust 官方文档包含在标准库源代码仓库中，并作为子模块引用
     * [Ook!](macros_little/text/aeg-ook.md)
 
 
-## 🟢🔵The Little Book of Rust Macros 2
+## 🟢🔵 The Little Book of Rust Macros 2
 
 [Introduction](macros_little2/src/introduction.md)
 
@@ -716,7 +792,7 @@ Rust 官方文档包含在标准库源代码仓库中，并作为子模块引用
 
 
 
-## 🟢🔵The Rust Edition Guide
+## 🟢🔵 The Rust Edition Guide
 
 [Introduction](edition-guide/src/introduction.md)
 
@@ -754,7 +830,7 @@ Rust 官方文档包含在标准库源代码仓库中，并作为子模块引用
 
 
 
-## 🟢🔵The Cargo Book
+## 🟢🔵 The Cargo Book
 
 [Introduction](cargo/src/index.md)
 
@@ -847,8 +923,8 @@ Rust 官方文档包含在标准库源代码仓库中，并作为子模块引用
 
 
 
-## 🟢🔵The Rustc Book
-
+## 🟢🔵 The Rustc Book
+- [The Rustc Book](https://doc.rust-lang.org/rustc/index.html)
 
 - [What is rustc?](rustc/src/what-is-rustc.md)
 - [Command-line arguments](rustc/src/command-line-arguments.md)
@@ -872,7 +948,8 @@ Rust 官方文档包含在标准库源代码仓库中，并作为子模块引用
 - [Contributing to `rustc`](rustc/src/contributing.md)
 
 
-## 🟢🔵Guide to Rustc Development
+## 🟢🔵 Guide to Rustc Development
+- [Guide to Rustc Development](https://rustc-dev-guide.rust-lang.org/about-this-guide.html)
 
 [About this guide](rustc-dev-guide/src/about-this-guide.md)
 
@@ -1054,7 +1131,10 @@ Rust 官方文档包含在标准库源代码仓库中，并作为子模块引用
 
 
 
-## 🟢🔵The Embedded Rust Book
+## 🟢🔵 The Embedded Rust Book
+- [Embedded Rust documentation](https://docs.rust-embedded.org/)
+- [The Embedded Rust Book](https://docs.rust-embedded.org/book/intro/index.html)
+- [The Embedonomicon](https://docs.rust-embedded.org/embedonomicon/)
 
 <!--
 
@@ -1116,7 +1196,8 @@ more information and coordination
 [Appendix A: Glossary](embeded-book/src/appendix/glossary.md)
 
 
-## 🟢🔵The Rust Reference
+## 🟢🔵 The Rust Reference
+- [The Rust Reference](https://doc.rust-lang.org/reference/)
 
 [Introduction](reference/src/introduction.md)
 
@@ -1252,7 +1333,9 @@ more information and coordination
     - [Glossary](reference/src/glossary.md)
 
 
-## 🟢🔵The Rustonomicon
+## 🟢🔵 The Rustonomicon
+- [The Rustonomicon - The Dark Arts of Unsafe Rust](https://doc.rust-lang.org/nomicon/)
+- [The Rustonomicon - The Dark Arts of Unsafe Rust](https://doc.rust-lang.org/nightly/nomicon/index.html)
 
 [Introduction](nomicon/src/intro.md)
 
@@ -1320,7 +1403,8 @@ more information and coordination
   * [#[panic_handler]](nomicon/src/panic-handler.md)
 
 
-## 🟢🔵The Unstable Book
+## 🟢🔵 The Unstable Book
+- [The Unstable Book](https://doc.rust-lang.org/unstable-book)
 
 ## 1. Compiler flags
 
@@ -1948,7 +2032,8 @@ more information and coordination
     - [3.407. yeet_desugar_details](https://doc.rust-lang.org/unstable-book/library-features/yeet-desugar-details.html)
 
 
-## 🟢🔵The WebAssembly System Interface (WASI)
+## 🟢🔵 The WebAssembly System Interface (WASI)
+- [The WebAssembly System Interface (WASI)](https://wasi.dev/)
 
 - [Introduction](wasmtime/docs/introduction.md)
 - [Tutorial](wasmtime/docs/tutorial.md)
@@ -2014,7 +2099,11 @@ more information and coordination
   - [Code of Conduct](wasmtime/docs/contributing-coc.md)
 
 
-## 🟢🔵The `wasm-bindgen` Guide
+## 🟢🔵 The `wasm-bindgen` Guide
+- [Rust Wasm](https://rustwasm.github.io/docs/wasm-pack/introduction.html)
+- [Rust 🦀 and WebAssembly 🕸](https://rustwasm.github.io/docs/book/)
+- [The `wasm-bindgen` Guide](https://rustwasm.github.io/wasm-bindgen/)
+
 
 [Introduction](wasm-bindgen/guide/src/introduction.md)
 
@@ -2961,7 +3050,6 @@ Contents
 - [Guide to Rustc Development](https://rustc-dev-guide.rust-lang.org/about-this-guide.html)
 - [The Rustonomicon - The Dark Arts of Unsafe Rust](https://doc.rust-lang.org/nightly/nomicon/index.html)
 - [Futures Explained in 200 Lines of Rust](https://cfsamson.github.io/books-futures-explained/)
-- [Green Threads Explained in 200 Lines of Rust](https://cfsamson.gitbook.io/green-threads-explained-in-200-lines-of-rust/)
 - [Rust Language Cheat Sheet](https://cheats.rs)
 - [Golang vs. Rust: Which Programming Language To Choose in 2021?](https://trio.dev/blog/golang-vs-rust)
 - [Rust & Go & C++ 比较](https://duzhi5368.github.io/2019/05/rustgoc--%E6%AF%94%E8%BE%83/)
@@ -3488,6 +3576,68 @@ target/debug 目录下生成可执行文件。这些优化可以让 Rust 代码�
     $ cd someproject
     $ cargo build
 
+Cargo 默认 crates.io 镜像使用国外源服务器，下载速度慢，可以换源到国内镜像服务器。修改当前用户目录
+下的配置文件，在配置文件 .cargo/config 添加多个镜像服务器，并使用 replace-with 指令进行切换：
+
+```sh
+    [source.crates-io]
+    registry = "https://github.com/rust-lang/crates.io-index"
+    replace-with = 'ustc'
+
+    [source.ustc]
+    registry = "https://mirrors.ustc.edu.cn/crates.io-index"
+    # or use git protocol
+    #registry = "git://mirrors.ustc.edu.cn/crates.io-index"
+
+    [source.tuna]
+    registry = "https://mirrors.tuna.tsinghua.edu.cn/git/crates.io-index.git"
+
+    [source.rustcc]
+    registry = "git://crates.rustcc.cn/crates.io-index"
+
+    [source.rustcc0]
+    registry = "https://code.aliyun.com/rustcc/crates.io-index.git"
+
+    [source.sjtu]
+    registry = "https://mirrors.sjtug.sjtu.edu.cn/git/crates.io-index"
+
+    [source.rsproxy]
+    registry = "https://rsproxy.cn/crates.io-index"
+    [source.rsproxy-sparse]
+    registry = "sparse+https://rsproxy.cn/index/"
+    [registries.rsproxy]
+    index = "https://rsproxy.cn/crates.io-index"
+
+
+    [net]
+    git-fetch-with-cli = true
+```
+
+换源加速更新 Rustup 工具链下载，默认源指向两个中国大陆境外网站，因此在中国大陆访问会很慢：
+
+```sh
+# Default settings
+RUSTUP_DIST_SERVER=https://static.rust-lang.org
+RUSTUP_UPDATE_ROOT=https://static.rust-lang.org/rustup），
+
+# 中国科学技术大学
+RUSTUP_DIST_SERVER=https://mirrors.ustc.edu.cn/rust-static
+RUSTUP_UPDATE_ROOT=https://mirrors.ustc.edu.cn/rust-static/rustup
+
+# 清华大学
+RUSTUP_DIST_SERVER=https://mirrors.tuna.tsinghua.edu.cn/rustup
+
+# 上海交通大学
+RUSTUP_DIST_SERVER=https://mirrors.sjtug.sjtu.edu.cn/rust-static/
+```
+
+RsProxy.cn Rustup 镜像用法：
+
+```sh
+# ~/.zshrc or ~/.bashrc:
+export RUSTUP_DIST_SERVER="https://rsproxy.cn"
+export RUSTUP_UPDATE_ROOT="https://rsproxy.cn/rustup"
+```
 
 
 ## ⚡ Packages Crates Modules
@@ -3813,6 +3963,75 @@ Cargo 可以和 Travis CI 或 GitLab CI 等持续集成工具一起工作。
 - [初识 Rust](https://wudaijun.com/2020/02/rust-basic/)
 - [2.101. lang_items](https://doc.rust-lang.org/unstable-book/language-features/lang-items.html)
 - [The Rust Programming Language - Basic Rust Literacy - Accepting Command Line Arguments](ch12-01-accepting-command-line-arguments.md)
+- [Rust-specific fork of LLVM](https://github.com/rust-lang/llvm-project)
+- [A More Detailed Tour of the Rust Compiler](https://tomlee.co/2014/04/a-more-detailed-tour-of-the-rust-compiler/)
+
+Rust 是一种自带范式转移 Paradigm Shift 的新式编程语言，它的学习难度曲线几乎是和 C++ 相当的，
+并且入门比 C++ 还难一点。但是这带来一个好处，使用 Rust 编程，你就不太可能犯错。Rust 编程思想与
+C++ 绝然不同：Rust 中只有能被证明是正确代码的才被允许，而 C++ 则是允许任何不能证明是错误的代码。
+
+美国哲学和历史学家 Thomas S. Kuhn 在他 1962 年出版的《科学革命的结构》一书中指出，科学的发展不是
+通过连续和线性的方式，而是经历一系列“范式转换”来发展的。范式转换/范式转移 Paradigm Shift 是一场
+一种范式取代了另一种范式的科学革命。范式转变导致了一个革命性科学时期的出现，这一时期，新的视角被打开，
+新的探索路线出现，并对旧的数据和旧的假设提出新的问题。
+
+感谢 Low Level Virtual Machine (LLVM) 编译器构架在计算机编译器领域上的杰出贡献，这是一个源自
+the University of Illinois 的一个研究项目，该项目旨在提供一个现代化的编译机制，使得对任何编程
+语言既可以做到静态编译也可以动态编译，而且非常高效。
+
+参考 CPEG 421/621 Compiler Design 提供的 LLVM 工具链示意图：
+
+    +=========+    |
+    | C       | ==>+
+    +=========+    |                                  +=================+             |
+                   |                                  | Target ASM Code | ===========>+
+    +=========+    |                                  +=================+             |
+    | Haskell | ==>+                                                                  |
+    +=========+    |                                  +=================+             |
+                   |                                  | Target ASM Code | ===========>+
+    +=========+    |                                  +=======^=========+             |
+    | C++     | ==>+     +===========+                        |                       |
+    +=========+    |     |   Front   |     +=========+     +======+             +=====v=====+
+                   | ==> |    end    | ==> | LLVM IR | ==> | llvm |             | Assembler |
+    +=========+    |     | Compilers |     +=========+     +======+             +===========+
+    | Obj-C   | ==>+     +===========+                        |                       |
+    +=========+    |                                  +=======v=========+    +========v========+
+                   |                                  | Target Obj Code |    | Target Obj Code |
+    +=========+    |                                  +=================+    +=================+
+    | Python  | ==>+                                          |                       |
+    +=========+    |                                          |   +===============+   |
+                   |                                          +==>|    Linker     |<==+
+    +=========+    |     ==============================          +===============+
+    | Ruby    | ==>+     LLVM Toolchain at a High-Level                  |
+    +=========+    |     ==============================      +===========v===========+
+                   |                                         | Executable or Library |
+        ...     ==>+                                         +=======================+
+
+通过实现编译器前端与后端的分离构架，LLVM 就可以使用 IR 灵活地处理各种言语分析并生成的中间代码，
+中间表示也称为 LLVM ASM，然后通过后端生成各种硬件平台依赖的机器码，无论是 ARM、x86、PowerPC 
+架构都可以，只需要根据不同的语言实现相应的前端编译器即可。
+
+LLVM IR 是一种基于*静态单一赋值*的表示法，Static Single Assignment (SSA) 特性提供类型安全性、
+底层操作、灵活性，以及清晰地表示所有高级语言的能力。
+
+LLVM 编译框架是一个三层结构，编译器会将源语言翻译为中间语言表达 Intermediate Representations (IR)，
+之后再将 IR 经过编译后端处理程序，翻译为目标平台的汇编语言，最终才得到设备相关的机器指令。IR 集中
+体现了编译器的主要特征——算法，优化方式，汇编流程等等。
+
+LLVM 是非常棒的平台, 很多语言都支持将源码编译为 LLVM 中间语言，比如说 C、C++、Rust、Go、Swift、Julia
+等等，这些语言靠着 LLVM 的强大而实现了很多强大的语言功能。
+
+Rust 作为静态编译型语言，rustc 编译器本身由 Rust 语言实现，即实现了自举，后端部分则基于现成的 LLVM。
+
+Rust 编译器简要工作流程如下：
+
+- 首先，读取源代码做 Tokens 扫描，得到 Token stream 数据，这部分程序也叫做 Syntax Analyzer；
+- 然后对源码进行词法分析得到 Abstract Syntax Tree (AST) 抽像语法树，这部分程序叫做 Parser；
+- 再将 AST 转换为 High-Level IR (HIR) 以便做类型推断、trait 接口处理以及静态类型安全性检查；
+- 再转换为 Mid-level IR (MIR) 以便做所有权借用检查和代码优化，MIR 也是 Control-Flow Graph (CFG)；
+- 经过以上前端工作后，代码会转译为 LLVM IR，文件后缀一般是 .ll，是文本格式，字节码文件后缀是 .bc；
+- 得到中间代码表达，下一步就是生成相应的机器码，这就是 LLVM 要做的工作。
+
 
 Rust 并不关心代码的存放位置，不过建议在工作目录中，使用 cargo 工具创建工程目录，存放所有项目。
 
@@ -3893,12 +4112,13 @@ Rust 和其他语言的 main 函数不同，没有入参或返回值，需要使
 
 通过进程退出函数 exit 给系统一个返回值。
 
+
+要点，args() 返回的 Args 是迭代器，可以使用 collect() 方法转换为字符串集合：
+
     let args: Vec<String> = env::args().collect();
 
-要点：
-
 - `Vec<String>` 字符串向量，引用 args() 返回的 Args 结构体集合；
-- `&args[0]` 借用参数引用，因为外部传入的 String 所有权不能转移；
+- `&args[0]` 借用参数引用，操作系统外部传入的 Vec<String> 不能直接移动所有权、或修改；
 - `{:?}` 打印模板使用通配符号打印多个值；
 
 
@@ -3922,6 +4142,22 @@ Rust 是一种预编译静态类型（ahead-of-time compiled）语言，这意�
 - Memory allocation and lifetime 变量的内存分配与生命周期；
 - Traits & Polymorphism 面向对象编程的接口、继承与多态；
 - Procedural Macros 强大的宏程序编程，可以对 Rust 代码做语法树处理；
+- Asynchronous 异步编程;
+- Fearless Concurrency 无畏的并发！
+
+先来对比一下各种语言的并发处理安全模型：
+
+- JavaScript - **单线程**，最安全的并发处理，需要额外内存拷贝和堆内存分配；
+- Python/Ruby - **Global Interpreter Lock (GIL)** 全局锁限制，线程不能并行，牺牲性能换来安全；
+- Erlang/Akka - **Actor model** 通过消息同步各个 Actor，类似 Golang 的 croutine、channel；
+- Golang - **Communicating Squential Processes (CSP)**，协程之间通过消息同步，额外内存拷贝和堆内存分配；
+- Rust - **Ownership + Type System** 用类型及所有权保证并发安全，优雅高性能，和其它方案无缝兼容；
+
+Go 最大的特色就是从语言层面实现 Goroutine 协程支持并发，协程就是 Go 程序中最基本的执行单元。
+它不是操作系统层面上的线程，而是线程内实现的更轻量化的协程，所以在一线程中的协程无法高效利用多核心。
+但是，因为协程更轻量化，所以切换协程更高效。事实上每一个 Go 程序至少有一个 Master goroutine，
+程序启动时，它会自动创建并运行。Go 1.5 版本开始可以默认采用多核执行，默认值线程是 CPU 核心数。
+
 
 Rust 提供了一种接口类型 Traits，意思为对象的特质，相当于其它语言中的 interface 接口类型。先定义
 Trait 接口所具有的常量、方法以及类型，然后，为需要这种接口功能的类型实现它，使得该类型具备该 Trait
@@ -3959,6 +4195,11 @@ Rust 的类型系统基于组合思维，不像 C++/Java 通过类以及继承�
 内存的变量声明为 let mut，这可以让变量拥有相应内存的所有权，并且后续可以出借其拥有的所有权，或者将
 所有权转交（move）给其它变量。
 
+移动所有权，意味着高效，因为不涉及数据复制，也因为如此，只有标量才有默认的 Copy trait 行为。和数据
+复制相关的接口除了 **Copy** 还有 **Clone**，前者继承自后者。因为 Copy 是隐式的，而且按 bit 复制
+数据，所以对于大量数据而言是低效能的，对于复杂的数据类型而言，它又是浅拷贝，不及显式的 Clone 通用。
+
+
 下表列出 Rust vs. C++ 语言三种传参方式声明方式，注意 Rust 只有标量才是传值方式：
 
 | 传参方式 |     Rust 声明     |      C/C++ 声明      |
@@ -3995,6 +4236,14 @@ Rust 的类型系统基于组合思维，不像 C++/Java 通过类以及继承�
     b = 3;
     println!("a + b = {}", a + b);
 ```
+
+操作系统为应用程序提供一个运行环境，内存环境是最核心的资源，应用程序获取到的内存空间会划分成不同的
+功能区域，其中堆（Heap）与栈（Stack）是最重要的两块。Heap 内存可以由程序开发者动态分配，C/C++
+语言中，malloc 和 free 函数对就是对这部分内存的动态分配操作。而 Stack 部分由编译器进行管理，是
+一个 First In Last Out (FILO) 数据结构，CPU 内有 ESP 专用寄存器指向栈顶，有其它配置指令管理，
+如 PUSH/POP 指令。Stack 作为函数调用栈使用，每调用一个函数，Stack 就增加一个 frame 数据结构用于
+记录当前函数的运行上下文。Stack 这部分内存通常比 Heap 这部分空间更少，所以程序一不小心编写错误代码，
+就可能导致栈内存溢出，导致程序崩溃，更严重的是漏洞可能给系统带来安全问题。
 
 变量与所有权的结合，还使得变量的生命周期更容易管理，在不同内存区的变量，堆（Heap）与栈（Stack），
 变量的生存期就不相同。位置栈上的变量，只要函数调用返回，便会释放掉栈内存，并销毁其中的变量，这些变量
@@ -4074,16 +4323,6 @@ Graphs 数据结构中，多个边可能指向相同的终点，节点从概念�
 使用引用计数器来管理内存的回收。
 
 
-    use std::env::{args, Args};
-
-    fn main() {
-        let mut _args: Args = args();
-        let _arg0: Option<String> = _args.nth(0);
-        let _argc: usize = _args.len();
-        println!("Hello Rust, argc {}, args[0] is {}", _argc, _arg0.unwrap());
-    }
-
-
 变量的生命周期还可以进行显式标注，Explicit annotation，通过标注可以改变默认的生存周期，使得被
 依赖的变量可以生存更长的时间。例如，寿命表示法（注：'a: 'b，表示有效期 a > b），又如 'static 静态
 变量标注，表示静态有效期，即不依赖任何量。
@@ -4120,8 +4359,6 @@ fn main() {
     println!("The longest string is {}", result);
 }
 ```
-
-
 
 开发工具如果配置了 Rust Analyzer 和  Language Server Protocol (LSP)，那么可以在函数、结构体
 前头使用一些标注来禁止显示警告信息，避免在编译时出现过多的内容，例如：
@@ -4177,6 +4414,85 @@ Rust 程序中一般会出现两种错误：
 
 一般函数的返回值在最后一行，可以不写 return 和结尾的分号，因为后面没有更多的语句了。
 
+以下这个各种演示了 Rust 的多种特性：
+
+- Trait 接口的使用；
+- 结构体 Vector3 的定义与成员方法的实现；
+- 为 Vector3 实现运算符重载 AddAssign（+=）；
+- 所有权的移动与出借，标量类型（除了字符串外的原始类型）与非标量数据类型的所有权处理差异；
+- Vector3 类型会转转移所有权到 take_ownership() 函数内部；
+- 标量类型，如数值、布尔值、字符，以及含这类型的元组 Tuples，默认会执行 Copy trait 传值；
+
+程序运行环境传递进来的参数 Args 是一个迭代器，使用 **nth()** 方法可以获取参数的 &mut 引用，所以
+需要使用 let mut 声明 `_args` 变量，也可以使用 **collect()** 方法将其转换为 Vec<String> 集合
+类型，方便通过下标操作。
+
+```rust,ignore
+    use std::env::{args, Args};
+    use std::{fmt::Display};
+
+    #[allow(dead_code)]
+    #[allow(unused_variables)]
+    fn take_ownership<T>(v:T) { }
+
+    fn print_scalar(i:i32) { 
+        println!("Number is {}", i); 
+    }
+
+
+    fn main() {
+        let mut _args: Args = args();
+        let _arg0: String = _args.nth(0).unwrap();
+        let _argc: usize = _args.len();
+        println!("Hello Rust, argc {}, args[0] is {}", _argc, &_arg0);
+
+        let b  = true;
+        take_ownership(&b);  // Scalar type has a Copy trait, borrowing immutable ownership
+        println!("This line is ok, boolean is {}", b);
+
+        let i = 256;
+        print_scalar(i);     // Scalar type has a Copy trait, pass by value into print_scalar()
+        println!("This line is ok, number is {}", i);
+
+        let v = Vector3{x:0.0, y:1.0, z:3.0};
+        println!("This line is ok, vector is {}", v);
+        take_ownership(&v);  // Non-scalar type has no Copy trait by default, ownership moved.
+        // println!("This line cause error {}", v);
+        //                                      ^ value borrowed here after move
+    }
+
+    struct Vector3 { 
+        x: f32, 
+        y: f32, 
+        z:f32 
+    }
+
+    /// Inherent implementations for Vector3
+    impl Vector3 {
+        // call it by vector3.z()
+        fn z(&self) -> f32 { self.z }
+
+        pub fn to_string(&self) -> String {
+            format!("<Vector {},{},{}>", self.x, self.y, self.z)
+        }
+    }
+
+    /// Trait implementation of Display interface for Vector3
+    impl Display for Vector3 {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            f.write_str(&self.to_string())
+        }
+    }
+
+    /// Overloading += operator for Vector3
+    impl std::ops::AddAssign<f32> for Vector3 {
+        fn add_assign(&mut self, rhs: f32) {
+            self.x += rhs;
+            self.y += rhs;
+            self.z += rhs;
+        }
+    }
+```
 
 
 ## ⚡ Printing 打印信息
@@ -4978,6 +5294,7 @@ Rust 常量命名规范是：全字母大写，单词间以下划线分隔，数
 - https://doc.rust-lang.org/stable/std/primitive.unit.html
 - [Rust Language Cheat Sheet](https://cheats.rs/#strings-chars)
 - [Tokens](https://doc.rust-lang.org/stable/reference/tokens.html)
+- [The Rust Programming Language - Data Types](ch03-02-data-types.md)
 
 Rust 程序每个变量、项和值都有一个类型，类型定义了保存该值的内存如何解释，以及可以对该值执行什么操作。
 
@@ -5075,7 +5392,7 @@ Rust
 
 Rust 简化了类型名字表达，并且使用类似 TypeScript 一样的类型声明语法格式，在冒号后面定数据类型。
 
-Numbers 的几种表示：
+Numbers 的字面量有以下几种表示：
 
     | Number literals* |   Example   |
     |------------------|-------------|
@@ -5088,8 +5405,12 @@ Numbers 的几种表示：
 
 十进制中 _ 一般被当作千分符。
 
-单位类型是比较特殊的，表示为 `()` 类型，也仅有一个值 `()`，用来表示没有其它有意义的返回值。通常是
-函数的隐式返回值，即没有指定返回值 `-> ...` 的函数会自动返回的值。
+Tuple 元组类型就是一个分组类型，可以将多个不同类型的值归类到一个组内管理，一旦定义好元组，它的大小
+就不能再改变。没有任何值的元组叫做单位类型，表示方式比较特殊，`()` 类型，也仅有一个值 `()`。常常
+在函数中用来表示没有其它有意义的返回值，通常是函数的隐式返回值，即没有指定返回值 `-> ...` 的函数
+会自动返回的值。
+
+特殊的数值表达还有 1i32 或 2usize 这样的形式。
 
 参考如下：
 
@@ -5230,7 +5551,7 @@ unsafe {
 }
 ```
 
-所有原始数据类型都实现了 `to_string` 方法，这是通过 Blanket Implementations 实现 ToString 提供的方法：
+所有原始数据类型都实现了 `ToString` 接口方法，这是通过 Blanket Implementations 实现的：
 
 ```rust,ignore
 #[stable(feature = "rust1", since = "1.0.0")]
@@ -5250,7 +5571,7 @@ impl<T: fmt::Display + ?Sized> ToString for T {
 }
 ```
 
-从字符转换数值，使用 FromStr Trait 提供的 `from_str(src: &str)` 方法，支持字符串格式：
+从字符转换数值，使用 `FromStr` 接口提供的 `from_str(src: &str)` 方法，支持字符串格式：
 
 - '3.14'
 - '-3.14'
@@ -6087,7 +6408,8 @@ println!("{:?}", v);
 
 前面解析的引用所有权的出借概念，其实就是在讨论引用的生命周期，Rust 的引用都有生命周期，生命周期也只是对引用约束。
 
-而作用域对变量的生存周期的作用，又常常与引用的生命周期相混淆。需要明确，Rust 的难点在于引用的生命周期，引用是为了避免复制数据而提升运行效率，没有引用，也就没有 Rust 复杂的 lifetime。
+而作用域对变量的生存周期的作用，又常常与引用的生命周期相混淆。需要明确，Rust 难点在于引用的生命周期，
+引用是为了避免复制数据而提升运行效率，没有引用，也就没有 Rust 复杂的 lifetime。
 
 官方文档 rust-by-example 给出的概念演示代码，注意 i 变量和两个引用的生命周期作用范围：
 
@@ -6105,11 +6427,15 @@ fn main() {
 } // Lifetime ends. ─────────────────────────────────────┘
 ```
 
-Rust 的代码块也算是一个作用域，通过 `let` 语句将引用绑定到 borrow1 或 borrow2 的引用，在超出代码块后就结束了。而变量 i 的生命周期显然比它们更长，否则引用就是悬空状态。
+Rust 的代码块也算是一个作用域，通过 `let` 语句将引用绑定到 borrow1 或 borrow2 的引用，在超出
+代码块后就结束了。而变量 i 的生命周期显然比它们更长，否则引用就是悬空状态。
 
-通常，Rust 引用的生命周期不是手动指定的，和类型自动推断一样，编译器会根据传入的参数进行生命周期推断。编译器会持续根据语句上下文推断出生命周期参数，并选择最小的那个。当编译器遇到有多种不同的生命周期无法确定，就需要 annotate lifetimes 来指示编译器更好地处理，生命周期标注的目的是为了消除歧义。
+通常，Rust 引用的生命周期不是手动指定的，和类型自动推断一样，编译器会根据传入的参数进行生命周期推断。
+编译器会持续根据语句上下文推断出生命周期参数，并选择最小的那个。当编译器在多种不同的生命周期中无法确定，
+就需要 annotate lifetimes 来指示编译器更好地处理，生命周期标注的目的是为了消除歧义。
 
-Dust 没有运行时的 GC 行为，它通过编译时内存检查和引用，基于 borrowing and ownership 实现静态垃圾回收机制。Rust 不在运行时通过引用计数检查的方式回收内存，而是在编译时追踪检查生命周期，这使得程序运行非常高效。
+Rust 没有运行时的 GC 行为，它通过编译时内存检查和引用，基于 borrowing and ownership 实现静态
+垃圾回收机制。Rust 不在运行时通过引用计数检查的方式回收内存，而是在编译时追踪检查生命周期，这使得程序运行非常高效。
 
 以下例子演示了 Scope & Shadowing 的作用：
 
@@ -6153,7 +6479,9 @@ fn main() {
 }
 ```
 
-Rust 的 move semantics, borrowing, lifetime 之类的概念加在一起，确实让语言变得复杂不堪。Rust 文档都说，你可能需要“fight with the borrow checker”。为了通过这些检查，你必须用很怪异的方式来写程序，随着问题复杂度的增加，就要求有更怪异的写法。
+Rust 的 move semantics, borrowing, lifetime 之类的概念加在一起，确实让语言变得复杂不堪。
+Rust 文档都说，你可能需要“fight with the borrow checker”。为了通过这些检查，你必须用很怪异
+的方式来写程序，随着问题复杂度的增加，就要求有更怪异的写法。
 
 在深入理解生命周期之前，我们需要将常规意义的作用域概念作一下调整，Rust 生命周期这个术语和作用域密切联系，但又不是等价关系。
 
@@ -6436,9 +6764,17 @@ where
 - https://doc.rust-lang.org/rust-by-example/scope/lifetime/static_lifetime.html
 - https://doc.rust-lang.org/rust-by-example/custom_types/constants.html
 
-常量中唯一允许的生存期是 `'static`，它是 Rust 程序常量默认包含的生存期。
+常量中唯一允许的生存期是 `'static`，它是 Rust 程序常量默认包含的生存期。一个引用具有 `'static`
+生存期表示数据会在整个程序的运行期间有效，但可以被迫缩短寿命。
 
-例如，定义一个带有静态生成期的字符串常量，当然可以省略这个生存期，因为字符串字面量本身就是 `&'static str` 类型，它是只读的类型：
+有两种定义 `'static` lifetime 的方式，两都的数据都保存在内存的只读区：
+
+* Make a constant with the `static` declaration.
+* Make a `string` literal which has type: `&'static str`.
+
+
+
+例如，定义一个字符串常量，可以省略这个生存期，字符串字面量本身就是 `&'static str` 只读的类型：
 
     const WORDS: &'static str = "hello rust!";
     const WORDS: &str = "hello convenience!";
@@ -6497,7 +6833,8 @@ fn rand_str_generator() -> &'static str {
 }
 ```
 
-智能指针 Box 提供的 leak 方法暗示了有内存泄漏风险，它会返回一个 `&mut T`，如果没有为它指定一个生存周期，那么成为 `'static` 生存周期并长久地占据着某块内存，而且不能通过 Drop 主动进行释放。
+智能指针 Box 提供的 leak 方法暗示了有内存泄漏风险，它会返回一个 `&mut T`，如果没有为它指定一个
+生存周期，那么成为 `'static` 生存周期并长久地占据着某块内存，而且不能通过 Drop 主动进行释放。
 
 以下示范，字符串对象如何传入 drop_static 函数中绑定 `'static` 生命周期，并从内存中释放：
 
@@ -6663,7 +7000,7 @@ impl<T> Trait for T {}
 
 
 
-列如，以下示范中定义了一个 Borrowed 结构体，并结合生命周期定义，以正确处理 `x` 成员的引用生命周期。
+例如，以下示范中定义了一个 Borrowed 结构体，并结合生命周期定义，以正确处理 `x` 成员的引用生命周期。
 
 ```rust,ignore
 // A struct with annotation of lifetimes.
@@ -6689,9 +7026,11 @@ fn main() {
 
 `#[derive(Debug)]` 元数据作用是为 Borrowed 实现打印调试信息，即为格式模板 `{:?}` 填充数据。
 
-如果不定义生命周期又是怎么回事？因为内部成员 `a` 是在 Borrowed 内部作用域定义的引用，如果没有定义一个生命周期，编译器根据无法管理它，相当于悬空指针。
+如果不定义生命周期又是怎么回事？因为内部成员 `a` 是在 Borrowed 内部作用域定义的引用，如果没有
+定义一个生命周期，编译器根据无法管理它，相当于悬空指针。
 
-在 Trait 可以使用静态生命周期定义，但是注意，Trait bound 它意味着绑定类型不包含任何非静态引用。方法关联的 receiver 可以想拿多久就拿多久，直到执行 `drop()` 把它放下，它才失效。
+在 Trait 可以使用静态生命周期定义，但是注意，Trait bound 它意味着绑定类型不包含任何非静态引用。
+方法关联的 receiver 可以想拿多久就拿多久，直到执行 `drop()` 把它放下，它才失效。
 
 这是很重要的概念，即所有权总类型是通过 `'static` 生命周期绑定的，但是引用通常却不是。
 
@@ -6704,13 +7043,21 @@ fn print_it( input: impl Debug + 'static ) {
 
 fn main() {
     // i is owned and contains no references, thus it's 'static:
-    let i = 5;
+    let i: i32 = 2;
     print_it(i);
 
-    // oops, &i only has the lifetime defined by the scope of
-    // use_it(), so it's not 'static:
-    print_it(&i);
-}
+    // oops, &i only has the lifetime defined by the scope of main(), 
+    // so it's not 'static:
+    // print_it(&i);
+    // ---------^^-
+    // |        |
+    // |        borrowed value does not live long enough
+    // argument requires that `i` is borrowed for `'static`
+
+    static I: i32 = 1;
+    print_it(&I)
+  
+} // `i` dropped here while still borrowed
 ```
 
 
@@ -6892,7 +7239,7 @@ Haskell 语言中的 Functors, Applicatives, Monads, Arrows 等等都基于此�
 - 如果只在外面加 return，也取不到 content；
 - 嵌套函数都加 return 这就出现了 Maybe.of( Maybe.of(str) ) 嵌套结构；
 
-Monad 函子的功能比较重要，当需要处理的数据是 Maybe {value: Maybe} 这样的嵌套结构，可以加一个 `join()` 方法来返回 value，或者直接提供 `chain()` 方法在执行时直接执行 `map()` + `join()` 两个步骤。
+Monad 函子的功能比较重要，当需要处理的数据是 Maybe{value: Maybe} 这样的嵌套结构，可以加一个 `join()` 方法来返回 value，或者直接提供 `chain()` 方法在执行时直接执行 `map()` + `join()` 两个步骤。
 
     class Maybe{
        constructor (value) {
@@ -8945,12 +9292,11 @@ struct MyEnumPayloadC { x: u32, y: u8 }
 
 ## ⚡ Error Handling 错误处理
 - https://doc.rust-lang.org/rust-by-example/error.html
-- https://doc.rust-lang.org/stable/core/option/index.html
 - https://doc.rust-lang.org/stable/std/result/index.html
 - https://doc.rust-lang.org/stable/std/option/index.html
 - https://doc.rust-lang.org/std/panic/fn.catch_unwind.html
 - https://doc.rust-lang.org/nomicon/panic-handler.html
-- Writing an OS in Rust - Handling Exceptions https://os.phil-opp.com/handling-exceptions/
+- [Writing an OS in Rust - Handling Exceptions](https://os.phil-opp.com/handling-exceptions/)
 
 ### 🟢🔵 Panics Option Result
 
@@ -9017,7 +9363,8 @@ match version {
 }
 ```
 
-以上例子 parse_version 函数结合了 match 模式匹配来返回数值对应的 Version 枚举值，然后再用一条 match 模式匹配 Ok or Err 值来打印不同的信息。
+以上例子 parse_version 函数结合了 match 模式匹配来返回数值对应的 Version 枚举值，然后再用一条
+match 模式匹配 Ok or Err 值来打印不同的信息。
 
 ```rust,ignore
 let optional = None;
@@ -9034,13 +9381,19 @@ fn check_optional(optional: Option<Box<i32>>) {
 }
 ```
 
-通过 `unwrap()` 方法可以取出 `Ok(value)` 包装的值，但不能对 `Err(why)` 操作，否则 panic。所以在使用 `unwrap()` 方法会在故障时执行 panic！ 并且终止程序。更简单的做法是使用 ? 操作符替代 ，它可以链式使用，如 x?，如果 x 是 None 或 Err，那么 ? 操作符就是向上传播 panic!，旧式代码还可以使用具有相同功能的 try! 宏。
+通过 `unwrap()` 方法可以取出 `Ok(value)` 包装的值，`unwrap_err()` 这种方法才能对 `Err(why)`
+操作，否则 panic。
+
+所以在使用 `unwrap()` 方法会在故障时执行 panic！ 并且终止程序。更简单的做法是使用 ? 操作符替代，
+它可以链式使用，如 x?，如果 x 是 None 或 Err，那么 ? 操作符就是向上传播 panic!，旧式代码还
+可以使用具有相同功能的 try! 宏。
 
 也可以使用 `expect()` 方法，它可以指定出现错误时的提示信息，并且在正常情况下返回 OK 封装的值：
 
     expect("Some message...");
 
-并且，Rust 默认使用了 `#[warn(unused_must_use)]`，即必需使用返回值 `Result<T, E>`，可以直接使用 `unwrap()`，如果我们知道错误或操作失败不会发生，但是编译器不知道这一点。
+并且，Rust 默认使用了 `#[warn(unused_must_use)]`，即必需使用返回值 `Result<T, E>`，可以
+直接使用 `unwrap()`，如果我们知道错误或操作失败不会发生，但是编译器不知道这一点。
 
 根据不同的使用场景，Result 或 Option 都提供了以下类似方法方便处理各种可能的情况：
 
@@ -9099,7 +9452,7 @@ pub fn map_or_else<U, D: FnOnce() -> U, F: FnOnce(T) -> U>(self, default: D, f: 
 
 另外，传入 map_or 的参数是前期评估，而 map_or_else 则是延迟评估。
 
-列如，以下例子：
+例如，以下例子：
 
 ```rust,ignore
 fn double_first_v1(vec: Vec<&str>) -> Option<Result<i32, ParseIntError>> {
@@ -9312,10 +9665,16 @@ if let Err(err) = result {
 
 
 ### 🟢🔵 Error Message
+- http://stevedonovan.github.io/rust-gentle-intro/6-error-handling.html
 
 错误发生时，通常可以记录的是一个错误码，而将错误码与相关的信息关联起来，才能给用户友好的提示。
 
-参考 std::io 库中的错误处理方式：
+参考 std::io 库中定义的错误信息对象，这个库实了现一个 Error 结构来处理错误信息，接口要求：
+
+- May implement **Debug**
+- Must implement **Display**
+- Must implement **Error**
+
 
 ```rust,ignore
 pub struct Error {
@@ -9370,13 +9729,43 @@ impl fmt::Debug for Repr {
 ```rust,ignore
 use std::io::{Error, ErrorKind};
 
+fn raises_an_error(yes: bool) -> Result<(), Error> {
+    if yes {
+        Err(Error::from(ErrorKind::NotFound))
+    } else {
+        Ok(())
+    }
+}
+
 fn main(){
-    let not_found = ErrorKind::NotFound;
-    let error = Error::from(not_found);
-    assert_eq!("entity not found", format!("{}", error));
-    assert_eq!("Kind(NotFound)", format!("{:?}", error));
+    let result = raises_an_error(true);
+    // assert_eq!("Kind(NotFound)",  format!("{:?}", result.unwrap_err()));
+    // assert_eq!("entity not found)",  format!("{}", result.unwrap_err()));
+    
+    let out: String = match result {
+        Ok(()) => "return unit tuple".to_string(),
+        Err(error) => match error.kind() {
+            ErrorKind::NotFound => { "Error: Not Found!".to_string()},
+            other_error => { panic!("Unknown error: {:?}", other_error); }
+        },
+    };
+    println!("Output Message: {}", out);
 }
 ```
+
+一个程序中的错误类型是各式各样的，为了方便处理错误，通常需要做归一化错误处理，自动执行错误类型的转换，
+用基类型 Error 表达其它错误信息类型，比如可以为自定义错误类型 YourError 实现 From<Error> 转换
+接口，或者支持自动从其它错误类型转换，那么在函数返回 Result((), YourError) 时就
+会自动调用这个接口进行转换：
+
+- 实现 `From<T> for U` 隐含了 `Into<U> for T`；
+- From 接口是自反的，reflexive，即 `From<T> for T` 也同时实现；
+
+结合 Box 智能指针，通过类型别名定义一个新的类型，就可以自动将错误信息交转换为 Box 指针管理：
+
+    type BoxResult<T> = Result<T,Box<Error>>;
+
+Here we also ask for From to be implemented so that std::io::Error will convert into our error type using foreign_links:
 
 
 ## ⚡ Collections 集合
@@ -9686,7 +10075,8 @@ Stirng 到 &str 可以直接 as_str() 到转换得到，没有什么计算过程
 
 Rust 使用 OsString & OsStr 对接平台原生字符串值，它们可以高效地互相转换，几乎没有任何消耗。
 
-另外，为了提供 C/C++ FFI 语言接口，又提供了 &CStr 和 CString 两类字符串，它们以 NUL 字符作为结束标记，它们也是不含 0 值的字符串。在 Unix 系统调用中，应该使用 CStr。
+另外，为了提供 C/C++ FFI 语言接口，又提供了 &CStr 和 CString 两类字符串，它们以 NUL 字符作为
+结束标记，它们也是不含 0 值的字符串。在 Unix 系统调用中，应该使用 CStr。
 
 C++ 程序拼接字符串：
 
@@ -9704,7 +10094,8 @@ let s2 = "world".to_string();
 s1 += &s2;
 ```
 
-Rust 字符串的拼接，根本就是把加法操作符右侧的字符串，拷贝一份，并附到左侧字符串之后，同时右侧的字符串的所有权不受影响。Rust 语言的设计需要将「借用」显式写出，所以就比 C++ 多了一个借用操作符。
+Rust 字符串的拼接，根本就是把加法操作符右侧的字符串，拷贝一份，并附到左侧字符串之后，同时右侧的
+字符串的所有权不受影响。Rust 语言的设计需要将「借用」显式写出，所以就比 C++ 多了一个借用操作符。
 
 两个 `&str` 也不能直接相加，但可以将 `&str` 加到 String 上，并且，两个 String 相加，要将 + 右侧的转换为借用形式：
 
@@ -10425,6 +10816,7 @@ fn owned_referenced_v2() -> Result<OwningRef<Box<[i32;4]>, i32>, ()> {
 - https://doc.rust-lang.org/stable/std/env/index.html
 - https://doc.rust-lang.org/book/ch12-01-accepting-command-line-arguments.html
 - https://doc.rust-lang.org/book/ch12-05-working-with-environment-variables.html
+- https://doc.rust-lang.org/reference/crates-and-source-files.html
 
 和 C++ 语言不同，Rust 的 main() 函数不通过参数列表接收程序运行时传入的参数，而是通过环境变量的方式读取，可以使用 env 读取其它环境变量：
 
@@ -10452,6 +10844,29 @@ fn main() {
 - `&args[0]` 借用参数引用，因为外部传入的 String 所有权不能转移；
 - `{:?}` 打印模板使用通配符号打印多个值；
 
+Main Functions
+
+A crate that contains a main function can be compiled to an executable. If a main 
+function is present, it must take no arguments, must not declare any trait or lifetime bounds, 
+must not have any where clauses, and its return type must implement the Termination trait.
+
+```rust,ignore
+fn main() {}
+fn main() -> ! {
+    std::process::exit(0);
+}
+fn main() -> impl std::process::Termination {
+    std::process::ExitCode::SUCCESS
+}
+```
+
+Note: Types with implementations of Termination in the standard library include:
+
+001. ()
+002. !
+003. Infallible
+004. ExitCode
+005. Result<T, E> where T: Termination, E: Debug
 
 示范使用 std::fs 标准模块来读取文件，通过 `read_to_string()` 静态方法：
 
@@ -10965,7 +11380,7 @@ Unsafe 模式下不进行安全性检查，意味有一定的性能提升，并�
 
 Unsafe 语句块能允许程序员做的额外事情有：
 
-- Dereference a raw pointer `&num as *const i32`
+- Dereference a raw pointer `&var as *const i32`
 - Call an unsafe function or method
 - Access or modify a mutable `static` variable
 - Implement an unsafe trait
@@ -12201,7 +12616,7 @@ macro_rules! $name {
 
 宏至少定义一条规则，最后一条规则的分号可省略。
 
-列如，有以下这样一个宏定义：
+例如，有以下这样一个宏定义：
 
     macro_rules! four {
         () => {1 + 3};
@@ -12220,6 +12635,34 @@ Patterns 可以精确匹配 literal token trees，例如 `4 fn ['spang "whammo"]
     macro_rules! multiply_add {
         ($a:expr, $b:expr, $c:expr) => {$a * ($b + $c)};
     }
+
+
+例如，系统自带的 vec! 宏：
+
+```rust,ignore
+    macro_rules! vec {
+        ( $( $x:expr ),* ) => {
+            {
+                let mut temp_vec = Vec::new();
+                $(
+                    temp_vec.push($x);
+                )*
+                temp_vec
+            }
+        };
+    }
+```
+
+这个宏能按以下转换注解这一行的代码:
+
+```rust
+// let v: Vec<u32> = vec![1, 2, 3]; 
+let mut temp_vec = Vec::new();
+temp_vec.push(1);
+temp_vec.push(2);
+temp_vec.push(3);
+temp_vec
+```
 
 匹配模板支持 Captures 功能，语法格式 `$identifier:capture`，capture 表达如下：
 
@@ -12243,6 +12686,17 @@ Patterns 可以精确匹配 literal token trees，例如 `4 fn ['spang "whammo"]
 - `rep` is the required repeat control. 
     - `*` (indicating zero or more repeats)
     - `+` (indicating one or more repeats).
+
+Rust 编译器在展开宏时，会有不同的使用形式：
+
+- `# [ $arg ];` attributes style, e.g. `#[derive(Clone)]`, `#[no_mangle]`, …
+- `#![ $arg ];` e.g. `#![allow(dead_code)]`, `#![crate_name="blang"]`, …
+- `$name! $arg;` e.g. `println!("Hi!")`, `concat!("a", "b")`, …
+- `$name! $arg0 $arg1;` e.g. `macro_rules! dummy { () => {}; }`.
+
+对于第三种形式 `$name! $arg`，问题是 Rust 解析器如何知道每个 $arg 可能的语法扩展的是什么样子的？
+答案是不必。相反，语法扩展调用的参数是单个令牌树。更具体地说，它是一个单一的，无子叶 Token Tree；
+
 
 例如，以下定义一个宏用来对参数进行计数：
 
@@ -12346,7 +12800,7 @@ fn main() {
 }
 ```
 
-类似地，定义一个可以 Derive macros，可以使用 proc_macro_derive 来定义：
+类似地，定义一个可以 Derive macros，可以使用 **proc_macro_derive** 来定义：
 
 ```rust,ignore
 extern crate proc_macro;
@@ -12384,7 +12838,7 @@ pub fn derive_helper_attr(_item: TokenStream) -> TokenStream {
 }
 ```
 
-演示使用：
+使用演示：
 
 ```rust,ignore
 #[derive(HelperAttr)]
@@ -12393,7 +12847,7 @@ struct Struct {
 }
 ```
 
-Attribute macros 定义多了一个输入，第一输入 TokenStream 为属性名后面的内容，第二个 TokenStream 为宏应用对象的剩余部分。
+Attribute macros 有两个 TokenStream 输入，第一个为属性宏的属性部分，第二个为宏应用对象部分。
 
 ```rust,ignore
 #[proc_macro_attribute]
@@ -12433,13 +12887,11 @@ fn invoke4() {}
 // out: item: "fn invoke4() {}"
 ```
 
-接下来，使用第三方模块编写过程宏，在 Rust stable 版本里，需要借助三个 crate：
+接下来，使用第三方模块编写过程宏：
 
-- `syn`，这个是用来解析语法树(AST)的。各种语法构成
-- `quote`，解析语法树，生成 Rust 代码，从而实现你想要的新功能。
-- `proc_macro`(std) 和 proc_macro2(3rd-party)
-
-但在 nightly 版本里，以上的这些 crate 都不需要了，不依赖第三方 crate，还有就是语法上是稍微有些不同，大部分是一样的。
+001. syn 模块用来解析语法树(AST)的各种语法构成，即是 Syntax Analyzer。
+002. quote 解析语法树，生成 Rust 代码，从而实现想要的功能。
+003. proc_macro(std) 和 proc_macro2(3rd-party)
 
 创建一个库 hello_macro_derive，并配置依赖，还有设置库类型为 proc-macro，即一个宏库：
 
@@ -12482,10 +12934,10 @@ fn impl_hello_macro(ast: &syn::DeriveInput) -> TokenStream {
 }
 ```
 
-自定义宏使用的注解是 `#[proc_macro_derive(HelloMacro)]`，其中 HelloMacro 是宏的名称，在
-使用时，只需要使用注解 `#[derive(HelloMacro)]` 即可。
+编写可继承宏使用的注解是 `#[proc_macro_derive(HelloMacro)]`，其中 HelloMacro 是宏的名称，
+在使用时，只需要使用注解 `#[derive(HelloMacro)]` 即可。
 
-在使用时我们应该先引入这两个依赖
+使用可继承宏时我们应该先引入这个依赖
 
     hello_macro_derive = { path = "../hello_macro_derive" }
 
@@ -12507,12 +12959,17 @@ fn main() {
 }
 ```
 
+通过 HelloMacro 可继承宏，Pancakes 这个结构体便自动实现了 hello_macro() 这个接口方法。
+
+
 
 ### 🟢🔵 TokenStream 语法树数据流处理
 - https://docs.rs/syn/1.0.1/syn/
 - https://docs.rs/quote/1.0.0/quote/
 - https://doc.rust-lang.org/proc_macro/
 - https://docs.rs/proc-macro2/1.0.0/proc_macro2/
+- [Tokio tutorial](https://tokio.rs/tokio/tutorial/)
+- [Tokio - Event-driven NBIO asynchronous I/O](https://crates.io/crates/tokio)
 
 在这里，很有必要从编译器语法树构建原理的角度来解析宏的概念。
 
@@ -12532,11 +12989,27 @@ Token trees 则是介于 Tokens 与 AST 之间的东西。以树状数据结构�
 词法分析器，然后将源代码中字符串中的 Tokens 转换为 AST，这一步对应的程序叫做 Syntax Analyzer，
 即词法解析器 Parser。
 
+Rust 作为静态编译型语言，rustc 编译器本身由 Rust 语言实现，即实现了自举，后端部分则基于现成的 LLVM。
+
+Rust 编译器简要工作流程如下：
+
+- 首先，读取源代码做 Tokens 扫描，得到 Token stream 数据，这部分程序也叫做 Syntax Analyzer；
+- 然后对源码进行词法分析得到 Abstract Syntax Tree (AST) 抽像语法树，这部分程序叫做 Parser；
+- 再将 AST 转换为 High-Level IR (HIR) 以便做类型推断、trait 接口处理以及静态类型安全性检查；
+- 再转换为 Mid-level IR (MIR) 以便做所有权借用检查和代码优化，MIR 也是 Control-Flow Graph (CFG)；
+- 经过以上前端工作后，代码会转译为 LLVM IR，文件后缀一般是 .ll，是文本格式，字节码文件后缀是 .bc；
+- 得到中间代码表达，下一步就是生成相应的机器码，这就是 LLVM 要做的工作。
+
 编写过程宏，通常需要借助三个 crate 来解析语法树中的节点数据:
 
 001. syn 模块用来解析语法树(AST)的各种语法构成，即是 Syntax Analyzer。
 002. quote 解析语法树，生成 Rust 代码，从而实现想要的功能。
 003. proc_macro(std) 和 proc_macro2(3rd-party)
+
+可以参考 Tokio 异步 I/O 处理工具，它就通过属性过程宏 `#[tokio::main]` 包装入口函数为异步函数。
+
+Tokio is an event-driven, non-blocking I/O platform for writing asynchronous applications 
+with the Rust programming language.
 
 例如，以下是使用 `println!("{input:#?}");` 打印 `2, 2` 这个表达式对应的 TokenStream 对象：
 
@@ -12605,16 +13078,6 @@ Token trees 则是介于 Tokens 与 AST 之间的东西。以树状数据结构�
          │ val: 2 │                 │ name: four │
          └────────┘                 │ body: ()   │
                                     └────────────┘
-
-Rust 编译器在展开宏时，会有不同的使用形式：
-
-- `# [ $arg ];` attributes style, e.g. `#[derive(Clone)]`, `#[no_mangle]`, …
-- `#![ $arg ];` e.g. `#![allow(dead_code)]`, `#![crate_name="blang"]`, …
-- `$name! $arg;` e.g. `println!("Hi!")`, `concat!("a", "b")`, …
-- `$name! $arg0 $arg1;` e.g. `macro_rules! dummy { () => {}; }`.
-
-对于第三种形式 `$name! $arg`，问题是 Rust 解析器如何知道每个 $arg 可能的语法扩展的是什么样子的？
-答案是不必。相反，语法扩展调用的参数是单个令牌树。更具体地说，它是一个单一的，无子叶 Token Tree；
 
 ✅ Crate Syn
 
@@ -12823,14 +13286,16 @@ impl TypeId {
 - https://doc.rust-lang.org/book/ch14-02-publishing-to-crates-io.html#documentation-comments-as-tests
 - https://doc.rust-lang.org/book/ch12-04-testing-the-librarys-functionality.html
 
-自动化测试是现代化编程必不可少的工具，它能极有效地提高程序开发效率，同时更有效地提高软件的可用性。从这点出发，有一种开发模式就叫做测试驱动开发 TDD - Test-Driven Development。
+自动化测试是现代化编程必不可少的工具，它能极有效地提高程序开发效率，同时更有效地提高软件的可用性。
+从这点出发，有一种开发模式就叫做测试驱动开发 TDD - Test-Driven Development。
 
 - 编写期望得到 fails 的测试。
 - 编写或修改代码以使新的测试通过。
 - 重构刚刚添加或更改的代码，保持测试通过。
 - 重复 step 1!
 
-Edsger W. Dijkstra 在他 1972 年的论文《谦卑的程序员》中说：“测试以一种非常有效的方法来显示 bug 的存在，但是它对于显示 bug 的不存在是无法实现的。”
+Edsger W. Dijkstra 在他 1972 年的论文《谦卑的程序员》中说：“测试以一种非常有效的方法来显示 bug 
+的存在，但是它对于显示 bug 的不存在是无法实现的。”
 
 Rust 提供了一些宏帮助编写测试脚本，如将 `#[test]` 写在函数前表示一个执行测试时 cargo test 运行的函数：
 
@@ -12841,7 +13306,7 @@ fn it_works() {
 }
 ```
 
-使用`#[test]`这个宏标记的函数，在使用 cargo build 编译时，就会被忽略，而使用 cargo test 可以运行这些函数。
+这个`#[test]`宏标记过的函数会被 cargo build 编译命令忽略，而被 cargo test 命令运行。
 
 还可以指定多线程进行测试，或者使用`show-output`显示 `println!()` 打印的信息：
 
@@ -12925,7 +13390,8 @@ fn it_adds_two() {
 ```
 
 
-使用 `#[cfg(test)]` 配置一个作为测试专用模块是很好的习惯，这样组织的代码更有条理：
+使用 `#[cfg(test)]` 配置一个作为测试专用模块是很好的习惯，这样组织的代码更有条理，可以写在代码
+文件的开头，表示这个文件就是一个测试模块：
 
 ```rust,ignore
 pub fn add_two(a: i32) -> i32 {
@@ -12989,9 +13455,845 @@ mod tests {
 
 
 # 🟡🟠 Asynchronous 异步编程
-- Asynchronous Programming in Rust https://rust-lang.github.io/async-book/01_getting_started/01_chapter.html
-- Rust 中的异步编程 https://huangjj27.github.io/async-book/01_getting_started/01_chapter.html
-- Rust 异步编程 https://learnku.com/docs/async-book/2018/translation-notes/4798
+- [Asynchronous Programming in Rust](https://rust-lang.github.io/async-book/01_getting_started/01_chapter.html)
+- [Rust’s Journey to Async/Await - Steve Klabnik](https://qconnewyork.com/ny2019/presentation/rust)
+- [Rust 中的异步编程](https://huangjj27.github.io/async-book/01_getting_started/01_chapter.html)
+- [Rust 异步编程](https://learnku.com/docs/async-book/2018/translation-notes/4798)
+- [Speed Up Your Python Program With Concurrency by Jim Anderson](https://realpython.com/python-concurrency/)
+- [Green Threads Explained in 200 Lines of Rust](https://cfsamson.gitbook.io/green-threads-explained-in-200-lines-of-rust/)
+- [Async: What is blocking?](https://ryhl.io/blog/async-what-is-blocking/)
+- https://kangxiaoning.github.io/post/2021/03/rust-asynchronous-programming/
+- [[MIT] 6.828: Operating System Engineering](https://pdos.csail.mit.edu/6.828/2018/schedule.html)
+- [Lab 4: Preemptive Multitasking](https://pdos.csail.mit.edu/6.828/2018/labs/lab4/)
+
+
+简单地说，异步编程是一种并发编程模型，concurrent programming model，像 JavaScript 等语言都
+提供了 `async/await` 异步编程语法支持。
+
+并发和并行，Concurrency vs. Parallelism，两个相关的概念，常出现在多任务处理中。时间上平行的事件
+就叫做并行，同时也是并发一种形式。但反过来就不成立，在两个事件之间交替进行，这就是并发，但不是并行。
+
+一般地，多任务处理有两种基本方式：
+
+- Preemptive multitasking 抢占式多任务处理处理；
+- Non-preemptive multitasking (or cooperative multitasking) 协作式多任务处理；
+
+通常，操作系统上会采用抢占式多任务处理，而异步编程中使用协作式多任务处理。
+
+抢占式多任务特点是，调度程序决定了任务的运行或停止，任务本身没有什么话语权，决策是由调度器做出的。
+协作式多任务特点是，任务自行决定 CPU 何时做其他事情，比等待当前任务更好的选择是（yield）放弃等待。
+当一个异步任务放弃主动权时（yield），主动权就会交还给任务调度器，由调度器决定其它任务的执行。在底层
+实现上，放弃 yield 这个操作就相当于执行任务上下文的切换，包括堆栈的保护与复原。
+
+回到并发编程这个问题上来，操作系统可以并行地运行多个程序，并行的线程可以在同一时间做不同的事情，而
+并发不一定需要程序有多个并行的线程，只要能在一定时间内用多个线程、协程或异步地处理一定量的任务就算是
+并发任务处理。
+
+这所以需要并发编程模型，是因为计算机程序面对的问题有两种：
+
+- CPU-bound 纯计算资源密集型问题；
+- I/O-bound 输入输出操作密集型问题；
+
+它们的区别在于，前者需要大量的 CPU 算力，后者需要大量的 I/O 操作，且会有大量的等待数据的延时。利用
+多核心运行多线程的并发可以最有效地利用现代多核心 CPU 的算力，而异步编程则可以在单线程的条件下，很好
+地处理 I/O 密集型的并发任务处理。
+
+一般而言，操作系统线程适合小量的任务处理，因为频繁切换线程的时间成本很高。而协程或异步编程则适合大量
+任务的处理，因为它们轻量，切换任务的时间成本远远低于操作系统的线程调度。
+
+就两种基本问题而言，可以使用的编程模型有 4 种：
+
+- Synchronous 同步编程模型，无法有效利用多核资源，如 JavaScript；
+- multithreading 多线程模型，可以有效利用多核心，但对于大量任务时，切换线程时间成本较高；
+- asyncio 异步编程模型，包括协程，在单线程下无法有效利用多核资源，但对 I/O 任务处理较好；
+- multiprocessing 多进程模型，可以有效利用多核心，和进程相互独立，比多线程模型更稳定；
+
+多线程、多进程同时存在的问题是资源共享竞争问题，一般需要通过资源锁来解决线程同步。另外，进程之间在
+操作系统层面上使用的是相互独立的内存空间，所以彼此不能直接共享内存，需要通过 IPC 技术实现通信。
+
+像 Python 这样的语言，虽然可以使用多线程，但是由于 CPython 实现中使用了 GIL 全局锁，多线程不能
+并行执行，同时只能有一个线程在执行，相当于单线程模型。
+
+需要你对计算机体系架构有一定认识，即计算机的结构：
+
+- CPU 负责指令执行与控制；
+- MCH - Memory Controller Hub 芯片连接高速部件，如内存、显卡；
+- Memory 内存通过地址总线直接与 CPU 相连，并受控于它，通过数据总线与其传输数据；
+- ICH - I/O Controller Hub 芯片连接各种外部低速输入输出设备，如鼠标、键盘、硬盘、 PCI 外部互连总线扩展设备。
+
+整个系统中，CPU 是运行速度最快的，现代的 CPU 主频随便都 GHz 为单位，其次，是与 CPU 直接相连的
+内存和显卡，准确来讲，中间通过内存控制芯片。最后，才通过 ICH 芯片与各种低速设备连接，这些低速设备
+又使用同的接口规范，如硬盘一盘通过 ATA 或较新的 Serial Advanced Technology Attachment (SATA)，
+键盘鼠标通过 Universal Serial Bus (USB)，或者声卡连接通过 Peripheral Component Interconnect (PIC)。
+
+因为，通常的在计算机架构图中，CPU 在最上面，其次是 MCH 芯片，最下面是 ICH 芯片和各种低速 I/O 设备，
+所以两个主要芯片又俗称为北桥芯片、南桥芯片。对于 CPU 来说，所有接连的都属于 I/O 设备，指令需要从内存中
+输入，处理得到的数据可以写入内存、硬盘，或者输出到显卡，最终在输出到显示器，又或者是其它设备。
+
+                           +------------------+
+                           | ======CPU======= |
+                           +--------+---------+
+                                    |
+                       +------------+--------------+
+        +-----+        |                           |    +------+
+        | AGP +--------+ MCH(Memory Controller Hub)+----+Memory|
+        +--+--+        |                           |    +------+
+           |           +------------+--------------+
+    +------+-------+                |
+    |              |   +------------+--------------+     +-----+
+    |   Display    |   |                           |     |     |
+    |              |   | ICH(I/O Controller Hub)   +-----+   -->
+    +--------------+   |                           |     | PCI |
+                       +---+--------+-------+----+-+     |   -->
+                           |        |       |    |       |     |
+              +----------+ |   +----+---+   |  +-+-----+ |   -->
+          +---+   USB    +-+   |  ATA   |   |  |Network| |     |
+          |   +-------+--+     +----+---+   |  +-------+ |   -->
+          |           |             |       |            |     |
+      +---+---+  +----+---+  +------+--+ +--+--------+   |   -->
+      | Mouse |  |Keyboard|  |Hard Disk| | Flash BIOS|   |     |
+      +-------+  +--------+  +---------+ +-----------+   +-----+
+
+阻塞和非阻塞，Blocking vs. Non-blocking，是一对关联概念，阻塞随处可见，是在两方处理速度上出现
+差异时体现出来的处理方式，即使是快速的内存访问也可能阻塞。比如，线程申请访问的内存位于交换分区，则该
+线程将一直阻塞直到页数据从物理磁盘提取到内存。
+
+- Blocking 是指任务在执行时，请求操作条件不满足，那么线程就会一直等待，直到条件满足后才继续执行。
+- Non-Blocking 是指任务在执行时，请求操作条件不满足，会立即得到一个答复，而不会一直在等待下去。
+
+同步与异步，Synchronous vs. Asynchronous 是一对关联概念，描述的是事情处理的有序性，或无序性。
+和阻塞的区别很大，但又不太明显，阻塞意味着**等待**，而同步意味着**有序**，它们的内涵完全不同。
+
+比如说，同步代码与异步代码，同步代码即按编写的顺序执行下去，即使遇到阻塞的情况，也一直等待直到结束；
+而异步代码则不同，它不会按顺序执行，即后面的代码可能会比前面的代码更先于执行。并且，异步代码下的阻塞
+有两种不同的处理方式，一是可以异步处理的阻塞，这时阻塞不会产生等待，异步代码可以继承执行，不可以异步
+执行的阻塞，比如 std::thread::sleep() 产生的线程阻塞，这就会导致异步代码强制进入等待。
+
+又比如，I/O 上的同步与异步处理：
+
+- Synchronous I/O 是指一个线程在执行 IO 操作时，该线程在操作完成前会被阻塞。
+- Asynchronous I/O 是指一个线程在执行 IO 操作时，该线程并不会被阻塞。
+
+Steve Klabnik - Rust’s Journey to Async/Await 演示文稿中的一张表说明了两种组合的作用：
+
+|              |        Synchronous         |    Asynchronous    |
+|--------------|----------------------------|--------------------|
+| Blocking     | Old-school implementations | Doesn’t make sense |
+| Non-blocking | Go, Ruby                   | Node.js            |
+
+以下演示程序模拟了 I/O 等待情形下的 Blocking vs. Non-Blocking 的两种处理方式的差别，在阻塞
+方式下，总的时间消耗等于各个子任务的时间消耗总和 1 + 2 = 3 秒，而非阻塞的方式下，等待时间被重新
+安排，`await` 会产生一个异步任务，并继承执行后面的代码，而不是像阻塞方式那样干等。在时间上，所有
+任务几乎同时进入等待，最终时间消耗就以最大等待时间的任务为准，这就是为何异步编程模型可以提升 I/O 
+任务的并发能力：
+
+    Time elapsed [non-blocking]: 2.0326444s
+    Time elapsed [blocking]: 5.0523886s
+
+```rust,ignore
+use std::{time::{Duration, Instant}, /* thread::sleep */};
+
+use async_std::task::{sleep, block_on};
+use futures::join;
+
+async fn non_blocking(s: Duration) {
+  sleep(s).await;
+}
+
+async fn blocking(s: Duration) {
+  // block_on(sleep(s)) // blocking asnyc task
+  std::thread::sleep(s) // blocking current thread
+}
+
+#[tokio::main]
+async fn main() {
+  let inst = Instant::now();
+  let future1st = non_blocking(Duration::from_millis(1000));
+  let future2nd = non_blocking(Duration::from_millis(2000));
+  join!(future1st, future2nd);
+  println!("Time elapsed [non-blocking]: {:?}", inst.elapsed());
+  
+  blocking(Duration::from_millis(1000)).await;
+  blocking(Duration::from_millis(2000)).await;
+  println!("Time elapsed [blocking]: {:?}", inst.elapsed());
+}
+```
+
+从计算机硬件体系结构理解，CPU 的中断系统提供了一个能力，程序在等待 I/O 数据进入阻塞状态，当数据到
+来时触发一个 I/O 中断告诉 CPU 可以继续执行处于阻塞状态的程序。阻塞期间，不执行线程的代码，这也就是
+为何阻塞状节省了 CPU 资源。
+
+设想另一种场景，CPU 请求外围设备的一些数据，接着 CPU 进入一个无限循环，一直在检查数据是否可用直到
+获得数据为止，这种方法称为轮询(polling)，是一种消耗 CPU 时间的行为，但是换来的是一定性能提升。
+
+根据不同的应用场合，同步性和阻塞性可以组合到一起。《Unix 网络编程》指明五种 I/O 模型：
+
+- **阻塞 I/O 模型**，最常见的一种，一个 read 操作分两个阶段，先等待数据准备就绪，再将数据拷贝到调用的线程中。阻塞是发生在第一个阶段的，数据准备好之前会一直阻塞用户线程，当数据就绪后再将数据拷贝到线程中，并返回结果给用户线程。
+- **非阻塞 I/O 模型**，当应用程序发起一个 read 操作时，并不会阻塞，而是立刻会收到一个结果，指示数据是准备好了没有。判断返回结果是一个错误状态，就知道数据还没有准备好，可以再次执行 read 操作直到系统将数据拷贝到了线程的内存中，读取出来。
+- **信号驱动 I/O 模型**，让内核在数据报准备就绪时发送 SIGIO 信号通知用户线程。首先开启套接字的信号驱动式 I/O 功能，并通过 sigaction 系统调用安装一个信号处理函数。该系统调用将立即返回，进程继续工作，也就是说没有被阻塞。当数据报准备好读取时，内核就为该进程产生一个 SIGIO 信号。我们随后就可以在信号处理函数中调用 recvfrom 读取数据报，并通知用户进程数据已经准备好，可以读取了。
+- **异步 I/O 模型**，当用户线程发起 read 操作时，告知内核启动读取数据操作，并让内核在整个操作完成后通知程序，包括将数据从内核复制到程序自己的缓冲区。这样在内核执行读取数据操作时，用户线程可以继续执行，当接收到内核在整个操作都完成的信号时，就可以直接去使用数据了。
+- **多路 I/O 复用模型**，Java NIO 使用的模型。
+
+多路复用 I/O 模型和非阻塞 I/O 有类似之处，但是前者的效率要高。因为在非阻塞 I/O 中，scoket 状态
+是通过用户线程去轮询的。而多路复用 I/O 模型，轮询每个 scoket 状态是内核进行处理的，结合硬件底层
+实现效率远比用户线程实现要高得多的，因此多路复用 I/O 模型比较适合高并发应用中使用。
+
+由于多路复用 I/O 模型是通过轮询的方式来检测是否有事件到达，并对到达的事件逐一响应，一旦事件响应体
+很大或是响应事件数量过多，就会消耗大量的时间去处理事件，从而影响整个过程的及时性。Linux 系统为应对
+这种情况提供了 epoll 接口，但是其他操作系统对这个接口的支持有很多差异，所以虽然 epoll 解决了事件
+检测的时效性问题，但是在跨平台能力上却并不能得到很好的支持。
+
+随着网络设计模式的兴起，诞生了两种高性能 I/O 事件处理设计模式 Reactor 和 Proactor：
+
+- Reactor 响应式模式
+
+    - 应用程序向 Reactor 注册 Ready for Read 读取**就绪事件**和相关联的事件处理函数；
+    - Reactor 阻塞等待内核事件通知；
+    - Reactor 收到通知，然后分发可读写事件到用户事件处理函数；
+    - 用户读取**系统缓冲区**中的数据，并处理数据；
+    - 事件处理器完成实际的读操作，处理读到的数据，注册新的事件，然后返还控制权；
+
+- Proactor 主动模式
+
+    - 应用程序初始化一个异步读取操作，然后注册相应的事件处理函数，读取**完成事件**，这是区别于 Reactor 的关键。
+    - 事件分离器等待读取操作完成事件。
+    - 操作系统调用内核线程完成读取操作，并将内容写入**用户缓存区**，即应用程序需要传递缓存区，区别于 Reactor。
+    - 事件分离器捕获到读取完成事件后，激活应用程序注册的事件处理器，事件处理器直接从缓存区读取数据。
+
+Reactor 模式要求主线程只作为 I/O 处理单元，只负责监听文件描述符上是否有事件发生，有的话就立即将
+该事件通知工作线程。除此之外，主线程不做任何其他实质性的工作。 读写数据，接受新的连接，以及处理客户
+请求均在工作线程中完成。
+
+而 Proactor 模式将所有 I/O 操作都交给主线程和内核来处理，工作线程仅仅负责业务逻辑。
+
+异步 I/O 模型就是使用的 Proactor 模式，Java NIO 多路 I/O 复用模型中使用 Reactor 模式。
+
+Rust 作为 "system programming language"，和 C 之间不能有 overhead。也就是说 Rust 必须使用
+系统 Native 的 Thread，才能和 C 的转换没有额外的 IO 损耗，所以 Rust 采用的是 OS Native 线程。
+并且，Rust 的异步模型也是基于 Native Thread 实现的 Synchronous non-blocking network I/O
+同步非阻塞 I/O，使用的是 Reactor 响应式模式。
+
+Native Thread 存在问题是，它消耗的资源更多，特别是面对大数量的任务时，进行线程切换操作会非常低效。
+Go 和 Erlang 都在线性内创建 Green Thread 来解决这个问题。而 Rust 作为系统级语言，不能和 C 之间
+有更多的隔阂，不想采用 Green Thread 模式。
+
+不同语言有不同的多线程实现方式，大多数使用操作系统 API 来创建线程，这种线程称为 1:1 线程模型，可以
+称为 native-threading。在语言层面上的实现的 green-threading 模型，即 N:M 线程模型，即将 N 个
+线程映射到 M 个操作系统线程上运行，因为更节能，所以就叫做绿色线程。这种线程模型优点是：克服了多对一
+模型并发度不高的缺点，又可服了一对一模型中一个用户进程占用太多内核级线程，开销太大的缺点。
+
+
+
+
+以下是流行的并发编程模型：
+
+- **OS threads** don't require any changes to the programming model,
+  which makes it very easy to express concurrency. However, synchronizing
+  between threads can be difficult, and the performance overhead is large.
+  Thread pools can mitigate some of these costs, but not enough to support
+  massive IO-bound workloads.
+- **Event-driven programming**, in conjunction with _callbacks_, can be very
+  performant, but tends to result in a verbose, "non-linear" control flow.
+  Data flow and error propagation is often hard to follow.
+- **Coroutines**, like threads, don't require changes to the programming model,
+  which makes them easy to use. Like async, they can also support a large
+  number of tasks. However, they abstract away low-level details that
+  are important for systems programming and custom runtime implementors.
+- **The actor model** divides all concurrent computation into units called
+  actors, which communicate through fallible message passing, much like
+  in distributed systems. The actor model can be efficiently implemented, but it leaves
+  many practical issues unanswered, such as flow control and retry logic.
+
+Rust 的异步编程实现与其它语言有些不同：
+
+- **Futures are inert** in Rust and make progress only when polled. Dropping a
+  future stops it from making further progress.
+- **Async is zero-cost** in Rust, which means that you only pay for what you use.
+  Specifically, you can use async without heap allocations and dynamic dispatch,
+  which is great for performance!
+  This also lets you use async in constrained environments, such as embedded systems.
+- **No built-in runtime** is provided by Rust. Instead, runtimes are provided by
+  community maintained crates.
+- **Both single- and multithreaded** runtimes are available in Rust, which have
+  different strengths and weaknesses.
+
+Rust 当前只提供了基础的异步代码支持，没有提供整个异步环境所需要的完整功能，例如 executors, tasks,
+reactors, combinators, low-level I/O futures 等等，这些只有社区提供相应的支持。
+
+- 目前标准库只提供了最基础的异步接口、类型、函数，如 Future；
+- Rust 编译器提供了 async/await 语法支持；
+- 大量的工具类型、函数都由社区的 **futures** 模组提供；
+- 异步代码的执行、IO 和 任务的 spawning 则交给社区提供的异步运行时实现；
+
+一个完整 Rust 异步编程环境应该包括：
+
+- Async Runtimes 用于运行异步程序，通常自带 reactor，它有一个或多个 executors；
+- Reactor 反应器为外部事件提供订阅机制，如异步I/O、进程间通信和计时器；
+- Executors 处理任务的调度和执行，单线程和多线程两种，它们通过轮询 Futures 来跟踪任务的运行状态，并在有进展时唤醒任务。
+
+在异步运行时中，订阅者通常是代表低级 I/O 操作的 Futrues。
+
+在Rust里 Future 是一个 trait ，定义如下。
+
+```rust
+// Trait core::future::Future
+pub trait Future {
+    type Output;
+
+    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output>;
+}
+```
+
+Future 接口可以看作是一个异步操作的容器，收纳如网络、RPC、超时、或者磁盘 I/O 等等操作。接口定义了
+一个 poll 方法，用于推动异步任务走向完成的目标，每次执行这个方法都会返回 `Poll` 枚举类型，这个 
+enum 类型有两个值，代表异步任务的不同状态：
+
+- `Poll::Pending` if the future is not ready yet
+- `Poll::Ready(val)` with the result val of this future if it finished successfully.
+
+Ready(T) 表示已经异步任务已经完成计算，每个异步任务的计算结果都可能是一个值，也可以什么也没有。
+
+
+
+Async runtime 和 executor 两者经常互换使用，社区上目前流行的运行时有：
+
+- **Tokio**: A popular async ecosystem with HTTP, gRPC, and tracing frameworks.
+- **async-std**: A crate that provides asynchronous counterparts to standard library components.
+- **smol**: A small, simplified async runtime. Provides the Async trait that can be used to wrap structs like UnixStream or TcpListener.
+- **fuchsia-async**: An executor for use in the Fuchsia OS.
+
+社区的 **futures** 模组包含了一系统接口和编写异步程序的函数，包括最终可能整合到标准库的接口，
+它提供了自己的执行器，但是没有提供 ractor，所以不能执行异步 I/O 或者 timer futures，所以也不是
+完整的异步运行时，需要和其它模组配合使用：
+
+- **Futures** are single eventual values produced by asynchronous computations. JavaScript call this concept “promise”.
+- **Streams** represent a series of values produced asynchronously.
+- **Sinks** provide support for asynchronous writing of data.
+- **Executors** are responsible for running asynchronous tasks.
+
+
+入口函数 main() 是同步执行的代码，在同步代码中进入异步的世界，可以通过调用 block_on() 函数。有
+多种选择，futures::executor::block_on 或者 async_std::task::block_on 等等。
+
+使用 **async** 关键字定义一个异步函数，在一个异步函数内部，则可以使用 **await** 关键字来等待另
+一个异步函数的输出。从异步调用同步代码则不需要做任何额外的事情，只需要直接调用同步函数，仅此而已！
+但是，小心那些需要执行比较长时间才完成的同步函数，并不能在异步的世界里，不假思索的去调用同步代码。
+
+
+
+例如，以下创建一个程序用异步、多线程两种方式下载 Web 页面：
+
+```sh
+[dev-dependencies]
+futures = "0.3"
+tokio = { version = "1", features = ["full"] }
+reqwest = { version = "0.11", features = ["json"] }
+```
+
+```rust,ignore
+// #![cfg(test)]
+
+use futures::{executor::block_on, join};
+use std::thread;
+use reqwest;
+
+
+fn main() {
+    get_two_sites_test();
+    get_two_sites_async_test();
+}
+
+fn download(url: &str) {
+    let body = reqwest::blocking::get(url).unwrap().text().unwrap();
+    println!("download: {} {}", url, body.splitn(1, ' ').nth(0).unwrap());
+}
+
+// #[test]
+fn get_two_sites_test() {
+    // Spawn two threads to do work.
+    let thread_one = thread::spawn(|| download("https://catfact.ninja/fact"));
+    let thread_two = thread::spawn(|| download("http://httpbin.org/get"));
+
+    // Wait for both threads to complete.
+    thread_one.join().expect("thread one panicked");
+    thread_two.join().expect("thread two panicked");
+}
+
+async fn download_async(url: &str) {
+    let body = reqwest::get(url).await.unwrap().text().await.unwrap();
+    println!("download async: {} {}", url, body.splitn(1, ' ').nth(0).unwrap());
+}
+
+async fn get_two_sites_async() {
+    // Create two different "futures" which, when run to completion,
+    // will asynchronously download the webpages.
+    let future_one = download_async("https://catfact.ninja/fact");
+    let future_two = download_async("http://httpbin.org/get");
+
+    // Run both futures to completion at the same time.
+    join!(future_one, future_two);
+}
+
+// #[test]
+#[tokio::main]
+async fn get_two_sites_async_test() {
+    block_on(get_two_sites_async());
+}
+```
+
+因为下载几个页面只是很小的任务，并且不是 CPU 计算任务，创建多线程显得牛刀杀鸡，得不偿失。相对使用异步
+并发处理就显得合理得多，因为 Web 页面是典型的 I/O 密集型问题。
+
+说到异步编程，就不得不提到 Tokio 这一个 Rust 语言实现的高可靠、异步、非阻塞、事件驱动的小巧的运行库，
+它在不影响速度的情况下构建可靠的网络应用，灵活地针对各种系统，从数十个核心的大型服务器到小型嵌入式设备。
+许多应用都会依赖这个异步 I/O 工具。
+
+在上面的例子中，因为 HTTP 协议模块 reqwest 需要 Tokio 的异步框架支持，所以需要`#[tokio::main]`
+标记相关的入口函数。否则，就会触发错误：
+
+    there is no reactor running, must be called from the context of a Tokio 1.x runtime
+
+
+
+## ⚡ Pinning 内存钉
+- https://rust-lang.github.io/async-book/04_pinning/01_chapter.html
+- 04_pinning/01_chapter.md
+
+Pinnig 即钉住内存地址的意思，为了解析这个词的内涵，需要引入自引用类型来解释浅拷贝中出现的不安全现象。
+
+以下代码中 Test 类型包含了一个 b 指针来引用自身 self-referential，创建两个 Test 实例，并调用
+内存交换函数将彼此的数据直接交换，然后可以观察到移动指针给对象带来的破坏：
+
+```rust,ignore
+fn main() {
+    let mut test1 = Test::new("test1");
+    test1.init();
+    let mut test2 = Test::new("test2");
+    test2.init();
+
+    println!("a: {}, b: {}", test1.a(), test1.b());
+    println!("a: {}, b: {}", test2.a(), test2.b());
+
+    std::mem::swap(&mut test1, &mut test2);
+    test1.a = "I've totally changed now!".to_string();
+
+    println!("a: {}, b: {}", test1.a(), test1.b());
+    println!("a: {}, b: {}", test2.a(), test2.b());
+}
+
+#[derive(Debug)]
+struct Test {
+    a: String,
+    b: *const String,
+}
+
+ impl Test {
+    fn new(txt: &str) -> Self {
+        Test {
+            a: String::from(txt),
+            b: std::ptr::null(),
+        }
+    }
+    fn init(&mut self) {
+        let self_ref: *const String = &self.a;
+        self.b = self_ref;
+    }
+    fn a(&self) -> &str {
+        &self.a
+    }
+    fn b(&self) -> &String {
+        assert!(!self.b.is_null(), "Test::b called without Test::init being called first");
+        unsafe { &*(self.b) }
+    }
+}
+```
+
+执行程序得到以下输出：
+
+```rust, ignore
+a: test1, b: test1
+a: test2, b: test2
+a: I've totally changed now!, b: test1
+a: test1, b: I've totally changed now!
+```
+
+通过图像演示，很直观地说明了互换 test1 和 test2 两者的数据后，字段 b 还是指向原来的内存地址，即
+浅拷贝不会改变指针的指向，原本统一的数据结构被破坏，这样的拷贝也叫 shadow copy。
+
+**Fig 1: Before and after swap**
+![swap_problem](https://rust-lang.github.io/async-book/assets/swap_problem.jpg)
+
+
+内存钉 `Pin` 这种类型可以解决浅拷贝可能产生的问题，解决一个问题的最简单方法就是不要引起这个问题。
+不要移动带有指针的类型，就不会产生浅拷贝带来的问题，这也就是 `Pin` 类型的作用，它包装了一个指针，
+并且保证在没实现 `Unpin` 接口的情况下不会移动指针所指向的数据。
+
+即 `Pin<&mut T>`, `Pin<&T>`, `Pin<Box<T>>` 保证 `T` 不会在 `T: !Unpin` 这种情况下被移动。
+反过来说，实现 `Unpin` 这个接口，才会移动指针所指向的数据。
+
+多数类型都不会因为移动而产生问题，如原始数据类型，这些类型就是实现了 `Unpin` 接口，它们可以自由地
+从 `Pin` 中存放。比如，`u8` 属于 `Unpin` 类型，`Pin<&mut u8>` 就可以像 `&mut u8` 安全移动。
+
+`Unpin` 表示不需要钉住内存，可安全地移动，当类型标记为 `!Unpin` 即不可以安全地移动，! 即没有实现接口。
+
+在异步机制中，Future 类型被 poll() 推动走向 Task 的完成目标，因为多个 Future 数据会被随时切换，
+这期间出现浅拷贝带来的不安全问题非常致命，`Pin` 类型就很好地解决了这个问题：不移动就没有问题！
+
+使用 `Pin` 可以将的两种不同内存位置的对象钉住：
+
+- Pinning to the Stack
+- Pinning to the Heap
+
+使用 Stack 内存与通过 Box 指针使用 Heap 内存方式不同，函数内部的变量都在 Stack 内存区，不能返回
+到函数外部，而 Heap 内存则是用户动态分配的，通过 Box 指针可以返回给外部使用。Stack 内存本身只是
+一块连续的内存空间，并没有什么特别，只是刚好它用途很特别，作为函数调用栈的“书记”。
+
+总结一下 `Pin` 类型的使用：
+
+1. If `T: Unpin` (which is the default), then `Pin<'a, T>` is entirely
+equivalent to `&'a mut T`. in other words: `Unpin` means it's OK for this type
+to be moved even when pinned, so `Pin` will have no effect on such a type.
+
+2. Getting a `&mut T` to a pinned T requires unsafe if `T: !Unpin`.
+
+3. Most standard library types implement `Unpin`. The same goes for most
+"normal" types you encounter in Rust. A `Future` generated by async/await is an exception to this rule.
+
+4. You can add a `!Unpin` bound on a type on nightly with a feature flag, or
+by adding `std::marker::PhantomPinned` to your type on stable.
+
+5. You can either pin data to the stack or to the heap.
+
+6. Pinning a `!Unpin` object to the stack requires `unsafe`
+
+7. Pinning a `!Unpin` object to the heap does not require `unsafe`. There is a shortcut for doing this using `Box::pin`.
+
+8. For pinned data where `T: !Unpin` you have to maintain the invariant that its memory will not
+get invalidated or repurposed _from the moment it gets pinned until when drop_ is called. This is
+an important part of the _pin contract_.
+
+Pinning to the Stack 参考代码：
+
+```rust,ignore
+use std::{pin::Pin, marker::PhantomPinned};
+
+fn main() {
+    let mut test1 = Test::new("test1");
+    let mut test2 = Test::new("test2");
+
+    // Pinning an object to the stack will always be unsafe if our type implements !Unpin.
+    // Pinning a `!Unpin` object to the stack requires `unsafe`
+    let mut test1 = unsafe{ Pin::new_unchecked(&mut test1) };
+    test1.as_mut().init();
+    let mut test2 = unsafe{ Pin::new_unchecked(&mut test2) };
+    test2.as_mut().init();
+
+    println!("a: {}, b: {}", test1.as_ref().a(), test1.as_ref().b());
+    println!("a: {}, b: {}", test2.as_ref().a(), test2.as_ref().b());
+
+    std::mem::swap(&mut test1, &mut test2);
+    // `PhantomPinned` cannot be unpinned
+    // test1.get_mut().a = "I've totally changed now!".to_string();
+
+    println!("a: {}, b: {}", test1.as_ref().a(), test1.as_ref().b());
+    println!("a: {}, b: {}", test2.as_ref().a(), test2.as_ref().b());
+}
+
+#[derive(Debug)]
+struct Test {
+    a: String,
+    b: *const String,
+    _marker: PhantomPinned,
+}
+
+ impl Test {
+    fn new(txt: &str) -> Self {
+        Test {
+            a: String::from(txt),
+            b: std::ptr::null(),
+            _marker: PhantomPinned
+        }
+    }
+
+    fn init(self: Pin<&mut Self>) {
+        let this = unsafe { self.get_unchecked_mut() };
+        let self_ptr: *const String = &this.a;
+        this.b = self_ptr;
+    }
+
+    fn a(self: Pin<&Self>) -> &str {
+        &self.get_ref().a
+    }
+
+    fn b(self: Pin<&Self>) -> &String {
+        assert!(!self.b.is_null());
+        unsafe { &*(self.b) }
+    }
+}
+```
+
+Pinning to the Heap 参考代码：
+
+```rust,ignore
+use std::{pin::Pin, marker::PhantomPinned};
+
+#[derive(Debug)]
+struct Test {
+    a: String,
+    b: *const String,
+    _m: PhantomPinned,
+}
+
+impl Test {
+    fn new(txt: &str) -> Pin<Box<Self>> {
+        let t = Test {
+            a: String::from(txt),
+            b: std::ptr::null(),
+            _m: PhantomPinned,
+        };
+        let mut boxed = Box::pin(t);
+        let self_ptr: *const String = &boxed.a;
+        unsafe {
+            boxed.as_mut().get_unchecked_mut().b = self_ptr
+        };
+
+        boxed
+    }
+
+    fn a(self: Pin<&Self>) -> &str {
+        // Gets a shared reference out of a pin.
+        &self.get_ref().a
+    }
+
+    fn b(self: Pin<&Self>) -> &String {
+        unsafe{ &*(self.b) }
+    }
+}
+
+pub fn main() {
+    let mut test1 = Test::new("test1");
+    let mut test2 = Test::new("test2");
+
+    println!("a: {}, b: {}", test1.as_ref().a(), test1.as_ref().b());
+    println!("a: {}, b: {}", test2.as_ref().a(), test2.as_ref().b());
+    std::mem::swap(&mut test1, &mut test2);
+    unsafe {
+        test1.as_mut().get_unchecked_mut().a = "Changed!".to_string();
+    }
+    println!("a: {}, b: {}", test1.as_ref().a(), test1.as_ref().b());
+    println!("a: {}, b: {}", test2.as_ref().a(), test2.as_ref().b());
+}
+```
+
+
+
+## ⚡ Tokio 事件驱动非阻塞异步 I/O
+- [async_std - Async version of the Rust standard library](https://docs.rs/async-std/latest/async_std/)
+- [Tokio tutorial](https://tokio.rs/tokio/tutorial/)
+- [Tokio - Event-driven NBIO asynchronous I/O](https://crates.io/crates/tokio)
+- Learning Reactive Programming With Java 8 Nickolay Tsvetinov
+- [Explore all RxJS operators](https://reactive.how/rxjs/)
+- [Interactive diagrams of Rx Observables](https://rxmarbles.com)
+- [FRP - Functional Reactive Programming](https://www.cnblogs.com/apolis/p/11437688.html)
+- [Taming snakes with reactive streams](https://blog.thoughtram.io/rxjs/2017/08/24/taming-snakes-with-reactive-streams.html)
+
+
+网络应用通常都涉及 Flow Control 问题，也是响应式编程 Reactive Programming 常常出现的概念。
+
+比如一个水池，有一个进水管和一个出水管。如果进水管水流更大，过一段时间水池就会满溢。这就是没有进行流量控制导致的结果。
+
+而 Flow Control 有几种思路：
+
+- Backpressure 方式就是自助餐，需要多少取多少。消费者需要多少，生产者就生产多少，消费得少了，就让生产方减产。
+- Throttling 节流方式，说白了就是丢弃。消费不过来，就处理其中一部分，剩下的丢弃。
+- buffer 和 window，它们是把上游多个小包裹打成大包裹，分发到下游，这样下游需要处理的包裹的个数就减少了。
+- Callstack blocking 是一种特殊情况，阻塞住整个调用链。
+
+其实，Backpressure 源自工程上的一个概念，在管道运输中，气流或液流由于管道突然变细、急弯等原因导致
+由某处出现了下游向上游的逆向压力，这种情况称作「back pressure」。放着水的管道，如果突然关闭，也会
+产生强大的回压，水锤泵就是利用这个原理产生的。这是一个很直观的词，back pressure 向后的、往回的压力。
+
+在数据流传输过程中，上游生产速度大于下游消费速度，导致下游的 Buffer 溢出，从而产生 Backpressure。
+需要强调的是，重点不在于速度差，而在于 Buffer 溢出。Backpressure 和 Buffer 是一对相生共存的概念，
+只有设置了 Buffer，才有 Backpressure 出现。
+
+Backpressure 处理方案只对 Cold Observable，允许降低速率的发送源。这有点类似于 TCP 里的流量控制，
+接收方根据自己的接收窗口的设置来控制接收速率，并通过 ACK 回复包来控制发送方的发送速率。比如，两台机器
+传一个文件，速率可大可小，即使降低到每秒几个字节，只要时间足够长，还是能够完成的。反例是直播，速率低于
+某个值整个功能就没法用了，这种类似于 Hot Observable。
+
+Learning Reactive Programming With Java 8 的作者 Nickolay Tsvetinov 举过类似这样的例子：
+设想大家都在收看同一套电视节目，这就是 Hot Observable。而各自听磁带音响，这就是 Cold Observable。
+
+> We can say that cold Observables generate notifications for each subscriber and hot
+> Observables are always running, broadcasting notifications to all of their subscribers.
+> Think of a hot Observable as a radio station. All of the listeners that are listening to
+> it at this moment listen to the same song. A cold Observable is a music CD. Many
+> people can buy it and listen to it independently.
+
+至于处理哪些和丢弃哪些，就有不同的策略，也就是 sample (or throttleLast)、throttleFirst、debounce 
+(or throttleWithTimeout) 这三种。还是举音视频直播的例子，在下游处理不过来的时候，就需要丢弃数据包。
+
+
+Tokio is an event-driven, non-blocking I/O platform for writing asynchronous 
+applications with the Rust programming language. 
+
+    git clone --depth=1 git@github.com:tokio-rs/tokio
+
+Tokio 是一个 Rust 语言实现的高可靠、异步、非阻塞、事件驱动的小巧的运行库，并且在不影响速度的情况下
+构建可靠的网络应用。它可以灵活地针对各种系统，从具有数十个核心的大型服务器到小型嵌入式设备。
+
+基本特性：
+
+- 快速：Tokio 的零成本抽象给你裸机性能。
+- 可靠：Tokio 利用 Rust 的所有权、类型系统，和并发模型来减少 bug 并确保线程安全。
+- 可伸缩性：Tokio 有一个最小的足迹，并自然地处理回压、撤消，backpressure and cancellation。
+
+概括地讲，Tokio 分成 3 个主要部分：
+
+- A multithreaded, work-stealing based task scheduler.
+- A reactor backed by the operating system's event queue (epoll, kqueue, IOCP, etc...).
+- Asynchronous TCP and UDP sockets.
+
+Tokio 有两个核心概念：异步运行时 runtime 和异步任务 task，异步运行时环境(Runtime)用于运行异步任务。
+Tokio runtime 有两种工作模式：
+
+1. 单一线程，current thread runtime
+2. 多线程，multi thread runtime
+
+注: 这里的所说的线程是 Rust 线程，而每一个 Rust 线程都是一个 OS 线程。
+
+
+Tokio 官方示范应用：
+
+- tokio\examples\hello_world.rs
+- tokio\examples\chat.rs
+- tokio\examples\connect.rs
+- tokio\examples\custom-executor-tokio-context.rs
+- tokio\examples\custom-executor.rs      
+- tokio\examples\echo-udp.rs
+- tokio\examples\echo.rs
+- tokio\examples\hello_world.rs
+- tokio\examples\named-pipe-multi-client.rs
+- tokio\examples\named-pipe-ready.rs     
+- tokio\examples\named-pipe.rs
+- tokio\examples\print_each_packet.rs    
+- tokio\examples\proxy.rs
+- tokio\examples\tinydb.rs
+- tokio\examples\tinyhttp.rs
+- tokio\examples\udp-client.rs
+- tokio\examples\udp-codec.rs
+
+
+Tokio 实现了两个属性过程程宏，其中一个 `#[tokio::main]` ，它可以包装 **main()** 为一个异步函数，
+因为 Rust 的入口函数是不可能异步执行的，而过程宏通过强大的编程能力，将 async main() 函数重新包装
+到 Tokio 提供的入口函数中，并且在其内部通过 tokio::runtime 异步运行用户定义的“入口函数”。这样，
+重新包装的 async main() 函数看起来就像真的是异步的入口函数一样。
+
+```rust
+#[tokio::main]
+async fn main() {
+  println!("Hello world");
+}
+
+/// Equivalent code not using `#[tokio::main]`
+
+fn main() {
+  tokio::runtime::Builder::new_multi_thread()
+     .enable_all()
+     .build()
+     .unwrap()
+     .block_on(async {
+         println!("Hello world");
+     })
+}
+/// tokio\tokio-macros\src\lib.rs
+```
+
+Tokio main 默认为多线程运行，可以通过 flavor 参数改为当前线程运行：
+
+    #[tokio::main]
+    #[tokio::main(worker_threads = 2)]
+    #[tokio::main(flavor = "multi_thread", worker_threads = 10)]
+    #[tokio::main(flavor = "current_thread")]
+    #[tokio::main(flavor = "current_thread", start_paused = true)]
+
+
+以下是 Tokio 入门示范，使用 Ncat 工具作为服务端测试工具，它是一个功能丰富的网络实用程序，可以从
+命令行跨网络读取和写入数据。Ncat 是为 Nmap 项目编写的，它是对备受尊敬的 Netcat 改进。它同时使用
+TCP 和 UDP 进行通信，并被设计为一个可靠的后端工具，可以立即向其他应用程序和用户提供网络连接。
+Ncat 不仅适用于 IPv4 和 IPv6，而且为用户提供了几乎无限的潜在用途。
+
+```rust,ignore
+//! A simple client that opens a TCP stream, writes "hello world\n", and closes
+//! the connection.
+//!
+//! To start a server that this client can talk to on port 6142, you can use this command:
+//!
+//!     ncat -l 6142
+//!
+//! And then in another terminal run:
+//!
+//!     cargo run --example hello_world
+
+#![warn(rust_2018_idioms)]
+
+use tokio::io::AsyncWriteExt;
+use tokio::net::TcpStream;
+
+use std::error::Error;
+
+#[tokio::main]
+pub async fn main() -> Result<(), Box<dyn Error>> {
+    // Open a TCP stream to the socket address.
+    //
+    // Note that this is the Tokio TcpStream, which is fully async.
+    let mut stream = TcpStream::connect("127.0.0.1:6142").await?;
+    println!("created stream");
+
+    let result = stream.write_all(b"hello world\n").await;
+    println!("wrote to stream; success={:?}", result.is_ok());
+
+    Ok(())
+}
+```
+
+Tokio 异步和同步不能混合使用，否则就会导致无法在 blocking 上下文中删除运行时。可以在非异步函数
+中以同步方式调用 Tokio::main 入口函数，因为它会创建异步运行时包装异步任务。
+
+```rust,ignore
+#[tokio::main]
+async fn fake_main() {
+    let fact = get_cat_fact_async().await;
+    println!("[async] fact = {:#?}", fact);
+}
+
+/// blocking and async runtime can't  coexisting operation or cause error:
+/// Cannot drop a runtime in a context where blocking is not allowed. 
+/// This happens when a runtime is dropped from within an asynchronous context.
+fn main() {
+    let fact = get_cat_fact();
+    println!("[sync ] fact = {:#?}", fact);
+    fake_main();
+}
+
+async fn get_cat_fact_async() -> Result<String, Box<dyn std::error::Error>> {
+    let client = reqwest::Client::new();
+    let body = client.get("https://catfact.ninja/fact").send()
+        .await?
+        .text()
+        .await?;
+
+    Ok(body)
+}
+
+fn get_cat_fact() -> Result<String, Box<dyn std::error::Error>> {
+    let body = reqwest::blocking::get("https://catfact.ninja/fact")?.text()?;
+
+    Ok(body)
+}
+```
+
 
 
 # 🟡🟠 Fearless Concurrency
@@ -14006,6 +15308,7 @@ Mutex 对象没有 `unlock` 方法，获取锁后返回一个 `MutexGuard<T>` �
     16k errors (0 timeouts)
 
 
+
 # 🟡🟠 Game
 - Bevy data-driven game engine built in Rust https://bevyengine.org
 - Bevy Getting Started https://bevyengine.org/learn/book/getting-started/
@@ -14079,7 +15382,8 @@ WebAssembly key concepts
 004. wasm32_wasi 🔒 2019年发起的一个实验目标，尚在发展中，不应过于依赖。
 
 The WebAssembly System Interface (WASI) 是一个扩展的 WASM 环境规范，它试图模拟一个完整的
-操作系统，包括与文件系统、网络等系统调用功能，以提供一个 Web 之外的运行环境。
+操作系统，包括与文件系统、网络等系统调用
+功能，以提供一个 Web 之外的运行环境。
 
 Standardizing WASI: A system interface to run WebAssembly outside the web
 
@@ -14136,7 +15440,7 @@ You can create a new Rust-WebAssembly webpack project by using the rustwasm webp
 Import JavaScript things into Rust and export Rust things to JavaScript.
 
 
-```rust
+```rust,ignore
     use wasm_bindgen::prelude::*;
 
     // Import the `window.alert` function from the Web.
@@ -14165,7 +15469,7 @@ Import JavaScript things into Rust and export Rust things to JavaScript.
 
 Web 页面内容及脚本可以参考以下代码片段：
 
-```html
+```html,ignore
 <!DOCTYPE html>
 <html>
 <head>
@@ -14207,7 +15511,7 @@ cargo add 添加相应的模块。例如，以下功能配置使用导入的 con
 
 手动导入 Web API 参考：
 
-```rust
+```rust,ignore
 // lifted from the `console_log` example
 #[wasm_bindgen]
 extern "C" {
@@ -14238,7 +15542,7 @@ Exports have only a single name. In addition to any extern functions the WebAsse
 instance's default linear memory is exported as "memory".
 
 
-```rust
+```rust,ignore
 // import a JS function called `foo` from the module `mod`
 #[link(wasm_import_module = "mod")]
 extern { fn foo(); }
@@ -14281,7 +15585,7 @@ Web Canvas API 特性：
 
 编写 lib.rs 代码：
 
-```rust
+```rust,ignore
 use std::f64;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
@@ -14327,7 +15631,7 @@ pub fn start() {
 
 HTML 页面模板参考：
 
-```html
+```html,ignore
     <!DOCTYPE html>
     <html>
     <head>
@@ -14418,14 +15722,41 @@ fetch("module.wasm")
 
 
 
-# 🟡🟠 rustc-serialize
+# 🟡🟠 rustc-serialize & Serde
 - https://docs.rs/rustc-serialize/0.3.24/rustc_serialize/
+- https://crates.io/crates/serde
+- https://serde.rs/#data-formats
+- https://lib.rs/crates/serde_json
 
-些工具提供 3 个模块：
+所谓串行化就是将程度在内存中的数据结构转化为字符串、或二进制数据保存起来，通常用于网络间传递数据或者
+程序的存档读档功能等等。比如将 Struct 对象转换为 JSON 字符串保存到文件，读档时再从文件中加载内容，
+并还原回同样的 Struct 对象即为反串行化。
+
+Serialization 和 Deserialization 可译作串行化、反串行化，也可以译作序列化或反序列化。
+
+rustc-serialize 串行化工具提供 3 个模块，目前处于停更状态，推荐功能及性能更好的 Serde：
 
 - base64    Base64 binary-to-text encoding
 - hex   Hex binary-to-text encoding
 - json  JSON parsing and serialization
+
+Serde 工具名字即 serializing 和 deserializing 两个单词的前组合简写。
+
+Serde 工具可以将数据结构按已知的数据格式进行序列化或反序列化，Serde 提供两套对应的接口，分别是
+串行化模块 ser 和反串行化模块 de，两个模块都包含一对重要接口：
+
+- Serialize、Deserialize 代表了数据结构，可以对任何 Serde 工具支持的数据格式进行转化；
+- Serializer、Deserializer 代表数据格式，可以对任何 Serde 工具支持的数据结构进行转化；
+
+支持的数据格式可以反序列化成支持的数据结构，支持的数据结构也可以序列化成支持的数据格式，第三方通过
+添加接口支持就可以扩展 Serde 的格式支持。
+
+Serde 为 Serializer、Deserializer 实现了 Rust 29 种数据类型的支持，工作流程图如下：
+
+    ================ -->  Serialize   -->  Serializer --> ===========
+    Serde Data Model                                      Data Format
+    ================ <-- Deserializer <-- Deserialize <-- ===========
+
 
 配置 Cargo.toml 使用：
 
@@ -14436,7 +15767,7 @@ and this to your crate root:
 
     extern crate rustc_serialize;
 
-JSON 示例：
+JSON 字符串与结构体之间的转换示例：
 
 ```rust,ignore
 extern crate rustc_serialize;
@@ -14508,7 +15839,46 @@ fn main() {
 }
 ```
 
+Serde in action
 
+```rust,ignore
+use serde::{Serialize, Deserialize};
+
+#[derive(Serialize, Deserialize, Debug)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+fn main() {
+    let point = Point { x: 1, y: 2 };
+
+    // Convert the Point to a JSON string.
+    let serialized = serde_json::to_string(&point).unwrap();
+
+    // Prints serialized = {"x":1,"y":2}
+    println!("serialized = {}", serialized);
+
+    // Convert the JSON string back to a Point.
+    let deserialized: Point = serde_json::from_str(&serialized).unwrap();
+
+    // Prints deserialized = Point { x: 1, y: 2 }
+    println!("deserialized = {:?}", deserialized);
+}
+```
+
+配合 include_str 宏，可以直接将 json 文件转换为字符串类型，再解释成对象。
+
+假设 point.json 包含以下内容，解析为 Point 对象时，会忽略多余的字段：
+
+    {"x":1, "y":2, "z": 3}
+
+```py
+    // Deserialize from json file
+    let path = "../data/point.json";
+    let json = include_str!("../data/point.json");
+    println!("deserialized {} = {:#?}", path, serde_json::from_str::<Point>(&json).unwrap());
+```
 
 
 # 🟡🟠 webview_sys

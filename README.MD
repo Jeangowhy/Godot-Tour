@@ -826,8 +826,7 @@ godot-cpp 库，可以非常方便地使用 C++ 开发静态编译的模块。
     git clone --depth=1 git@github.com:godot-rust/gdnative
     git clone --depth=1 git@github.com:godot-rust/gdextension
 
-当然，使用 Rust 语言绑定也是可行的方案。Rust 有望成为 C++ 的替代者，它的编程思想与 C++ 绝然不同：
-只要能被证明是正确代码的才被允许，而 C++ 则是允许任何不能证明是错误的代码。
+编程思想 Rust vs. C++：前者只有能被证明是正确代码的才被允许，后者则是允许任何不能证明是错误的代码。
 
 Rust 编译脚本中，需要根据具体情况添加 C++ 头文件的目录，因为 godot-rust 绑定依赖 godot-headers，
 这些 C/C++ 头文件需要通过 Rust FFI 接口绑定，Rust 中常用的 API 绑定工具有以下这些：

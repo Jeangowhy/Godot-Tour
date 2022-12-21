@@ -19,10 +19,10 @@
 要阅读好 Godot 官方文档，需要掌握文档的使用方法，并且最好有计算机图形学基础，掌握 Python 脚本语言
 可以快速掌握 GDScript 脚本。
 
-- [Overview of the interface](https://docs.godotengine.org/en/latest/_images/editor-vocabulary-overview.png)
+![Overview of the interface](https://docs.godotengine.org/en/latest/_images/editor-vocabulary-overview.png)
 
 Godot 除了自带的 GDScript 脚本外，通过模块扩展支持了多种语言开发，C# 支持需要下载集成 Mono 的版本，
-推荐使用自带的 GDScript 脚本开发，它相当一个支持多线程的 Python，并且支持六种 match 分支匹配模式。
+推荐使用自带的 GDScript 脚本开发，它相当一个支持多线程并行的 Python，支持六种 match 分支匹配模式。
 
 - Constant pattern
 - Variable pattern
@@ -262,7 +262,9 @@ RID，这种情况下，转型得到的结果为空。
 
 ![Size and Anchors](https://docs.godotengine.org/en/3.5/_images/anchors.png)
 
-Godot IDE 中的每个场景就是一个 Node 对象，每个节点可以附加脚，以实现程序化操控。
+Godot IDE 中的每个场景就是一个 Node 对象，每个节点可以附加脚，以实现程序化操控。每个游戏结构和
+Godot IDE 是一样的，都是一个场景树，每个程序中可以有多个场景，但是当前场景树中加载的活动场景只有
+`root` 节点加载的这个 SceneTree，这个根节点是一个 Viewport，并且始终是加载的节点，不可以卸下。
 
 ![Scene tree](https://docs.godotengine.org/en/3.5/_images/activescene.png)
 

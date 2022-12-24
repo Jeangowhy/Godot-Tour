@@ -24,7 +24,7 @@ func _on_Button_pressed():
 
 func scene_change():
 	# change sence
-	var cover = load("res://L1 Scene Tree/cover.tscn")
+	var cover = load("res://L01 Scene Tree/cover.tscn")
 	#get_tree().change_scene_to(cover)
 	#get_tree().change_scene("res://L1 Scene Tree/cover.tscn")
 	

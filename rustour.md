@@ -3335,6 +3335,14 @@ Rust 目前还提供了 rust-lldb 和 rust-gdb 两个调试工具，可以不能
 }
 ```
 
+可以使用 Sublime Text 并安装 LSP 插件。安装插件后，使用命令面板中的 LSP 命令来检测 Rust 语言
+服务是否正常。先安装 Sublime LSP 插件，然后根据文档安装其它语言插件支持，执行 Troubleshoot Server
+检查配置、命令位置、项目信息等，同时也会执行插件并触发其安装必要的外部支持文件：
+
+- https://github.com/rust-lang/rust-enhanced
+- https://packagecontrol.io/packages/LSP
+- https://lsp.sublimetext.io/language_servers
+
 ## ⚡ Cargo Tool
 - [The Cargo Book](https://doc.rust-lang.org/cargo/)
 - [Cargo cache](https://crates.io/crates/cargo-cache)
@@ -3965,6 +3973,7 @@ Cargo 可以和 Travis CI 或 GitLab CI 等持续集成工具一起工作。
 - [The Rust Programming Language - Basic Rust Literacy - Accepting Command Line Arguments](ch12-01-accepting-command-line-arguments.md)
 - [Rust-specific fork of LLVM](https://github.com/rust-lang/llvm-project)
 - [A More Detailed Tour of the Rust Compiler](https://tomlee.co/2014/04/a-more-detailed-tour-of-the-rust-compiler/)
+- [Rust Design Patterns](https://rust-unofficial.github.io/patterns/intro.html)
 
 Rust 是一种自带范式转移 Paradigm Shift 的新式编程语言，它的学习难度曲线几乎是和 C++ 相当的，
 并且入门比 C++ 还难一点。但是这带来一个好处，使用 Rust 编程，你就不太可能犯错。Rust 编程思想与
@@ -8039,6 +8048,31 @@ Traits 的相关语法要点：
 - `Default`, to create an empty instance of a data type.
 - `Debug`, to format a value using the `{:?}` formatter.
 
+用于比较的接口，Eq 和 PartialEq，概念来自于抽象代数中的等价关系和局部等价关系，两者区别可以用
+离散数学一个性质来区分：`T: Eq` 或者 `T: PartialEq` 实例在相等比较中是否满足反身性（Reflexivity）。
+
+用浮点数例子就可以说明：T = f32, f32::NAN == f32::NAN 不成立。原因是 IEEE754 只规定 NAN 的
+阶码部分全为 1 即可，没有规定符号位和尾数部分。
+
+    1 111111111 0000....001 != 0 111111111 0000...111
+
+至于 NaN，一个好的解释是 NaN 代表“不确定、难以言说的数字”；因此对于相等这一操作，不能说两个不确定
+的数是相等的。这破坏了自反性，也就称不上离散数学中的“等价关系”，故只能是 PartialEq，而不能是 Eq；
+
+另外，Ord 和 PartialOrd 全序和偏序是序理论中概念，偏序集合是数学中，特别是序理论中，指配备了部分
+排序关系的集合。这个理论将排序、顺序或排列这个集合的元素的直觉概念抽象化。这种排序不必然需要是全部的，
+就是说不必要保证此集合内的所有对象的相互可比较性。全序相对偏序额外要求完全性，即任意两元素都可以比较。
+比如集合之间的包含关系，就是一个偏序关系。
+
+偏序关系(Partial order)：定义在 A 上的集合 R 是偏序关系 iff (当且仅当)其具有以下性质:
+
+- 自反性(reflexive)
+- 反对称性(antisymmetric)
+- 传递性(transtive)
+
+NOTE: R 记作 ≼，注意这里的 ≼ 不是大小比较，若有 x≼y，则说 x 排在 y 前面（x precedes y)。
+
+
 使用示范：
 
 ```rust,ignore
@@ -10062,10 +10096,36 @@ let number = match usize::from_str(&args[1]){
 - Storing UTF-8 Encoded Text with Strings  https://doc.rust-lang.org/book/ch08-02-strings.html
 - regex 1.4.5 https://crates.io/crates/regex
 
-Rust 有两类字符串，`String` 类型基于向量列表 `Vec<u8>`，而字符串 `&str` 是切片类型 `&[u8]`。
+
+Rust 有两类常用字符串，`String` 类型基于向量列表 `Vec<u8>`，而字符串 `&str` 是切片类型 `&[u8]`。
 在代码文件中的字面量，即双引号的字符串字面量是 `&str` 类型，to_string() 方法可获取 String 类型。
+另外，`str` 是唯一定义在 Rust 语言特性中，但也是我们几乎不会用到的字符串类型，为何？
+
+原因是，`str` 字符串是 Dynamically Sized Types (DST) 动态大小类型，意味着编译器无法在编译期
+知道 str 类型的大小，只有到了运行期才能动态获知，这对于强类型、强安全的 Rust 语言来说是不可接受的。
+下面这段代码创建一个 str 类型的字符串，看起来很正常，但是编译就不会通过编译：
+
+    let string: str = "banana";
+        ^^^^^^ doesn't have a size known at compile-time
+
+深层原因可以总结为：所有的切片都是动态类型，它们都无法直接被使用，而 str 就是 [u8] 字符串数组切片。
+并且 str 类型会以硬编码形式写进可执行文件，无法修改。
+
+原因很简单，因为栈内存的大小必须是确定的
+我们每次调用函数的时候，都会像栈内压入返回地址和函数参数。这些都必须在调用函数之前就确定。也就是编译时就确定。
+
+而 String 则是一个可增长、可改变且具有所有权的 UTF-8 编码字符串，当 Rust 用户提到字符串时，
+往往指的就是 `String` 和 `&str` 字符串切片类型，它们都是 UTF-8 编码内容。
 
 Stirng 到 &str 可以直接 as_str() 到转换得到，没有什么计算过程。
+
+String 分配在堆内存里面，它能够像 Vec 集合一样动态改变大小，当内存不够就重新开辟一个 2 倍大的空间，
+并重新安置当前的内容。很显然，无论是开辟堆内存，还是这种动态拷贝都有很大的性能损耗，不符合零成本抽象原则。
+
+str 它只是一个切片，可以指向堆内存，可以指向栈内存，也可以指向静态变量。这个切片存在栈内也让使用速度
+远远高于 String，栈内存的分配速度比堆内存要搞一个数量级。Rust 语言可以用在嵌入式系统内部，但是，很多
+嵌入式系统没有堆内存。如果把 String 内置到 Rust 语言内，那么就不能在这种场景使用了。
+
 
 另外，因为以下理由，Rust 提供了类似的 OsString 和 &OsStr 两种字符串：
 
@@ -10269,6 +10329,8 @@ fn main() {
 
 ### 🟢🔵 VecDeque
 ### 🟢🔵 LinkedList
+- https://github.com/Warrenren/inside-rust-std-library/blob/main/11-智能指针类型(四).md
+
 ### 🟢🔵 HashMap
 ### 🟢🔵 BTreeMap
 ### 🟢🔵 HashSet BTreeSet
@@ -10407,31 +10469,37 @@ println!("{:?} - {:?}", heap.pop(), "None");
 - https://doc.rust-lang.org/stable/std/sync/struct.RwLock.html
 - https://doc.rust-lang.org/stable/std/ptr/index.html
 
-不像 Java 这类高级语言，它们带有运行时的垃圾回收器机制，会在程序运行过程中根据内存使用状态自动释放不再使用的内存空间，而 C/C++/Rust 则没有垃圾回收器。
+不像 Java 这类高级语言，它们带有运行时的垃圾回收器机制，会在程序运行过程中根据内存使用状态自动释放
+不再使用的内存空间，而 C/C++/Rust 则没有垃圾回收器，但是 Rust 通过所有权实现了静态的垃圾回收。
 
-前面的内容已经解释了通常说的调用堆栈指的就是 Stack，它是在硬件层实现的一个 LIFO - Last in, first out 数据结构，通过 CPU 的 `pop` `push` 指令操作。这些指令控制着 CPU 内部的一个堆栈指针寄存器 SP - Stack Pointer，在程序运行时，始终指向 Stack 顶部，会随着函数调用、返回转移。
+通常说的调用堆栈指的就是 Stack，它是在硬件层实现的一个 LIFO - Last in, first out 数据结构，
+通过 CPU 的 `pop` `push` 指令操作。这些指令控制着 CPU 内部的一个堆栈指针寄存器 SP - Stack Pointer，
+在程序运行时，始终指向 Stack 顶部，会随着函数调用、返回转移。
 
 对比 Stack 和 Heap 内存： 
 
 - Stack 内存访问更快，有寄存器直接可达，栈上内存分配是连续的，要在编译期明确使用多大的 Stack 内存；
 - 而堆内存，更多是由开发者主动申请调配，通过 `malloc()` `free()` 等函数动态随机分配内存，典型的就是使用 `new` 关键字来为实例申请内存。
 
-Stack 调用栈内存从高位地址向下增长，且栈内存分配是连续的，一般操作系统对栈内存大小是有限制的，Linux/Unix 类系统上面可以通过 ulimit 命令设置最大栈内存空间大小。调用 Rust 函数时会创建一个临时栈空间，调用结束后 Rust 会让这个栈空间里的对象自动进入 Drop 流程，最后栈顶指针自动移动到上一个调用栈顶，无需程序员手动干预，因而栈内存申请和释放是非常高效的。
+Stack 调用栈内存从高位地址向下增长，且栈内存分配是连续的，一般操作系统对栈内存大小是有限制的，
+Linux/Unix 类系统上面可以通过 ulimit 命令设置最大栈内存空间大小。调用 Rust 函数时会创建一个
+临时栈空间，调用结束后 Rust 会让这个栈空间里的对象自动进入 Drop 流程，最后栈顶指针自动移动到上
+一个调用栈顶，无需程序员手动干预，因而栈内存申请和释放是非常高效的。
 
 Heap 堆内存则是从低位地址向上增长，堆内存通常只受物理内存限制。
 
-Rust 在编译时会跟踪代码的哪些部分正在使用堆内存，最小化堆上重复数据的数量，清理堆上未使用的数据以避免空间耗尽，这些都是所有权所要解决的问题。
+Rust 在编译时会跟踪代码的哪些部分正在使用堆内存，最小化堆上重复数据的数量，清理堆上未使用的数据以
+避免空间耗尽，这些都是所有权所要解决的问题。一旦理解了所有权，就不需要经常考虑堆栈和堆，但是知道管理
+堆数据是所有权存在的原因有助于解释它为什么以这种方式工作。
 
-一旦您了解了所有权，就不需要经常考虑堆栈和堆，但是知道管理堆数据是所有权存在的原因有助于解释它为什么以这种方式工作。
-
-当然，Rust 提供了智能指针简化对 Heap 内存的使用。
+当然，Rust 提供了智能指针简化对 Heap 内存的使用，内存分配通过 core::mem::MaybeUninit 操作。
 
 智能指针的一些用途：
 
 - 通过智能指针可以实现多所有权。
 - 通过 Box 实现递归类型 Recursive Types，那些在成员中包含自己的类型无法在编译期确定大小，而智能指针可以让它在运行时成立。
 
-以下是常用智能指针：
+以下是 3 个常用智能指针：
 
 - `Box<T>`智能指针内部指向堆内存，数据类型为 T。
     - 通过`Box::new(v)`创建，移动语义，独占所有权 - move，允许使用 * 转移本体所有权。
@@ -10439,8 +10507,10 @@ Rust 在编译时会跟踪代码的哪些部分正在使用堆内存，最小化
 - `Rc<T>` 引用计数智能指针 Reference Counting，记录堆内存上的数据被引用的次数。
     - 通过`Rc::new(v)`创建，移动语义，共享所有权 - clone，禁止使用 * 转移本体所有权。
     - 是一种共享所有权智能指针，类似 C++ 的 shared_ptr。
+- `Arc<T>` 是 Rc 的线程安全版本，Atomic reference counter，强调原子性。
 
-Rust 的所有权机制下，通常不能通过引用或变量直接修改数据，但是在智能指针的作用下，引入了一个新概念内部可变性 interior mutability。
+Rust 的所有权机制下，通常不能通过引用或变量直接修改数据，但是在智能指针的作用下，引入了一个新概念：
+内部可变性 interior mutability。
 
 如下：
 
@@ -10464,21 +10534,20 @@ Rust 的所有权机制下，通常不能通过引用或变量直接修改数据
     不可变借用：RefCell::borrow()、类似Cell::get
     可变借用：RefCell::borrow_mut()、类似Cell::set
 
-针对多线程，还提供了以下智能指针：
+针对多线程，Rust 提供了以下原子智能指针和锁机制：
 
 - `Arc<T>` 原子引用计数智能指针 Atomic Reference Counting，支持原子操作，多线程安全共享，通过 `Arc::new(v)` 创建，移动语义，共享所有权 - clone，禁止使用 * 转移本体所有权。是一种线程安全的共享所有权智能指针，类似 C++ 的 shared_ptr + mutex。
 - `Mutex<T>` 互斥量用来保护共享数据，通过 `lock()` 和 `try_lock()` 方法返回的是一个 `MutexGuard<T>` 智能函数，由 `LockResult` 包装，`unwrap()` 解包，锁定后就可以通过智能指针访问互斥量内部的数据。
 - `RwLock<T>` 读写锁，同时允许多个读，但只能有一个写，并且读和写不能同时存在。通过 `read()` `try_read()` `write()` `try_write()`方法返回 `RwLockReadGuard<T>` 或 `RwLockWriteGuard<T>` 智能指针。
 
 
-另外 `Cow<T>` 是一种写时复制的枚举体的智能指针
+另外 `Cow<T>` 是一种写时复制的枚举体的智能指针，clone-on-write，目的是减少复制操作，提高性能，多用于读多写少的场景：
 
-    目的是减少复制操作，提高性能，多用于读多写少的场景
+1. Cow::Borrowed(v) | Cow::Owned(v) ： 创建，移动语义
+2. 不可变借用：Cow::deref()，Owned 会调用 borrow()，Borrowed 直接返回
+3. 可变借用：Cow::to_mut()，Borrowed 会调用 clone() 替换自己为 Owned，然后 Owned 会匹配 ref mut 释放借用。
+4. 获得本体：Cow::into_owned()，Borrowed 会调用 clone() 后返回，Owned 会把自己返回。
 
-    Cow::Borrowed(v) | Cow::Owned(v) ： 创建，移动语义
-    不可变借用：Cow::deref()，Owned会调用borrow返回，Borrowed直接返回
-    可变借用：Cow::to_mut()，Borrowed会调用clone替换自己为Owned，然后Owned会匹配ref mut释放借用。
-    获得本体：Cow::into_owned()，Borrowed会调用clone后返回，Owned会把自己返回。
 
 智能指针有两个基本的行为：
 
@@ -12700,7 +12769,7 @@ Rust 编译器在展开宏时，会有不同的使用形式：
 
 例如，以下定义一个宏用来对参数进行计数：
 
-```rust
+```rust,ignore
 macro_rules! count_tts {
     () => {0usize};
     ($_head:tt $($tail:tt)*) => {1usize + count_tts!($($tail)*)};
@@ -13453,19 +13522,21 @@ mod tests {
 
 
 
-
 # 🟡🟠 Asynchronous 异步编程
 - [Asynchronous Programming in Rust](https://rust-lang.github.io/async-book/01_getting_started/01_chapter.html)
 - [Rust’s Journey to Async/Await - Steve Klabnik](https://qconnewyork.com/ny2019/presentation/rust)
+- [Rust's Journey to Async/await - Steve Klabnik](https://www.infoq.com/presentations/rust-2019/)
+- [Zero-cost futures in Rust - Aaron Turon](http://aturon.github.io/blog/2016/08/11/futures/)
+- [Speed Up Your Python Program With Concurrency by Jim Anderson](https://realpython.com/python-concurrency/)
 - [Rust 中的异步编程](https://huangjj27.github.io/async-book/01_getting_started/01_chapter.html)
 - [Rust 异步编程](https://learnku.com/docs/async-book/2018/translation-notes/4798)
-- [Speed Up Your Python Program With Concurrency by Jim Anderson](https://realpython.com/python-concurrency/)
-- [Green Threads Explained in 200 Lines of Rust](https://cfsamson.gitbook.io/green-threads-explained-in-200-lines-of-rust/)
+- [The Node Experiment - Exploring Async Basics with Rust](https://cfsamson.github.io/book-exploring-async-basics/introduction.html)
+- [Epoll, Kqueue and IOCP Explained with Rust](https://cfsamsonbooks.gitbook.io/epoll-kqueue-iocp-explained/)
+- [Linux的I/O多路复用机制](https://journey-c.github.io/io-multiplexing/)
 - [Async: What is blocking?](https://ryhl.io/blog/async-what-is-blocking/)
-- https://kangxiaoning.github.io/post/2021/03/rust-asynchronous-programming/
+- [Rust Asynchronous Programming - 南寨小子](https://kangxiaoning.github.io/post/2021/03/rust-asynchronous-programming/)
 - [[MIT] 6.828: Operating System Engineering](https://pdos.csail.mit.edu/6.828/2018/schedule.html)
 - [Lab 4: Preemptive Multitasking](https://pdos.csail.mit.edu/6.828/2018/labs/lab4/)
-
 
 简单地说，异步编程是一种并发编程模型，concurrent programming model，像 JavaScript 等语言都
 提供了 `async/await` 异步编程语法支持。
@@ -13565,9 +13636,7 @@ mod tests {
 和阻塞的区别很大，但又不太明显，阻塞意味着**等待**，而同步意味着**有序**，它们的内涵完全不同。
 
 比如说，同步代码与异步代码，同步代码即按编写的顺序执行下去，即使遇到阻塞的情况，也一直等待直到结束；
-而异步代码则不同，它不会按顺序执行，即后面的代码可能会比前面的代码更先于执行。并且，异步代码下的阻塞
-有两种不同的处理方式，一是可以异步处理的阻塞，这时阻塞不会产生等待，异步代码可以继承执行，不可以异步
-执行的阻塞，比如 std::thread::sleep() 产生的线程阻塞，这就会导致异步代码强制进入等待。
+而异步代码则不同，它不会按顺序执行，即后面的代码可能会比前面的代码更先于执行。
 
 又比如，I/O 上的同步与异步处理：
 
@@ -13590,32 +13659,52 @@ Steve Klabnik - Rust’s Journey to Async/Await 演示文稿中的一张表说�
     Time elapsed [non-blocking]: 2.0326444s
     Time elapsed [blocking]: 5.0523886s
 
+入口函数 main() 是同步执行的代码，在同步代码中进入异步的世界，可以通过调用 block_on() 函数。有
+多种选择，futures::executor::block_on 或者 async_std::task::block_on 等等。
+
+使用 **async** 关键字定义一个异步函数，在一个异步函数内部，则可以使用 **await** 关键字来等待另
+一个异步函数的输出。从异步调用同步代码则不需要做任何额外的事情，只需要直接调用同步函数，仅此而已！
+但是，小心那些需要执行比较长时间才完成的同步函数，并不能在异步的世界里，不假思索的去调用同步代码。
+
+并且，异步代码下的阻塞，比如 std::thread::sleep() 产生的线程阻塞，这就会导致异步代码强制进入等待。
+而其它异步模组提供的 sleep() 方法则是一个异步函数，可以产生对应的异步任务去处理，避免线程的阻塞：
+
+
 ```rust,ignore
-use std::{time::{Duration, Instant}, /* thread::sleep */};
+use std::time::{Duration, Instant};
+use futures::{/* executor::block_on, */ join};
+use async_std::task::block_on;
+use async_std::task::sleep;
 
-use async_std::task::{sleep, block_on};
-use futures::join;
-
-async fn non_blocking(s: Duration) {
-  sleep(s).await;
+async fn mock_io(d: u64) -> u64 {
+    println!("Wait a async task to commplete...");
+    sleep(Duration::from_secs(d)).await;
+    println!("async done! [{}]", d);
+    thread_blocking(d, false)
 }
 
-async fn blocking(s: Duration) {
-  // block_on(sleep(s)) // blocking asnyc task
-  std::thread::sleep(s) // blocking current thread
+async fn mock_io_test() {
+    let future_1st = mock_io(1);
+    let future_2nd = mock_io(2);
+
+    // Run both futures to completion at the same time.
+    let result = join!(future_1st, future_2nd);
+    assert_eq!(result, (1, 2));
+    println!("{:?}", result);
 }
 
-#[tokio::main]
-async fn main() {
-  let inst = Instant::now();
-  let future1st = non_blocking(Duration::from_millis(1000));
-  let future2nd = non_blocking(Duration::from_millis(2000));
-  join!(future1st, future2nd);
-  println!("Time elapsed [non-blocking]: {:?}", inst.elapsed());
-  
-  blocking(Duration::from_millis(1000)).await;
-  blocking(Duration::from_millis(2000)).await;
-  println!("Time elapsed [blocking]: {:?}", inst.elapsed());
+fn main() {
+    let inst = Instant::now();
+    block_on(mock_io_test());
+    println!("Elapsed time: {:?}", inst.elapsed());
+}
+
+fn thread_blocking(d:u64, block:bool) -> u64 {
+    if block {
+        // this sleep will blocking current thread
+        std::thread::sleep(Duration::from_secs(d));
+    }
+    d
 }
 ```
 
@@ -13625,161 +13714,6 @@ async fn main() {
 
 设想另一种场景，CPU 请求外围设备的一些数据，接着 CPU 进入一个无限循环，一直在检查数据是否可用直到
 获得数据为止，这种方法称为轮询(polling)，是一种消耗 CPU 时间的行为，但是换来的是一定性能提升。
-
-根据不同的应用场合，同步性和阻塞性可以组合到一起。《Unix 网络编程》指明五种 I/O 模型：
-
-- **阻塞 I/O 模型**，最常见的一种，一个 read 操作分两个阶段，先等待数据准备就绪，再将数据拷贝到调用的线程中。阻塞是发生在第一个阶段的，数据准备好之前会一直阻塞用户线程，当数据就绪后再将数据拷贝到线程中，并返回结果给用户线程。
-- **非阻塞 I/O 模型**，当应用程序发起一个 read 操作时，并不会阻塞，而是立刻会收到一个结果，指示数据是准备好了没有。判断返回结果是一个错误状态，就知道数据还没有准备好，可以再次执行 read 操作直到系统将数据拷贝到了线程的内存中，读取出来。
-- **信号驱动 I/O 模型**，让内核在数据报准备就绪时发送 SIGIO 信号通知用户线程。首先开启套接字的信号驱动式 I/O 功能，并通过 sigaction 系统调用安装一个信号处理函数。该系统调用将立即返回，进程继续工作，也就是说没有被阻塞。当数据报准备好读取时，内核就为该进程产生一个 SIGIO 信号。我们随后就可以在信号处理函数中调用 recvfrom 读取数据报，并通知用户进程数据已经准备好，可以读取了。
-- **异步 I/O 模型**，当用户线程发起 read 操作时，告知内核启动读取数据操作，并让内核在整个操作完成后通知程序，包括将数据从内核复制到程序自己的缓冲区。这样在内核执行读取数据操作时，用户线程可以继续执行，当接收到内核在整个操作都完成的信号时，就可以直接去使用数据了。
-- **多路 I/O 复用模型**，Java NIO 使用的模型。
-
-多路复用 I/O 模型和非阻塞 I/O 有类似之处，但是前者的效率要高。因为在非阻塞 I/O 中，scoket 状态
-是通过用户线程去轮询的。而多路复用 I/O 模型，轮询每个 scoket 状态是内核进行处理的，结合硬件底层
-实现效率远比用户线程实现要高得多的，因此多路复用 I/O 模型比较适合高并发应用中使用。
-
-由于多路复用 I/O 模型是通过轮询的方式来检测是否有事件到达，并对到达的事件逐一响应，一旦事件响应体
-很大或是响应事件数量过多，就会消耗大量的时间去处理事件，从而影响整个过程的及时性。Linux 系统为应对
-这种情况提供了 epoll 接口，但是其他操作系统对这个接口的支持有很多差异，所以虽然 epoll 解决了事件
-检测的时效性问题，但是在跨平台能力上却并不能得到很好的支持。
-
-随着网络设计模式的兴起，诞生了两种高性能 I/O 事件处理设计模式 Reactor 和 Proactor：
-
-- Reactor 响应式模式
-
-    - 应用程序向 Reactor 注册 Ready for Read 读取**就绪事件**和相关联的事件处理函数；
-    - Reactor 阻塞等待内核事件通知；
-    - Reactor 收到通知，然后分发可读写事件到用户事件处理函数；
-    - 用户读取**系统缓冲区**中的数据，并处理数据；
-    - 事件处理器完成实际的读操作，处理读到的数据，注册新的事件，然后返还控制权；
-
-- Proactor 主动模式
-
-    - 应用程序初始化一个异步读取操作，然后注册相应的事件处理函数，读取**完成事件**，这是区别于 Reactor 的关键。
-    - 事件分离器等待读取操作完成事件。
-    - 操作系统调用内核线程完成读取操作，并将内容写入**用户缓存区**，即应用程序需要传递缓存区，区别于 Reactor。
-    - 事件分离器捕获到读取完成事件后，激活应用程序注册的事件处理器，事件处理器直接从缓存区读取数据。
-
-Reactor 模式要求主线程只作为 I/O 处理单元，只负责监听文件描述符上是否有事件发生，有的话就立即将
-该事件通知工作线程。除此之外，主线程不做任何其他实质性的工作。 读写数据，接受新的连接，以及处理客户
-请求均在工作线程中完成。
-
-而 Proactor 模式将所有 I/O 操作都交给主线程和内核来处理，工作线程仅仅负责业务逻辑。
-
-异步 I/O 模型就是使用的 Proactor 模式，Java NIO 多路 I/O 复用模型中使用 Reactor 模式。
-
-Rust 作为 "system programming language"，和 C 之间不能有 overhead。也就是说 Rust 必须使用
-系统 Native 的 Thread，才能和 C 的转换没有额外的 IO 损耗，所以 Rust 采用的是 OS Native 线程。
-并且，Rust 的异步模型也是基于 Native Thread 实现的 Synchronous non-blocking network I/O
-同步非阻塞 I/O，使用的是 Reactor 响应式模式。
-
-Native Thread 存在问题是，它消耗的资源更多，特别是面对大数量的任务时，进行线程切换操作会非常低效。
-Go 和 Erlang 都在线性内创建 Green Thread 来解决这个问题。而 Rust 作为系统级语言，不能和 C 之间
-有更多的隔阂，不想采用 Green Thread 模式。
-
-不同语言有不同的多线程实现方式，大多数使用操作系统 API 来创建线程，这种线程称为 1:1 线程模型，可以
-称为 native-threading。在语言层面上的实现的 green-threading 模型，即 N:M 线程模型，即将 N 个
-线程映射到 M 个操作系统线程上运行，因为更节能，所以就叫做绿色线程。这种线程模型优点是：克服了多对一
-模型并发度不高的缺点，又可服了一对一模型中一个用户进程占用太多内核级线程，开销太大的缺点。
-
-
-
-
-以下是流行的并发编程模型：
-
-- **OS threads** don't require any changes to the programming model,
-  which makes it very easy to express concurrency. However, synchronizing
-  between threads can be difficult, and the performance overhead is large.
-  Thread pools can mitigate some of these costs, but not enough to support
-  massive IO-bound workloads.
-- **Event-driven programming**, in conjunction with _callbacks_, can be very
-  performant, but tends to result in a verbose, "non-linear" control flow.
-  Data flow and error propagation is often hard to follow.
-- **Coroutines**, like threads, don't require changes to the programming model,
-  which makes them easy to use. Like async, they can also support a large
-  number of tasks. However, they abstract away low-level details that
-  are important for systems programming and custom runtime implementors.
-- **The actor model** divides all concurrent computation into units called
-  actors, which communicate through fallible message passing, much like
-  in distributed systems. The actor model can be efficiently implemented, but it leaves
-  many practical issues unanswered, such as flow control and retry logic.
-
-Rust 的异步编程实现与其它语言有些不同：
-
-- **Futures are inert** in Rust and make progress only when polled. Dropping a
-  future stops it from making further progress.
-- **Async is zero-cost** in Rust, which means that you only pay for what you use.
-  Specifically, you can use async without heap allocations and dynamic dispatch,
-  which is great for performance!
-  This also lets you use async in constrained environments, such as embedded systems.
-- **No built-in runtime** is provided by Rust. Instead, runtimes are provided by
-  community maintained crates.
-- **Both single- and multithreaded** runtimes are available in Rust, which have
-  different strengths and weaknesses.
-
-Rust 当前只提供了基础的异步代码支持，没有提供整个异步环境所需要的完整功能，例如 executors, tasks,
-reactors, combinators, low-level I/O futures 等等，这些只有社区提供相应的支持。
-
-- 目前标准库只提供了最基础的异步接口、类型、函数，如 Future；
-- Rust 编译器提供了 async/await 语法支持；
-- 大量的工具类型、函数都由社区的 **futures** 模组提供；
-- 异步代码的执行、IO 和 任务的 spawning 则交给社区提供的异步运行时实现；
-
-一个完整 Rust 异步编程环境应该包括：
-
-- Async Runtimes 用于运行异步程序，通常自带 reactor，它有一个或多个 executors；
-- Reactor 反应器为外部事件提供订阅机制，如异步I/O、进程间通信和计时器；
-- Executors 处理任务的调度和执行，单线程和多线程两种，它们通过轮询 Futures 来跟踪任务的运行状态，并在有进展时唤醒任务。
-
-在异步运行时中，订阅者通常是代表低级 I/O 操作的 Futrues。
-
-在Rust里 Future 是一个 trait ，定义如下。
-
-```rust
-// Trait core::future::Future
-pub trait Future {
-    type Output;
-
-    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output>;
-}
-```
-
-Future 接口可以看作是一个异步操作的容器，收纳如网络、RPC、超时、或者磁盘 I/O 等等操作。接口定义了
-一个 poll 方法，用于推动异步任务走向完成的目标，每次执行这个方法都会返回 `Poll` 枚举类型，这个 
-enum 类型有两个值，代表异步任务的不同状态：
-
-- `Poll::Pending` if the future is not ready yet
-- `Poll::Ready(val)` with the result val of this future if it finished successfully.
-
-Ready(T) 表示已经异步任务已经完成计算，每个异步任务的计算结果都可能是一个值，也可以什么也没有。
-
-
-
-Async runtime 和 executor 两者经常互换使用，社区上目前流行的运行时有：
-
-- **Tokio**: A popular async ecosystem with HTTP, gRPC, and tracing frameworks.
-- **async-std**: A crate that provides asynchronous counterparts to standard library components.
-- **smol**: A small, simplified async runtime. Provides the Async trait that can be used to wrap structs like UnixStream or TcpListener.
-- **fuchsia-async**: An executor for use in the Fuchsia OS.
-
-社区的 **futures** 模组包含了一系统接口和编写异步程序的函数，包括最终可能整合到标准库的接口，
-它提供了自己的执行器，但是没有提供 ractor，所以不能执行异步 I/O 或者 timer futures，所以也不是
-完整的异步运行时，需要和其它模组配合使用：
-
-- **Futures** are single eventual values produced by asynchronous computations. JavaScript call this concept “promise”.
-- **Streams** represent a series of values produced asynchronously.
-- **Sinks** provide support for asynchronous writing of data.
-- **Executors** are responsible for running asynchronous tasks.
-
-
-入口函数 main() 是同步执行的代码，在同步代码中进入异步的世界，可以通过调用 block_on() 函数。有
-多种选择，futures::executor::block_on 或者 async_std::task::block_on 等等。
-
-使用 **async** 关键字定义一个异步函数，在一个异步函数内部，则可以使用 **await** 关键字来等待另
-一个异步函数的输出。从异步调用同步代码则不需要做任何额外的事情，只需要直接调用同步函数，仅此而已！
-但是，小心那些需要执行比较长时间才完成的同步函数，并不能在异步的世界里，不假思索的去调用同步代码。
-
-
 
 例如，以下创建一个程序用异步、多线程两种方式下载 Web 页面：
 
@@ -13854,10 +13788,201 @@ async fn get_two_sites_async_test() {
     there is no reactor running, must be called from the context of a Tokio 1.x runtime
 
 
+根据不同的应用场合，同步性和阻塞性可以组合到一起。《Unix 网络编程》指明五种 I/O 模型：
+
+- **阻塞 I/O 模型**，最常见的一种，一个 read 操作分两个阶段，先等待数据准备就绪，再将数据拷贝到调用的线程中。阻塞是发生在第一个阶段的，数据准备好之前会一直阻塞用户线程，当数据就绪后再将数据拷贝到线程中，并返回结果给用户线程。
+- **非阻塞 I/O 模型**，当应用程序发起一个 read 操作时，并不会阻塞，而是立刻会收到一个结果，指示数据是准备好了没有。判断返回结果是一个错误状态，就知道数据还没有准备好，可以再次执行 read 操作直到系统将数据拷贝到了线程的内存中，读取出来。
+- **信号驱动 I/O 模型**，让内核在数据报准备就绪时发送 SIGIO 信号通知用户线程。首先开启套接字的信号驱动式 I/O 功能，并通过 sigaction 系统调用安装一个信号处理函数。该系统调用将立即返回，进程继续工作，也就是说没有被阻塞。当数据报准备好读取时，内核就为该进程产生一个 SIGIO 信号。我们随后就可以在信号处理函数中调用 recvfrom 读取数据报，并通知用户进程数据已经准备好，可以读取了。
+- **异步 I/O 模型**，当用户线程发起 read 操作时，告知内核启动读取数据操作，并让内核在整个操作完成后通知程序，包括将数据从内核复制到程序自己的缓冲区。这样在内核执行读取数据操作时，用户线程可以继续执行，当接收到内核在整个操作都完成的信号时，就可以直接去使用数据了。
+- **I/O multiplexing**，I/O 多路复用模型，Java NIO 就是使用这种模型。
+
+I/O 多路复用是指，通过一种机制实现在单个线程中可以监视多个文件，例如多个 socket，当文件读/写就绪时，
+用户进程就可以获取就绪的文件句柄。通过单个线程同时管理多个 I/O 流，提高了服务器的吞吐能力。早期的 I/O
+多路复用技术实现包括 select、poll，还有最新的 epoll 等等，这些都是 Linux 系统上的实现。select 
+作为最早的实现，这还不是线程安全的，也只能监视 1024 个链接，poll 有一些改进，但依然不是线程安全的。
+
+另外，poll 和 select 最大的问题在于，都是使用「线性链表」存储进程关注的 Socket 集合，因此，都需要
+遍历文件描述符集合来找到可读或可写的 Socket，时间复杂度为 O(n)，而且也需要在用户态与内核态之间拷贝
+文件描述符集合，这种方式随着并发数上来，性能的损耗会呈指数级增长。
+
+epoll 在内核里使用**红黑树**来跟踪进程所有待检测的文件描述字，通过 epoll_ctl() 函数将需要监控的
+socket 加入内核中的红黑树进行管理。红黑树 Red-black tree 比线性结构更加高效，增删查时间复杂度是
+O(logn)，插入新节点时只调整有标记的节点，这种优化的树状结构不需要像 select/poll 每次操作时，都
+要对整个 socket 集合操作。使用红黑树管理节点，即使监听再多的 Socket，效率不会大幅度降低，上限就为
+系统定义的进程打开的最大文件描述符个数，因而，epoll 被称为解决 C10K 问题的利器。
+
+
+多路复用 I/O 模型和非阻塞 I/O 有类似之处，但是前者的效率要高。因为在非阻塞 I/O 中，scoket 状态
+是通过用户线程去轮询的。而多路复用 I/O 模型，轮询每个 scoket 状态是内核进行处理的，结合硬件底层
+实现效率远比用户线程实现要高得多的，因此多路复用 I/O 模型比较适合高并发应用中使用。
+
+由于多路复用 I/O 模型是通过轮询的方式来检测是否有事件到达，并对到达的事件逐一响应，一旦事件响应体
+很大或是响应事件数量过多，就会消耗大量的时间去处理事件，从而影响整个过程的及时性。Linux 系统为应对
+这种情况提供了 epoll 接口，但是其他操作系统对这个接口的支持有很多差异，所以虽然 epoll 解决了事件
+检测的时效性问题，但是在跨平台能力上却并不能得到很好的支持。
+
+- Epoll 是 Linux 系统下的异步 I/O 模型，相比 select、poll 模型，它优势在更高效地处理大量事件。
+- Kqueue 是 Mac 系统下的异步 I/O 模型，与 Epoll 有点相似，但是实际使用时有所不同。
+- I/O Completion Ports (IOCP) 是 Windows 平台下的多核系统的异步 I/O 模型，会在事件完成时通知。
+
+随着网络设计模式的兴起，诞生了两种高性能 I/O 事件处理设计模式 Reactor 和 Proactor：
+
+- Reactor 响应式模式
+
+    - 应用程序向 Reactor 注册 Ready for Read 读取**就绪事件**和相关联的事件处理函数；
+    - Reactor 阻塞等待内核事件通知；
+    - Reactor 收到通知，然后分发可读写事件到用户事件处理函数；
+    - 用户读取**系统缓冲区**中的数据，并处理数据；
+    - 事件处理器完成实际的读操作，处理读到的数据，注册新的事件，然后返还控制权；
+
+- Proactor 主动模式
+
+    - 应用程序初始化一个异步读取操作，然后注册相应的事件处理函数，读取**完成事件**，这是区别于 Reactor 的关键。
+    - 事件分离器等待读取操作完成事件。
+    - 操作系统调用内核线程完成读取操作，并将内容写入**用户缓存区**，即应用程序需要传递缓存区，区别于 Reactor。
+    - 事件分离器捕获到读取完成事件后，激活应用程序注册的事件处理器，事件处理器直接从缓存区读取数据。
+
+Reactor 模式要求主线程只作为 I/O 处理单元，只负责监听文件描述符上是否有事件发生，有的话就立即将
+该事件通知工作线程。除此之外，主线程不做任何其他实质性的工作。 读写数据，接受新的连接，以及处理客户
+请求均在工作线程中完成。
+
+而 Proactor 模式将所有 I/O 操作都交给主线程和内核来处理，工作线程仅仅负责业务逻辑。
+
+异步 I/O 模型就是使用的 Proactor 模式，Java NIO 多路 I/O 复用模型中使用 Reactor 模式。
+
+Rust 作为 "system programming language"，和 C 互相调用不能有 overhead。所以 Rust 必须使用
+系统 Native 的 Thread，才能和 C 的转换没有额外的 IO 损耗，所以 Rust 采用的是 OS Native 线程。
+并且，Rust 的异步模型也是基于 Native Thread 实现的 Synchronous non-blocking network I/O
+同步非阻塞 I/O，使用的是 Reactor 响应式模式。
+
+Native Thread 存在问题是，它消耗的资源更多，特别是面对大数量的任务时，进行线程切换操作会非常低效。
+Go 和 Erlang 都在线性内创建 Green Thread 来解决这个问题。而 Rust 作为系统级语言，不能和 C 之间
+有更多的隔阂，不想采用 Green Thread 模式。
+
+不同语言有不同的多线程实现方式，大多数使用操作系统 API 来创建线程，这种线程称为 1:1 线程模型，可以
+称为 native-threading。在语言层面上的实现的 green-threading 模型，即 N:M 线程模型，即将 N 个
+线程映射到 M 个操作系统线程上运行，因为更节能，所以就叫做绿色线程。这种线程模型优点是：克服了多对一
+模型并发度不高的缺点，又可服了一对一模型中一个用户进程占用太多内核级线程，开销太大的缺点。
+
+
+以下是流行的并发编程模型：
+
+- **OS threads** don't require any changes to the programming model,
+  which makes it very easy to express concurrency. However, synchronizing
+  between threads can be difficult, and the performance overhead is large.
+  Thread pools can mitigate some of these costs, but not enough to support
+  massive IO-bound workloads.
+- **Event-driven programming**, in conjunction with _callbacks_, can be very
+  performant, but tends to result in a verbose, "non-linear" control flow.
+  Data flow and error propagation is often hard to follow.
+- **Coroutines**, like threads, don't require changes to the programming model,
+  which makes them easy to use. Like async, they can also support a large
+  number of tasks. However, they abstract away low-level details that
+  are important for systems programming and custom runtime implementors.
+- **The actor model** divides all concurrent computation into units called
+  actors, which communicate through fallible message passing, much like
+  in distributed systems. The actor model can be efficiently implemented, but it leaves
+  many practical issues unanswered, such as flow control and retry logic.
+
+Rust 的异步编程实现与其它语言有些不同：
+
+- **Futures are inert** in Rust and make progress only when polled. Dropping a
+  future stops it from making further progress.
+- **Async is zero-cost** in Rust, which means that you only pay for what you use.
+  Specifically, you can use async without heap allocations and dynamic dispatch,
+  which is great for performance!
+  This also lets you use async in constrained environments, such as embedded systems.
+- **No built-in runtime** is provided by Rust. Instead, runtimes are provided by
+  community maintained crates.
+- **Both single- and multithreaded** runtimes are available in Rust, which have
+  different strengths and weaknesses.
+
+Rust 当前只提供了基础的异步代码支持，没有提供整个异步环境所需要的完整功能，例如 executors, tasks,
+reactors, combinators, low-level I/O futures 等等，这些只有社区提供相应的支持。
+
+- 目前标准库只提供了最基础的异步接口、类型、函数，如 Future；
+- Rust 编译器提供了 async/await 语法支持；
+- 大量的工具类型、函数都由社区的 **futures** 模组提供；
+- 异步代码的执行、IO 和 任务的 spawning 则交给社区提供的异步运行时实现；
+
+一个完整 Rust 异步编程环境应该包括：
+
+- Async Runtimes 用于运行异步程序，通常自带 reactor，它有一个或多个 executors；
+- Reactor 反应器为外部事件提供订阅机制，如异步I/O、进程间通信和计时器；
+- Executors 处理任务的调度和执行，单线程和多线程两种，它们通过轮询 Futures 来跟踪任务的运行状态，并在有进展时唤醒任务。
+
+在异步运行时中，订阅者通常是代表低级 I/O 操作的 Futrues。
+
+在Rust里 Future 是一个 trait ，定义如下。
+
+```rust
+// Trait core::future::Future
+pub trait Future {
+    type Output;
+
+    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output>;
+}
+```
+
+使用 async 关键字就可以创建一个 Future 类型，实现 Future 接口的方式也可以创建一个 Future 类型，
+那么这两个 Future 有什么区别呢？通过自定义类型实现 Future 接口的方式称为 Leaf Future。直接使用
+async 关键字创建的称为 Non-leaf Future，它会由 async runtime 来调度运行。
+
+在 await 一个 Leaf Future 时，如果返回的是 Pending，那么 Non-Leaf Future 就会让出对当前
+线程的控制权，此时 async runtime 就能够调度执行其他的 Non-Leaf Future。当等待中的 IO 操作
+就绪时，async runtime 就会重新激活挂起的 Future，在上次离开的地方继续运行。
+
+Future 接口可以看作是一个异步操作的容器，收纳如网络、RPC、超时、或者磁盘 I/O 等等操作。接口定义了
+一个 poll 方法，用于推动异步任务走向完成的目标，每次执行这个方法都会返回 `Poll` 枚举类型，这个 
+enum 类型有两个值，代表异步任务的不同状态：
+
+- `Poll::Pending` if the future is not ready yet
+- `Poll::Ready(val)` with the result val of this future if it finished successfully.
+
+Ready(T) 表示已经异步任务已经完成计算，每个异步任务的计算结果都可能是一个值，也可以什么也没有。
+
+Async runtime 和 executor 两者经常互换使用，社区上目前流行的运行时有：
+
+- **Tokio**: A popular async ecosystem with HTTP, gRPC, and tracing frameworks.
+- **async-std**: A crate that provides asynchronous counterparts to standard library components.
+- **smol**: A small, simplified async runtime. Provides the Async trait that can be used to wrap structs like UnixStream or TcpListener.
+- **fuchsia-async**: An executor for use in the Fuchsia OS.
+
+社区的 **futures** 模组包含了一系统接口和编写异步程序的函数，包括最终可能整合到标准库的接口，
+它提供了自己的执行器，但是没有提供 ractor，所以不能执行异步 I/O 或者 timer futures，所以也不是
+完整的异步运行时，需要和其它模组配合使用：
+
+- **Futures** are single eventual values produced by asynchronous computations. JavaScript call this concept “promise”.
+- **Streams** represent a series of values produced asynchronously.
+- **Sinks** provide support for asynchronous writing of data.
+- **Executors** are responsible for running asynchronous tasks.
+
+
 
 ## ⚡ Pinning 内存钉
 - https://rust-lang.github.io/async-book/04_pinning/01_chapter.html
+- https://doc.rust-lang.org/std/pin/index.html#projections-and-structural-pinning
+- https://github.com/taiki-e/pin-project
+- https://github.com/taiki-e/pin-project-lite
+- [Rust-Pin提出的必要性-以及我对Pin的认识](https://chaochaogege.com/2021/06/08/54/)
 - 04_pinning/01_chapter.md
+
+Async 任务的实现过程中，函数会分段执行，例如在下面的代码里面：
+
+```rust,ignore
+    async fn foo() -> u8 { 5 }
+
+    async fn bar() -> impl Future<Output = u8> {
+      let i = 1;
+      let x: u8 = foo().await;
+      let y = &i;
+      *y + x
+    }
+```
+
+在调用 foo().await 等待异步结果时，异步任务就是这里分拆成两部分执行，await 前后的代码可能不会在
+同一个线程上执行，那么，前面的局部变量的状态就需要保留。如果要保留的状态不是简单的类型，就有潜在的问题，
+也就是任务切换过程中要考虑的问题。
 
 Pinnig 即钉住内存地址的意思，为了解析这个词的内涵，需要引入自引用类型来解释浅拷贝中出现的不安全现象。
 
@@ -14085,60 +14210,55 @@ pub fn main() {
 }
 ```
 
+Projections and Structural Pinning 关注的是 `Pin<&mut Struct>` 类型中字段的处理问题，
+这个 Pin 约束对哪个字段起作用？如果，某个字段被 move 会引起问题，这个字段必须被 Pinned，Pin 
+就是约束他的，而非其他字段。
+
+pin_project 就是通过创建辅助方法为类型创建投影字段，通过在字段上标注 #[pin] 进行局部 Pin 约束。
+Pin 住的字段成为 Pin<&mut Field>，就不应该移动。虽然移出去不一定错，Pin 从设计上说不能 move。
+只要将他假设为，虽然被 Pin 住，但还是可以被 move。
+
+
+```rust,ignore
+use std::pin::Pin;
+
+use pin_project_lite::pin_project;
+
+pin_project! {
+    struct Struct<T, U> {
+        #[pin]
+        pinned: T,
+        unpinned: U,
+    }
+}
+
+impl<T, U> Struct<T, U> {
+    fn method(self: Pin<&mut Self>) {
+        let this = self.project();
+        let _: Pin<&mut T> = this.pinned; // Pinned reference to the field
+        let _: &mut U = this.unpinned; // Normal reference to the field
+    }
+}
+```
+
 
 
 ## ⚡ Tokio 事件驱动非阻塞异步 I/O
 - [async_std - Async version of the Rust standard library](https://docs.rs/async-std/latest/async_std/)
 - [Tokio tutorial](https://tokio.rs/tokio/tutorial/)
 - [Tokio - Event-driven NBIO asynchronous I/O](https://crates.io/crates/tokio)
-- Learning Reactive Programming With Java 8 Nickolay Tsvetinov
-- [Explore all RxJS operators](https://reactive.how/rxjs/)
-- [Interactive diagrams of Rx Observables](https://rxmarbles.com)
-- [FRP - Functional Reactive Programming](https://www.cnblogs.com/apolis/p/11437688.html)
-- [Taming snakes with reactive streams](https://blog.thoughtram.io/rxjs/2017/08/24/taming-snakes-with-reactive-streams.html)
-
-
-网络应用通常都涉及 Flow Control 问题，也是响应式编程 Reactive Programming 常常出现的概念。
-
-比如一个水池，有一个进水管和一个出水管。如果进水管水流更大，过一段时间水池就会满溢。这就是没有进行流量控制导致的结果。
-
-而 Flow Control 有几种思路：
-
-- Backpressure 方式就是自助餐，需要多少取多少。消费者需要多少，生产者就生产多少，消费得少了，就让生产方减产。
-- Throttling 节流方式，说白了就是丢弃。消费不过来，就处理其中一部分，剩下的丢弃。
-- buffer 和 window，它们是把上游多个小包裹打成大包裹，分发到下游，这样下游需要处理的包裹的个数就减少了。
-- Callstack blocking 是一种特殊情况，阻塞住整个调用链。
-
-其实，Backpressure 源自工程上的一个概念，在管道运输中，气流或液流由于管道突然变细、急弯等原因导致
-由某处出现了下游向上游的逆向压力，这种情况称作「back pressure」。放着水的管道，如果突然关闭，也会
-产生强大的回压，水锤泵就是利用这个原理产生的。这是一个很直观的词，back pressure 向后的、往回的压力。
-
-在数据流传输过程中，上游生产速度大于下游消费速度，导致下游的 Buffer 溢出，从而产生 Backpressure。
-需要强调的是，重点不在于速度差，而在于 Buffer 溢出。Backpressure 和 Buffer 是一对相生共存的概念，
-只有设置了 Buffer，才有 Backpressure 出现。
-
-Backpressure 处理方案只对 Cold Observable，允许降低速率的发送源。这有点类似于 TCP 里的流量控制，
-接收方根据自己的接收窗口的设置来控制接收速率，并通过 ACK 回复包来控制发送方的发送速率。比如，两台机器
-传一个文件，速率可大可小，即使降低到每秒几个字节，只要时间足够长，还是能够完成的。反例是直播，速率低于
-某个值整个功能就没法用了，这种类似于 Hot Observable。
-
-Learning Reactive Programming With Java 8 的作者 Nickolay Tsvetinov 举过类似这样的例子：
-设想大家都在收看同一套电视节目，这就是 Hot Observable。而各自听磁带音响，这就是 Cold Observable。
-
-> We can say that cold Observables generate notifications for each subscriber and hot
-> Observables are always running, broadcasting notifications to all of their subscribers.
-> Think of a hot Observable as a radio station. All of the listeners that are listening to
-> it at this moment listen to the same song. A cold Observable is a music CD. Many
-> people can buy it and listen to it independently.
-
-至于处理哪些和丢弃哪些，就有不同的策略，也就是 sample (or throttleLast)、throttleFirst、debounce 
-(or throttleWithTimeout) 这三种。还是举音视频直播的例子，在下游处理不过来的时候，就需要丢弃数据包。
-
 
 Tokio is an event-driven, non-blocking I/O platform for writing asynchronous 
 applications with the Rust programming language. 
 
     git clone --depth=1 git@github.com:tokio-rs/tokio
+
+    git clone --depth=1 git@github.com:tokio-rs/mio
+    git clone --depth=1 git@github.com:hyperium/hyper
+    git clone --depth=1 git@github.com:hyperium/tonic
+    git clone --depth=1 git@github.com:tower-rs/tower
+    git clone --depth=1 git@github.com:tokio-rs/tracing
+    git clone --depth=1 git@github.com:tokio-rs/bytes
 
 Tokio 是一个 Rust 语言实现的高可靠、异步、非阻塞、事件驱动的小巧的运行库，并且在不影响速度的情况下
 构建可靠的网络应用。它可以灵活地针对各种系统，从具有数十个核心的大型服务器到小型嵌入式设备。
@@ -14155,13 +14275,43 @@ Tokio 是一个 Rust 语言实现的高可靠、异步、非阻塞、事件驱�
 - A reactor backed by the operating system's event queue (epoll, kqueue, IOCP, etc...).
 - Asynchronous TCP and UDP sockets.
 
-Tokio 有两个核心概念：异步运行时 runtime 和异步任务 task，异步运行时环境(Runtime)用于运行异步任务。
+Tokio 构架图：
+
+![The Tokio stack](https://tokio.rs/img/stack-lines.svg)
+
+- Tokio runtime 是异步应用的基础，包含 I/O、定时器、文件系统、同步与任务调度设施；
+- **Hyper** 是一个支持 HTTP1.0 和 HTTP2.0 的客户端与服务端的实现；
+- **Tonic** 是一个 boilerplate-free gRPC 客户端和服务器库，通过网络公开和调用 API 的最简单方法。
+- **Tower** 用于构建可靠客户端和服务器的模块化组件，包括 retry、负载平衡、过滤、请求限制功能等。
+- **Mio** 是基于操作系统事件 I/O API 的最小化的可移植接口。
+- **Tracing** 提供结构化、基于事件的数据收集和日志记录，帮助应用程序和库的统一分析。
+- **Bytes** 是网络字节数据流操作模块，提供了丰富的字节数组操作方法。
+
+
+其中网络模块是这里使用到的主要功能：
+
+- **TcpListener** and **TcpStream** provide functionality for communication over TCP
+- **UdpSocket** provides functionality for communication over UDP
+- **UnixListener** and **UnixStream** provide functionality for communication over a Unix Domain Stream Socket (available on Unix only)
+- **UnixDatagram** provides functionality for communication over Unix Domain Datagram Socket (available on Unix only)
+
+尚未转换为 TcpStream 或 TcpListener 的 TCP 套接字还是使用 **TcpSocket** 表示。TCP 套接字
+的数据读取与发送通过 **AsyncReadExt** 和 **AsyncWriteExt** 实现的接口方法操作 TcpStream。
+
+而 **UdpSocket** 则直接实现了数据收发方法，例如，接收数据的方法：
+
+    pub async fn recv(&self, buf: &mut [u8]) -> Result<usize>
+    pub async fn recv_from(&self, buf: &mut [u8]) -> Result<(usize, SocketAddr)>
+
+
+Tokio 有两个主要概念：异步运行时 runtime 和异步任务 task，异步运行时环境(Runtime)用于运行异步任务。
 Tokio runtime 有两种工作模式：
 
 1. 单一线程，current thread runtime
 2. 多线程，multi thread runtime
 
-注: 这里的所说的线程是 Rust 线程，而每一个 Rust 线程都是一个 OS 线程。
+注: 这里的所说的线程是 Rust 线程，而每一个 Rust 线程都是一个 OS 线程。Tokio::task 则是绿色线程
+Asynchronous green-threads 异步的绿色线程。
 
 
 Tokio 官方示范应用：
@@ -14223,6 +14373,13 @@ Tokio main 默认为多线程运行，可以通过 flavor 参数改为当前线�
 命令行跨网络读取和写入数据。Ncat 是为 Nmap 项目编写的，它是对备受尊敬的 Netcat 改进。它同时使用
 TCP 和 UDP 进行通信，并被设计为一个可靠的后端工具，可以立即向其他应用程序和用户提供网络连接。
 Ncat 不仅适用于 IPv4 和 IPv6，而且为用户提供了几乎无限的潜在用途。
+
+Nmap 工具包最新版本 7.93，安装后得到一个 Nmap - Zenmap GUI 扫描工具，用于网络探测与安全审计，
+例如，以下命令用于扫描官方服务器上的网络服务，T4 加速扫描时间模板，-A 启用所有高级选项。任何一个
+命令选项，都可以通过 GUI 界面进行配置：
+
+    nmap -T4 -A -v nmap.org
+
 
 ```rust,ignore
 //! A simple client that opens a TCP stream, writes "hello world\n", and closes
@@ -14293,6 +14450,603 @@ fn get_cat_fact() -> Result<String, Box<dyn std::error::Error>> {
     Ok(body)
 }
 ```
+
+## ⚡ UDP & TCP/IP Protocols 网络协议
+- [User Datagram Protocol (UDP)](https://www.khanacademy.org/a/transmission-control-protocol--tcp)
+- [Transmission Control Protocol (TCP)](https://www.khanacademy.org/a/user-datagram-protocol-udp)
+- [RFC 791 - IP(Internet Protocol)](https://www.rfc-editor.org/info/rfc791)
+- [RFC 793 - TCP(Transmission Control Protocol)](https://www.rfc-editor.org/info/rfc793)
+- [一文读懂 HTTP/2 及 HTTP/3 特性](https://blog.fundebug.com/2019/03/07/understand-http2-and-http3/)
+- [TCP 图解千百问](https://mp.weixin.qq.com/s/tH8RFmjrveOmgLvk9hmrkw)
+- TCP/IP Illustrated Vol. 3: TCP for Transactions, HTTP, NNTP, and the Unix Domain Protocols - Addison-Wesley
+- TCP/IP Illustrated vol. 2: The Implementation Gary R. Wright, W. Richard Stevens
+- TCP/IP Illustrated Vol. 1: The Protocols Kevin R. Fall, W. Richard Stevens
+- Illustrated TCPIP: A Graphic Guide to the Protocol Suite by Matthew Naugle
+
+
+网络编程中，协议栈中 UDP & TCP/IP 必需掌握的两种协议，它们是最基础的两种协议：
+
+- User Datagram Protocol (UDP) 不保证连接的可靠；
+- Transmission Control Protocol (TCP) 用于可靠的连接；
+
+两种协议都是基于 IP 协议之上的传输层协议，图片来自 Khan Academy。
+
+![UDP segment over IP packet](https://cdn.kastatic.org/ka-perseus-images/9d185d3d44c7ef1e2cd61655e47befb4d383e907.svg)
+![TCP segment over IP packet](https://cdn.kastatic.org/ka-perseus-images/e5fdf560fdb40a1c0b3c3ce96f570e5f00fff161.svg)
+
+Internet Protocol (IP) 描述如何将消息分包以 IP packets 或 route packets 在路由网络上传输，
+但不保证顺序。数据包可能会由于某种原因损坏，接收的数据不再与最初发送的数据匹配。
+
+由于物理层或路由器转发表中的问题，数据包可能会丢失。如果一条消息的一个数据包丢失了，那么可能就不可能
+以有意义的方式将消息重新组合起来。类似地，由于同一数据包的意外重传，数据包可能会被复制。
+
+而基于 IP 协议之上的传输层协议就可以并且也需要解决 IP 协议中存在的问题。
+
+
+因为连接不确保可靠，UDP 协议也称为 Unreliable Data Protocol。但是 UDP 不用像 TCP 那样重复多次
+网络信息传输才能建立可靠连接，而这个过程在 UDP 通信中，可能已经完成数据传输了，在少量数据的情况下就
+是这样，所以 UDP 比 TCP 具有更快速的优势，HTTP3.0 协议也基于 UDP 实现。HTTP2.0 协议虽然通过连接
+持久化、多路复用来解决 HTTP1.0 的连接慢问题，但是 Web 网络速度还是不够快速。
+
+UDP 是无连接的，通信不需要建立和断开连接，想要给一方发送数据就随时可以向指定地址发送数据，而不需要先
+建立连接。但是对方能不能收到是没有保障的，由于这样精简的通信方式，UDP 就不会有拥塞控制，可以按固定
+速度发送数据。即使网络条件不好，也不需要对发送速率进行调整。弊端是在网络条件不好的情况下导致高丢包率，
+但是优点也很明显，在某些实时性要求高的场景（比如电话会议）就需要使用 UDP 而不是 TCP。
+
+在使用 Tokio 编写 UDP 通讯程序时，只需要执行 UdpSocket::bind(&bind_addr) 绑定本机的 IP 地址
+和端口，然后再通过 socket.connect(addr) 去连接运程主机，当然这个连接与 TCP socket 的连接是完全
+两个意思，UDP 的连接只在需要发送数据时才会有 IP 数据包流向远程主机。
+
+
+为了保证可靠性，TCP 连接分三步，首先需要 three-way handshake 三次握手确认后才会建立双方的通信连接，
+传输完数据后，又需要 4-way handshake 四次挥手确认数据传输完成才正式断开连接： 
+
+![three-way handshake](https://cdn.kastatic.org/ka-perseus-images/d09f9d37ff2a2deb21a8822f8c99ba6b86319f0b.svg)
+![4-Way Wave handshake](https://cdn.kastatic.org/ka-perseus-images/f158ea181534ee675d0928fa657897cefc04359e.svg)
+
+- Step 1: Establish connection
+- Step 2: Send packets of data
+- Step 3: Close the connection
+
+建立连接时，双方互向对应发出 SYN，对方接收到后回复 ACK，由通信的发起方先发出 SYN 信号，对方接收到
+后就可以连带 SYN + ACK 一起发送回连接请求方。
+
+收发数据时，一方发送带有序列号的数据包，如 Sequence #1，因为数据包接收时是无序的，需要这个序号
+来重组正确的数据顺序。接收方收到一个包，就回应一个 ACK 确认信号，让发送方知道已经接收到了相应序号
+的数据，这样就不需要再次重发。
+
+之所以需要 4 次挥手才结束连接，是因为数据发送方可能存在数据还未传输完的情况下，对方先提出了结束连接，
+这就需要双方明确 FIN <--> ACK 进行对答后，才能安全结束连接。
+
+TCP 协议头中提供了 6-bit 控制位，可以用来指定六种不同用途的 TCP 数据包，依 bit 顺序功能如下：
+
+01. URG - Urgent Pointer field significant 紧急标志，用于需要应用层紧急处理的数据包；
+02. ACK - Acknowledgment field significant 应答确认；
+03. PSH - Push Function 推送标志，用于推送数据而不是使用数据队列处理，表示数据包要尽快交给应用层处理；
+04. RST - Reset the connection 连接重置；
+05. SYN - Synchronize sequence numbers 同步序列，用在建立连接，每个 SYN segment 消耗一个序列号，即使后续序列号加一；
+06. FIN - No more data from sender 用在结束连接；
+
+![TCP 的状态机](https://imgconvert.csdnimg.cn/aHR0cHM6Ly91c2VyLWdvbGQtY2RuLnhpdHUuaW8vMjAxOC81LzEvMTYzMWJlZjllM2M2MDAzNQ)
+
+
+Step 1: Establish connection
+
+- The first computer sends a packet with the SYN bit set to 111 (SYN = "synchronize?"). 
+- The second computer sends back a packet with the ACK bit set to 111 (ACK = "acknowledge!") plus the SYN bit set to 111. 
+- The first computer replies back with an ACK.
+
+The SYN and ACK bits are both part of the TCP header:
+
+![Diagram of two computers with arrows between.](https://cdn.kastatic.org/ka-perseus-images/9a4a79816965be53e1071cf6b0e2991cb4d170ca.svg)
+
+The ACK and SYN bits are highlighted on the fourth row of the header.
+
+1. A diagram of the TCP header with rows of fields. Each row is 32 bits long. 
+2. The first row contains a 16-bit source port number and 16-bit destination port number. 
+3. The second row contains a 32-bit sequence number. 
+4. The third row contains a 32-bit acknowledgement number. 
+5. The fourth row contains a 
+    - 4-bit data offset number, 
+    - 6 bits that are marked as reserved, 
+    - 6 control bits (URG, ACK, PSH, RST, SYN, and FIN), and a 
+    - 16-bit window size number. 
+6. The fifth row contains a 16-bit checksum and 16-bit urgent pointer. 
+7. The header ends with options and padding which can be of variable length.
+
+In fact, the three packets involved in the three-way handshake do not typically 
+include any data. Once the computers are done with the handshake, they're ready 
+to receive packets containing actual data.
+
+
+Step 2: Send packets of data
+
+When a packet of data is sent over TCP, the recipient must always acknowledge what they received.
+
+![Diagram of two computers with arrows between.](https://cdn.kastatic.org/ka-perseus-images/2cfc6b88b3b5c3a27386503d347524c2065a57d9.svg)
+
+The first computer sends a packet with data and a sequence number. The second 
+computer acknowledges it by setting the ACK bit and increasing the acknowledgement 
+number by the length of the received data.
+
+The sequence and acknowledgement numbers are part of the TCP header:
+
+![A diagram of the TCP header with rows of fields.](https://cdn.kastatic.org/ka-perseus-images/ec71832edb1f2ff1d2ad12da494033ce2b25aafa.svg)
+
+The 32-bit sequence and acknowledgement numbers are highlighted.
+
+Each row is 32 bits long. 
+
+1. The first row contains a 16-bit source port number and 16-bit destination port number. 
+2. The second row contains a 32-bit sequence number. 
+3. The third row contains a 32-bit acknowledgement number. 
+4. The fourth row contains a 
+    - 4-bit data offset number, 
+    - 6 bits that are marked as reserved, 
+    - 6 control bits (URG, ACK, PSH, RST, SYN, and FIN), and a 
+    - 16-bit window size number. 
+5. The fifth row contains a 16-bit checksum and 16-bit urgent pointer. 
+6. The header ends with options and padding which can be of variable length.
+
+Those two numbers help the computers to keep track of which data was successfully 
+received, which data was lost, and which data was accidentally sent twice.
+
+
+Step 3: Close the connection
+
+Either computer can close the connection when they no longer want to send or receive data.
+
+![4-Way Wave handshake](https://cdn.kastatic.org/ka-perseus-images/f158ea181534ee675d0928fa657897cefc04359e.svg)
+
+A computer initiates closing the connection by sending a packet with the FIN bit 
+set to 1 (FIN = finish). The other computer replies with an ACK and another FIN. 
+After one more ACK from the initiating computer, the connection is closed.
+
+
+Detecting lost packets
+TCP connections can detect lost packets using a timeout.
+
+![Diagram demonstrating re-transmission of a packet from one computer to another computer.](https://cdn.kastatic.org/ka-perseus-images/b1017461d232cd46fa5b445f80e75568bf31c57c.svg)
+
+After sending off a packet, the sender starts a timer and puts the packet in a 
+retransmission queue. If the timer runs out and the sender has not yet received 
+an ACK from the recipient, it sends the packet again.
+
+The retransmission may lead to the recipient receiving duplicate packets, if a 
+packet was not actually lost but just very slow to arrive or be acknowledged. 
+If so, the recipient can simply discard duplicate packets. It's better to have 
+the data twice than not at all!
+
+
+
+## ⚡ UDP & TCP/IP Connector
+- https://docs.rs/bytes/1.3.0/bytes/index.html
+- Learning Reactive Programming With Java 8 Nickolay Tsvetinov
+- [Explore all RxJS operators](https://reactive.how/rxjs/)
+- [Interactive diagrams of Rx Observables](https://rxmarbles.com)
+- [FRP - Functional Reactive Programming](https://www.cnblogs.com/apolis/p/11437688.html)
+- [Taming snakes with reactive streams](https://blog.thoughtram.io/rxjs/2017/08/24/taming-snakes-with-reactive-streams.html)
+
+这里实现一个 UDP、TCP 连接测试程序，因为 UDP 无需要预先建立连接再通信，本身可以作为 UDP 侦听服务，
+只需要指定侦听地址、端口即可，代码修改自 tokio\examples\connect.rs 示范代码而来。
+
+这里使用了一系列的类型与接口：
+
+    use bytes::Bytes;
+    use futures::{future, Sink, SinkExt, Stream, StreamExt};
+    use tokio_util::codec::{BytesCodec, FramedRead, FramedWrite};
+
+**bytes** 提供的是高效字节缓冲区的抽象，一对缓冲区类型和一对配套接口，接口提供各数据类型的读写方法，
+缓冲区可以根据数据类型做切割。
+
+- **Bytes**   A cheaply cloneable and sliceable chunk of contiguous memory.
+- **BytesMut**    A unique reference to a contiguous slice of memory.
+- **Buf** Read bytes from a buffer.
+- **BufMut**  A trait for values that provide sequential write access to bytes.
+
+**Bytes** 包含一个 vtable 定义共享、克隆规则，调用 Bytes::clone() 就执行 vtable function
+进行相应操作，以在多个 Bytes 实例之间共享缓冲区数据。
+
+- 对引用 constant memory 的 Bytes，克隆行为定义为 no-op，即 Bytes::from_static() 这样的实例不会有克隆行为；
+- 对于引用计数共享存储空间的 Bytes，如共享 `Arc<[u8]>` 则会相应增加计数器值，所以可以有多个实例共享同一内存空间，映射不同区域；
+
+以下图表演示了两个 Bytes 实例如何使用同一块计数共享内存的不同区域：
+
+       Arc ptrs                   ┌─────────┐
+       ________________________ / │ Bytes 2 │
+      /                           └─────────┘
+     /          ┌───────────┐     |         |
+    |_________/ │  Bytes 1  │     |         |
+    |           └───────────┘     |         |
+    |           |           | ___/ data     | tail
+    |      data |      tail |/              |
+    v           v           v               v
+    ┌─────┬─────┬───────────┬───────────────┬─────┐
+    │ Arc │     │           │               │     │
+    └─────┴─────┴───────────┴───────────────┴─────┘
+
+**BytesMut** 表示潜在共享内存区域的独特视图，有唯一性保证，BytesMut 句柄的所有者可以改变内存。
+可以看作是 `buf:Arc<Vec<u8>>`，一个到 buf 的偏移量、一个切片长度，保证不会有切片相互重叠，这
+意味着不需**写锁保护**。
+
+BytesMut 对应的 BufMut 接口实现会在需要时，隐式地增加缓冲区空间，当然，在执行一系列数据插入操作
+之前，明确保留所需的空间将更有效率。
+
+
+网络应用通常都涉及 Flow Control 问题，也是响应式编程 Reactive Programming 常常出现的概念。
+
+比如一个水池，有一个进水管和一个出水管。如果进水管水流更大，过一段时间水池就会满溢。这就是没有进行流量控制导致的结果。
+
+而 Flow Control 有几种思路：
+
+- Backpressure 方式就是自助餐，需要多少取多少。消费者需要多少，生产者就生产多少，消费得少了，就让生产方减产。
+- Throttling 节流方式，说白了就是丢弃。消费不过来，就处理其中一部分，剩下的丢弃。
+- buffer 和 window，它们是把上游多个小包裹打成大包裹，分发到下游，这样下游需要处理的包裹的个数就减少了。
+- Callstack blocking 是一种特殊情况，阻塞住整个调用链。
+
+其实，Backpressure 源自工程上的一个概念，在管道运输中，气流或液流由于管道突然变细、急弯等原因导致
+由某处出现了下游向上游的逆向压力，这种情况称作「back pressure」。放着水的管道，如果突然关闭，也会
+产生强大的回压，水锤泵就是利用这个原理产生的。这是一个很直观的词，back pressure 向后的、往回的压力。
+
+在数据流传输过程中，上游生产速度大于下游消费速度，导致下游的 Buffer 溢出，从而产生 Backpressure。
+需要强调的是，重点不在于速度差，而在于 Buffer 溢出。Backpressure 和 Buffer 是一对相生共存的概念，
+只有设置了 Buffer，才有 Backpressure 出现。
+
+Backpressure 处理方案只对 Cold Observable，允许降低速率的发送源。这有点类似于 TCP 里的流量控制，
+接收方根据自己的接收窗口的设置来控制接收速率，并通过 ACK 回复包来控制发送方的发送速率。比如，两台机器
+传一个文件，速率可大可小，即使降低到每秒几个字节，只要时间足够长，还是能够完成的。反例是直播，速率低于
+某个值整个功能就没法用了，这种类似于 Hot Observable。
+
+Learning Reactive Programming With Java 8 的作者 Nickolay Tsvetinov 举过类似这样的例子：
+设想大家都在收看同一套电视节目，这就是 Hot Observable。而各自听磁带音响，这就是 Cold Observable。
+
+> We can say that cold Observables generate notifications for each subscriber and hot
+> Observables are always running, broadcasting notifications to all of their subscribers.
+> Think of a hot Observable as a radio station. All of the listeners that are listening to
+> it at this moment listen to the same song. A cold Observable is a music CD. Many
+> people can buy it and listen to it independently.
+
+至于处理哪些和丢弃哪些，就有不同的策略，也就是 sample (or throttleLast)、throttleFirst、debounce 
+(or throttleWithTimeout) 这三种。还是举音视频直播的例子，在下游处理不过来的时候，就需要丢弃数据包。
+
+
+**futures** 模组是其它多个模组的重新导出，其中 **Streams** 接口代表的是数据序列的异步产生，
+对应了同步原语中的 Iterator 概念：
+
+- **poll_next()** 每次有一个值产生便可以调用一次这个方法，当值产生完毕后此方法会返回 None。
+- **size_hint()** 主要用于优化，例如为流的元素保留空间，但不能被信任；默认实现返回（0，None），这对于任何流都是正确的。
+
+而 **Sinks** 接口则提供了异步写入的方法，可以来抽象网络连接的写入端，消息队列中的 Producer。异步
+数据收发就需要结合缓冲区的状态来处理数据，Sink 就是流量控制模型的实现接口，通过判断 **poll_ready()**
+返回的状态来确定能否执行数据发送动作，通过返回状态实现压力水平自动沉降：
+
+- **poll_ready()** 判断是否准备好接收，返回`Poll::Ready(Ok(()))`才能调用`start_send`发送数据；
+- **start_send()** 开始发送数据，如果使用了缓冲，数据则先到达缓冲区，要调用 flush 或 close 确保发送完成；
+- **poll_flush()** 推送缓冲数据，返回`Poll::Pending`表示还有更多工作要做，当前任务被暂时挂起，并等待被唤醒再继续；
+- **poll_close()** 推送缓冲数据并关闭 Sink，所有数据处理好则返回`Poll::Ready(Ok(()))`，否则挂起等待再唤醒继续；
+
+异步流量的传递的一优点就是可以通过状态动态地调整数据的发送，在 Sink 缓冲区已满时，就挂起等待合适时机。
+
+**tokio_util** 模组提供了一系列的工具类型帮助处理异步数据流，主要是字节流编码、解码，和读写接口：
+
+- **BytesCodec**  实现了 Decoder 和 Encoder 两个接口，用于字节数据传输；
+- **Framed**  A unified Stream and Sink interface to an underlying I/O object, using the Encoder and Decoder traits to encode and decode frames.
+- **FramedParts** FramedParts contains an export of the data of a Framed transport. It can be used to construct a new Framed with a different codec. It contains all current buffers and the inner transport.
+- **FramedRead**  A Stream of messages decoded from an AsyncRead.
+- **FramedWrite** A Sink of frames encoded to an AsyncWrite.
+
+Frame 与底层 I/O 对象的统一流和汇接口，使用编码器和解码器特性对帧进行编码和解码。
+
+FramedParts 包含 Framed 传输的数据出口，它可用于具有不同编解码器构建的 Framed 新实例，它包含所有当前缓冲区和内部传输。
+
+Tokio 异步读写接口 AsyncRead、AsyncWrite 定义的是同步方法，这两个接口需要根据数据状态的不同
+提供三种 Poll 枚举状态值：
+
+- Poll::Ready(Ok(())) 表示数据现在就准备好，可以从缓冲区读取。ReadBuf::filled 指示数据量。如果差值为 0，则已达到 EOF。
+- Poll::Pending 表示数据还没有到达，I/O 对象不可读取。
+- Poll::Ready(Err(e)) 表示底层出现 I/O 错误；
+
+
+
+```rust,ignore
+/// An example of hooking up stdin/stdout to either a TCP or UDP stream.
+/// 
+/// to connect a TCP server:
+/// 
+///     cargo run --example 03_connect -- 127.0.0.1:8080
+/// 
+/// to connect a UDP server:
+/// 
+///     cargo run --example 03_connect -- --udp 127.0.0.1:8080
+/// 
+/// or bind to a address as udp server
+/// 
+///     cargo run --example 03_connect -- --udp 127.0.0.1:8081 127.0.0.1:8080
+///     cargo run --example 03_connect -- --udp 127.0.0.1:8080 127.0.0.1:8081
+
+use std::{error::Error, net::SocketAddr};
+use async_std::stream::StreamExt;
+use tokio_util::codec::{BytesCodec, FramedRead, FramedWrite};
+use tokio::io;
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn Error>> {
+  let mut args = std::env::args().skip(1).collect::<Vec<String>>();
+  let mut tcp = true;
+
+  let bind_addr = match args.iter().position(|a| a == "--udp") {
+    Some(i) => {
+      args.remove(i);
+      tcp = false;
+      args.first().unwrap()
+    },
+    None => "",
+  };
+
+  
+  let addr = args.last().ok_or("address is required")?;
+  // let addr: SocketAddr = addr.parse()?;
+  let addr = addr.parse::<SocketAddr>().expect("require TCP/IP address.");
+
+  // let the OS pick udp IP address and port if not specify.
+  let bind_addr = if !bind_addr.is_empty() && && args.len() > 1 {
+    bind_addr
+  } else if addr.is_ipv4() {
+    "0.0.0.0:0"
+  } else {
+    "[::]:0"
+  };
+  let bind_addr = bind_addr.parse::<SocketAddr>().expect("require UPD/IP address.");
+  
+  
+  let stdin = FramedRead::new(io::stdin(), BytesCodec::new());
+  let stdin = stdin.map(|i| i.map(|bytes| bytes.freeze()));
+  let stdout = FramedWrite::new(io::stdout(), BytesCodec::new());
+
+  if tcp {
+    tcp::connect(&addr, stdin, stdout).await?;
+  }else{
+    udp::connect(&addr, &bind_addr, stdin, stdout).await?;
+  }
+
+  Ok(())
+}
+
+mod tcp {
+  use bytes::Bytes;
+  use tokio::net::TcpStream;
+  use futures::{future, Sink, SinkExt, Stream, StreamExt};
+  use tokio_util::codec::{BytesCodec, FramedRead, FramedWrite};
+  use std::{io, net::SocketAddr, error::Error};
+
+
+  pub async fn connect(
+      addr: &SocketAddr, 
+      mut stdin: impl Stream<Item = Result<Bytes, io::Error>> + Unpin,
+      mut stdout: impl Sink<Bytes, Error = io::Error> + Unpin,
+  ) -> Result<(), Box<dyn Error>> {
+    let mut stream = TcpStream::connect(addr).await?;
+    let (r, w) = stream.split();
+    let mut sink = FramedWrite::new(w, BytesCodec::new());
+
+    let mut stream = FramedRead::new(r, BytesCodec::new())
+        // filter map Result<BytesMut, Error> stream into just a Bytes stream to match stdout Sink
+        // on the event of an Error, log the error and end the stream
+        .filter_map(|i| match i {
+            //BytesMut into Bytes
+            Ok(i) => future::ready(Some(i.freeze())),
+            Err(e) => {
+              println!("failed to read from socket: {}", e);
+              future::ready(None)
+            }
+        }).map(Ok);
+
+    match future::join(sink.send_all(&mut stdin), stdout.send_all(&mut stream)).await {
+      (Err(e), _) | (_, Err(e)) => Err(e.into()),
+      _ => Ok(())
+    }
+  }
+}
+
+mod udp {
+  use bytes::Bytes;
+  use tokio::net::UdpSocket;
+  use futures::{Sink, SinkExt, Stream, StreamExt};
+  use std::{io, net::SocketAddr, error::Error};
+
+  pub async fn connect(
+    remote_addr: &SocketAddr,
+    bind_addr: &SocketAddr,
+    stdin: impl Stream<Item = Result<Bytes, io::Error>> + Unpin,
+    stdout: impl Sink<Bytes, Error = io::Error> + Unpin,
+  ) -> Result<(), Box<dyn Error>> {
+    let socket = UdpSocket::bind(&bind_addr).await.expect("Failed to bind UDP socket.");
+    socket.connect(remote_addr).await?;
+    println!("UDP listenning on: {:?}", socket.local_addr());
+
+    tokio::try_join!(send(stdin, &socket), recv(stdout, &socket))?;
+
+    Ok(())
+  }
+
+  /// Read out stdin and write it to UdpSocket
+  async fn send(
+      mut stdin: impl Stream<Item = Result<Bytes, io::Error>> + Unpin,
+      writer: &UdpSocket,
+  ) -> Result<(), io::Error> {
+    while let Some(item) = stdin.next().await {
+      let buf = item?;
+      writer.send(&buf[..]).await?;
+    }
+
+    Ok(())
+  }
+
+  /// Read out UdpSocket and write it to stdout
+  async fn recv(
+      mut stdout: impl Sink<Bytes, Error = io::Error> + Unpin,
+      reader: &UdpSocket,
+  ) -> Result<(), io::Error> {
+    loop {
+      let mut buf = vec!(0; 1024);
+      let n = reader.recv(&mut buf[..]).await?;
+      if n > 0 {
+        stdout.send(Bytes::from(buf)).await?;
+      }
+    }
+  }
+}
+```
+
+
+## ⚡ Shared-state & sync 状态共享与同步
+- https://tokio.rs/tokio/tutorial/shared-state
+
+Tokio 教程代码仓库：
+
+    git clone --depth=1 git@github.com:tokio-rs/website
+
+- tutorial-code/hello-tokio/src/main.rs
+- tutorial-code/mini-tokio/src/main.rs
+- tutorial-code/spawning/src/main.rs
+- tutorial-code/shared-state/src/main.rs
+- tutorial-code/channels/src/main.rs
+- tutorial-code/io/src/main.rs
+- tutorial-code/streams/src/main.rs
+
+
+在一个异步多任务应用中，通过 tokio::spawn() 生产的并发任务，每个任务相当于一个协程，它们之间，
+或者任务与主线程之间，不仅可能有通信需要，可能还需要共享状态数据。
+
+另外，Rust 严格的所有权管理规则下，主线程的数据要转移所有权到异步任务下，也需要对异步代码块使用特别
+的语法标识，关键字 `move` 会出现在多种需要转移所有权的场合，异步任务中的闭包就是其中一个，通过使用
+这个关键字，所有被闭包捕捉到的变量，其所有权都会转移到闭包内部，并且得到一个 'static 生命周期。
+
+    async move { ... }
+
+Tokio 中有两种共享状态的方式：
+
+- Guard the shared state with a `Mutex`.
+- Spawn a task to manage the state and use message passing to operate on it.
+
+
+通道(Channel)
+通道是一种工具，允许代码的一个部分向其他部分发送消息。Tokio提供了许多通道，每个通道都有不同的用途:
+
+- **mpsc**：多生产者、单消费者通道。可以发送许多值。
+- **oneshot**：单生产者，单消费者通道。可以发送一个单一的值。
+- **broadcast**：多生产者，多消费者。可以发送许多值。每个接收者看到每个值。
+- **watch**：单生产者，多消费者。可以发送许多值，但不保留历史。接收者只看到最新的值。
+
+如果你需要一个多生产者多消费者的通道，每个消息只有一个消费者看到，你可以使用 async-channel crate。
+
+还有一些通道是在异步Rust之外使用的，比如 std::sync::mpsc 和 crossbeam::channel。这些通道通过阻塞线程来等待消息，这在异步代码中是不允许的。
+
+tokio的异步任务之间主要采用消息传递(message passing)的通信方式，即某个异步任务负责发消息，另一个异步任务收消息。这种通信方式的最大优点是避免并发任务之间的数据共享，消灭数据竞争，使得代码更加安全，更加容易维护。
+
+消息传递通常使用通道(channel)来进行通信。tokio提供几种不同功能的通道：
+
+1. **oneshot** 通道: 一对一发送的一次性通道，即该通道只能由一个发送者(Sender)发送最多一个数据，且只有一个接收者(Receiver)接收数据
+2. **mpsc** 通道: 多对一发送，即该通道可以同时有多个发送者向该通道发数据，但只有一个接收者接收数据
+3. **broadcast** 通道: 多对多发送，即该通道可以同时有多个发送者向该通道发送数据，也可以有多个接收者接收数据
+4. **watch** 通道: 一对多发送，即该通道只能有一个发送者向该通道发送数据，但可以有多个接收者接收数据
+不同类型的通道，用于解决不同场景的需求。通常来说，最常用的是mpsc类型的通道。
+
+任务间状态同步
+在编写异步任务的并发代码时，很多时候需要去检测任务之间的状态。比如任务A需要等待异步任务B执行完某个操作后才允许向下执行。
+
+比较原始的解决方式是直接用代码去轮询判断状态是否达成。但在异步编程过程中，这类状态检测的需求非常普遍，因此异步框架会提供一些内置在框架中的同步原语。同步原语封装了各种状态判断、状态等待的轮询操作，这使得编写任务状态同步的代码变得更加简单直接。
+
+通常来说，有以下几种基本的同步原语，这些也是tokio所提供的：
+
+1. **Mutex**: 互斥锁，任务要执行某些操作时，必须先申请锁，只有申请到锁之后才能执行操作，否则就等待
+2. **RwLock**: 读写锁，类似于互斥锁，但粒度更细，区分读操作和写操作，可以同时存在多个读操作，但写操作必须独占锁资源
+3. **Notify**: 任务通知，用于唤醒正在等待的任务，使其进入就绪态等待调度
+4. **Barrier**: 屏障，多个任务在某个屏障处互相等待，只有这些任务都达到了那个屏障点，这些任务才都继续向下执行
+5. **Semaphore**: 信号量(信号灯)，限制同时执行的任务数量，例如限制最多只有20个线程(或tokio的异步任务)同时执行
+
+
+
+## ⚡ Tasks Scheduler 任务调度
+- [Asynchronous Programming in Rust - Zack Jorquera](https://www.section.io/engineering-education/asynchronous-programming-in-rust/)
+- [走进 Tokio 的异步世界 - Lipi](https://zhuanlan.zhihu.com/p/346707572)
+- [Async in Rust](https://night-cruise.github.io/async-rust/)
+- [Writing an OS in Rust - Async/Await](https://os.phil-opp.com/async-await/)
+- [Green Threads Explained in 200 Lines of Rust](https://cfsamson.gitbook.io/green-threads-explained-in-200-lines-of-rust/)
+- [The Node Experiment - Exploring Async Basics with Rust](https://cfsamson.github.io/book-exploring-async-basics/introduction.html)
+
+
+调度是异步多任务处理最核心的内容，Tokio 通过 Task、Cell、Waker、Scheduler、JoinHandler 等组件
+来实现独特的异步调度。
+
+以下 Diagram of Async Architectures 有些旧，async-std 现在已经基于 smol，图片来自 reddit。
+
+![reddit: Diagram of Async Architectures](https://p5.itc.cn/q_70/images03/20210329/870bc20fd065466e95180738bbaaddd7.png)
+
+Rust Tokio 异步调用的一个示意图，原图来自于 Iryna。
+
+![https://twitter.com/_lrlna/status/1164605542897090561?s=20](https://pic1.zhimg.com/80/v2-97d9924fbb3d8629c06854020f53a394_1440w.webp)
+
+异步任务处理流程核心有两个：
+
+- 线程池和轮询分配机制
+- 事件树和轮询机制
+
+可以简化理解为，后面有一堆线程，提交一个 Future 到队列后，调度器分配线程池中的线程来执行。分配线程
+只做分配工作，同时轮询 Future，检查看队列的线程执行完成没有。
+
+- (1) 首先，将 Future 提交到任务执行队列。执行后台是一个 event loop 和线程池。
+- (2) Future 提交之后，会分配线程来轮询执行 poll 以推动任务发展，使用任务执行队列不断被执行；
+- (3) 如果 poll() 返回的状态是 Ready，就把返回值返回给在 await 位置等待的线程。
+- (4) 如果 poll() 返回的状态是 Pending，则在事件循环里面的事件树上做记录，线程继续执行 Future，主 poll 线程离开。
+- (5) 线程在执行 Future 之后，执行完成。就通过 waker 提交到事件树，告诉本线程执行完成。
+- (6) 事件循环到这个事件的时候，发现 Future 执行完成，就回调 Waker，把 Future 重新推送到执行队列。
+
+结合硬件体系、操作系统来看一个数据读取的操作，以下是简化化后的流程图：
+
+![Interrupts, Firmware and I/O](https://cfsamson.github.io/book-exploring-async-basics/images/AsyncBasicsSimplified.png)
+
+图片来源：The Node Experiment - Exploring Async Basics with Rust
+
+- 首先，操作系统运行程序，创建一个进程，并且至少创建一个线程运行 Rust 代码；
+- Rust 代码产生读取网卡数据的操作请求，并提交给操作系统；
+- 操作系统根据请求，找到网卡驱动程序，驱动程序指示 CPU 读取网卡微控制器中的内存数据；
+- 现代计算机中使用直接内存访问控制器 DMAC，它可以不通过 CPU 直接在外部设备间传递内存中的数据；
+- 当内存数据准备好后，网卡触发一个中断信号，告诉 CPU 一切已经就绪；
+- 操作系统收到 CPU 的中断信息，并继续执行驱动程序后继续流程，并继续执行 Rust 程序读取数据；
+
+这整个是相当复杂过程，以上只是为了理清程序的运行逻辑而大大简化后的步骤。
+
+Rust 异步机制实现基于轮询，Polling，一个异步任务会有三种阶段性状态：
+
+- **The Poll phase** 轮询阶段会查询 Future 对象的状态，检查它是否已经处于完成状态，来决定下一步操作。
+- **The Wait phase** 事件来源阶段，记录一个 Future 在等待的事件发生，并确保当事件准备就绪时，唤醒它。
+- **The Wake phase** 唤醒阶段，事件发生后，唤醒对应 Future 进行响应处理，并且执行器还需要继承轮询直到它完成任务。
+
+这三个阶段可以对应的工作可以抽象为三个对象，Executor、Reactor 和 Walker。
+
+Future 常看作是执行器的一部分，它包装需要异步处理的操作，通过 async 关键字定义的异步代码先按接口
+定义的方法转换为带有关联的输出类型的 `Future<Output = T>`，即是 IntoFuture 接口类型，然后执行器
+再将它包装成 Task。轮询 Future 时返回的两种状态就是处理流程的分流条件。
+
+- **Poll::Pending** if the future is not ready yet
+- **Poll::Ready(val)** with the result val of this future if it finished successfully.
+
+```rust,ignore
+pub trait Future {
+    type Output;
+
+    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output>;
+}
+
+pub trait IntoFuture {
+    type Output;
+    type IntoFuture: Future<Output = Self::Output>;
+
+    fn into_future(self) -> Self::IntoFuture;
+}
+```
+
 
 
 
@@ -14495,7 +15249,7 @@ assert_eq!(1, x);
 类似的还可以使用同步对象 `Condvar` 条件变量或 `Barrier` 等。
 
 
-## ⚡ Synchronization 同步对象
+## ⚡ Synchronization 线程同步
 - https://doc.rust-lang.org/stable/std/sync/index.html
 - https://doc.rust-lang.org/stable/std/sync/atomic/index.html
 - https://doc.rust-lang.org/stable/std/sync/mpsc/index.html

@@ -52,6 +52,10 @@ func _on_pressed(button:Button):
 	print(button)
 	# set_process_unhandled_key_input(true)
 
+func _input(event):
+	print("root node input: ", event)
+	#get_tree().set_input_as_handled()
+	
 func _unhandled_key_input(event):
 	if event.scancode == KEY_ESCAPE:
 		reset_button()

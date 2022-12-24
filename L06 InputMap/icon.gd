@@ -9,6 +9,7 @@ func _ready():
 	pass
 
 func _input(event):
+	print("icon input: ", event)
 	if event.is_action_pressed("move_sprint"):
 		sprint = base * 2
 	else:

@@ -13,9 +13,3 @@ margin_bottom = 108.0
 position = Vector2( 53.25, 53.25 )
 scale = Vector2( 1.58594, 1.58594 )
 texture = ExtResource( 1 )
-
-[node name="Label" type="Label" parent="Control/Sprite"]
-text = "TEXt"
-
-[node name="Label2" type="Label" parent="Control/Sprite"]
-text = "TEXt"

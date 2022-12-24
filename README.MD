@@ -2038,7 +2038,7 @@ Tangent 正切函数是根据角度 α 求解对边与邻边的比值，而反�
     cos(α) = adjacent side / hypotenuse    = a / h
     tan(α) = opposite side / adjacent side = a / b
 
-最早的勾股定理就是对直角三角形连长的研究结论，勾三股四弦五，指的是直角三角形的两直角边为 3、4，那么
+最早的勾股定理就是对直角三角形边长的研究结论，勾三股四弦五，指的是直角三角形的两直角边为 3、4，那么
 斜边长为 5。国外称为毕达哥拉斯定理 Pythagoras theorem，即斜边长的平方等于两直角边的平方和。
 
 ![Unit circle](https://www.mathsisfun.com/geometry/images/unit-circle-xy.svg)
@@ -3237,6 +3237,7 @@ y = 0，投影结果就是图上的圆。当投影位于圆内，则分两种情
 - [GAMES101: 现代计算机图形学入门](https://sites.cs.ucsb.edu/~lingqi/teaching/games101.html)
 - [GAMES101-现代计算机图形学入门-闫令琪](https://www.bilibili.com/video/av90798049)
 - [Grant Sanderson - 3blue1brown 线性代数的本质](https://www.bilibili.com/video/BV1ys411472E)
+- [CSD 15-462 Computer Graphics - Carnegie Mellon University](https://www.cs.cmu.edu/afs/cs/academic/class/15462-f11/www/)
 
 图形学上的变换操作与矩阵运算密切联系，这需要掌握矩阵运算方法，主要是矩阵乘法。
 
@@ -3262,7 +3263,7 @@ y = 0，投影结果就是图上的圆。当投影位于圆内，则分两种情
 
 卡耐基梅隆大学计算机图形学 CMU 15-462/662 Computer Graphics 课件直观地演示了什么是线性变换。
 
-![Linear Maps - Geometric Definition](http://15462.courses.cs.cmu.edu/fall2020/lecture/linearalgebra/slide_040)
+![Linear Maps - Geometric Definition](http://15462.courses.cs.cmu.edu/fall2020content/lectures/02_linearalgebra/thumbs/slide_041.jpg)
 
 课程对代数知识的讲解也非常全面，比如对方程组这个概念的解析，System of Linear Equations 即类似
 以下一组方程，左手边是线性函数，右手边是常量。未知量有时也叫做自由度，degrees of freedom (DOFs)。
@@ -3348,8 +3349,7 @@ similarity transformations、spiral similarities 和 translation 等类别的组
 负号跟着 Z 对应的矩阵元素，沿 Y 轴旋转，负号跟着 X 对应的矩阵元素，依次类推。使得向负轴方向看，
 旋转角 α 的正负值始终和数学定义的正负方向一致，逆时针为正方向旋转。
 
-关于旋转矩阵的推理求解过程，可以参考闫令琪的网课 GAMES101-现代计算机图形学入门  
-![03 Transformation](https://www.bilibili.com/video/BV1X7411F744/?t=1111.3&p=3)
+关于旋转矩阵的推理求解过程，可以参考闫令琪的网课 GAMES101-现代计算机图形学入门 [03 Transformation](https://www.bilibili.com/video/BV1X7411F744/?t=1111.3&p=3)
 
 Euler angles 欧拉角旋转即按不同的轴向旋转，表示法以平驶飞机为主体参考对象：
 
@@ -4967,7 +4967,7 @@ Blinn-Phong 光照模型将进入摄像机的光线分为三个部分，Ambient�
 和高光反射，每个部分使用一种方法来计算它的贡献度。就是说，只要将这三种光计算出来，就可以实现布林冯
 光照模型效果。整个 Blinn-Phong 光照模型的结果就是 L𝑎 + L𝑑 + L𝑠 三者求和，以下逐个解析。
 
-![Blinn-Phong reflection model](https://handwiki.org/wiki/File:Phong_components_version_4.png)
+![Blinn-Phong reflection model](https://handwiki.org/wiki/images/6/6b/Phong_components_version_4.png)
 
 
 计算中需要先定义一些单位向量用于表示方向，更高效果要求的着色模型还会需要其它参数：
@@ -6690,33 +6690,6 @@ The Book of Shaders 中使用的着色器程序几乎是严格按 GLSL 编写的
 |u_mouse              |vec2     |Provide with Uniform    |Mouse position in pixel coordinates.                 |
 +---------------------+---------+------------------------+-----------------------------------------------------+
 
-Shadertoy 作者 Inigo Quilez 对有向距离场很有深入的研究，使用 Raymarching distance fields
-程序化建模利害得不行，作者主页上有一句话：“learning computer graphics since 1994”。
-
-RayMarching 看起来跟 RayTracing 光线追踪很像，本质是通过数学方法模拟光线的传播。这种技术也是
-有向距离场 SDF(Signed Distance Functions) 的应用，使用距离方程来表示几何体的方式，配合算法
-直接以像素渲染方式 pixel shader 产生最终的建模效果画面，而不需要 3D 模型数据输入。这也就是 
-Shadertoy 网站上大部分建模作品使用的方法。
-
-然而 RayMarching 有一个硬伤，即像素渲染要对每一个像素点做运算，当画布较大时，其计算量就会很大。
-这也是 Shadertoy 演示的很多作品打开时很卡顿，甚至很多案例还没打开，浏览器就会崩溃。
-
-RayMarching 译作光线步进，或者射线推进，也称为球体追踪(Sphere Tracing), 以球体作为检测单元。
-其意思就是让射线的起点沿着射线方向逐步推进，每次推进的距离就是射线起点到 SDF 模型的作为半径的距离。
-光线追踪有前向、后向两种方式，Foreward/Backward Tracing，RayMarching 采用后向方式，由相机
-位置投射光线，模拟眼睛的视线路径。
-
-
-下图摘自 GPU Gems 2 Chapter 8. Per-Pixel Displacement Mapping with Distance Functions
-
-![Figure 8-5 Sphere Tracing - from GPU Gems 2](https://jamie-wong.com/images/16-07-11/spheretrace.jpg)
-
-RayMarching 将整个场景定义为一个有向距离场，为了找到视线和场景之间物体的交点，从相机开始，即沿着 P₀
-视线一点一点地扩展，通过距离块提供的距离信息，可以检测到扩展半径是否触及场景物体，或者说，此时 SDF 的
-计算结果是否为负数？。一般，有向距离场用负值表示物体内部，0 值表示物体表面，正值表示外部。如果 SDF 返回
-正值，就继续沿着射线前进到最大步数。由于第一个触点不在视线方向上，所以继续探测，直到触及 P₄ 这点。
-然后，根据表面的法线向量，以及光源位置和光的直线传播、透射、折射、反射原理，对物体进行着色。
-
 
 OpenGL 使用的坐标是笛卡尔坐标系统，即屏幕向右、向上分别为 X、Y 轴正方向 ，顶点的值直接反映在屏幕。
 
@@ -7202,7 +7175,35 @@ vec_type clamp (vec_type x, vec_type min, vec_type max)
 - https://iquilezles.org/articles/distfunctions/
 - https://iquilezles.org/articles/distfunctions2d/
 
-以下实现一个带有一点光属性地绘制圆形的着色器，场景中只有一个圆形，使用 SDF(Signed Distance Functions) 
+Shadertoy 作者 Inigo Quilez 对有向距离场很有深入的研究，使用 Raymarching distance fields
+程序化建模利害得不行，作者主页上有一句话：“learning computer graphics since 1994”。
+
+RayMarching 看起来跟 RayTracing 光线追踪很像，本质是通过数学方法模拟光线的传播。这种技术也是
+有向距离场 SDF(Signed Distance Functions) 的应用，使用距离方程来表示几何体的方式，配合算法
+直接以像素渲染方式 pixel shader 产生最终的建模效果画面，而不需要 3D 模型数据输入。这也就是 
+Shadertoy 网站上大部分建模作品使用的方法。
+
+然而 RayMarching 有一个硬伤，即像素渲染要对每一个像素点做运算，当画布较大时，其计算量就会很大。
+这也是 Shadertoy 演示的很多作品打开时很卡顿，甚至很多案例还没打开，浏览器就会崩溃。
+
+RayMarching 译作光线步进，或者射线推进，也称为球体追踪(Sphere Tracing), 以球体作为检测单元。
+其意思就是让射线的起点沿着射线方向逐步推进，每次推进的距离就是射线起点到 SDF 模型的作为半径的距离。
+光线追踪有前向、后向两种方式，Foreward/Backward Tracing，RayMarching 采用后向方式，由相机
+位置投射光线，模拟眼睛的视线路径。
+
+
+下图摘自 GPU Gems 2 Chapter 8. Per-Pixel Displacement Mapping with Distance Functions
+
+![Figure 8-5 Sphere Tracing - from GPU Gems 2](https://jamie-wong.com/images/16-07-11/spheretrace.jpg)
+
+RayMarching 将整个场景定义为一个有向距离场，为了找到视线和场景之间物体的交点，从相机开始，即沿着 P₀
+视线一点一点地扩展，通过距离块提供的距离信息，可以检测到扩展半径是否触及场景物体，或者说，此时 SDF 的
+计算结果是否为负数？。一般，有向距离场用负值表示物体内部，0 值表示物体表面，正值表示外部。如果 SDF 返回
+正值，就继续沿着射线前进到最大步数。由于第一个触点不在视线方向上，所以继续探测，直到触及 P₄ 这点。
+然后，根据表面的法线向量，以及光源位置和光的直线传播、透射、折射、反射原理，对物体进行着色。
+
+
+作为一个入门启示练习，以下实现一个带有一点光属性地绘制圆形的着色器，场景中只有一个圆形，使用 SDF 
 有向距离场来定义它，这是一种用距离方程来表示几何体的方式。空间中到圆心的距离等于半径的点，就是圆形表面。
 圆形内部，距离值为负，外部距离值为正。
 
@@ -7283,6 +7284,36 @@ void fragment()
 ### 🟢🔵 Convolution Shader 卷积边缘检测算法
 - [从图(Graph)到图卷积(Graph Convolution)：漫谈图神经网络模型](https://www.cnblogs.com/SivilTaram/p/graph_neural_network_2.html)
 - [卷积变体](https://zhuanlan.zhihu.com/p/393200454)
+- [什么是卷积？But what is a convolution?](https://www.bilibili.com/video/BV1Vd4y1e7pj/)
+
+卷积是一种积分变换的数学方法，与傅立叶变换有着密切的联系。在数字信号处理、通信系统、光学系统、神经网络
+计算许多方面得到了广泛应用。卷积算法可以应用于许多场景，轻松实现模糊、边缘检测、浮雕等滤镜效果。
+
+可以用卷积来演示 314x159 两个数的乘法运算，将各个数字分拆计算卷积，再按对角线求和再算权重：
+
+      | 3    1    4
+    --|-------------
+    1 | 3    1    4
+      |
+    5 | 15   5    20     ==> 36 + (20+9)x10 + (4+5+27)x100 + (1+15)x1000 + 3x10000
+      |
+    9 | 27   9    36       = 49926
+
+使用 Python numpy 模块计算卷积，如果是计算巨大的数据，使用 scipy 模块效率更高：
+
+```py
+    # pip install scipy numpy
+    import numpy
+    import scipy.signal
+
+    res = numpy.convolve((3,1,4), (1,5,9))
+    print(res) # [ 3 16 36 29 36]
+
+    a1 = numpy.random.random(10000)
+    a2 = numpy.random.random(10000)
+    res = scipy.signal.fftconvolve(a1, a2)
+    print(res)
+```
 
 图像处理中，边缘检测是最基本的技术，图像可以通过边缘的分区后，再根据不同区域进行差异化的处理。边缘
 可以被检测出来，并突出显示，是因为它与四周存在明显的差异，关键就是图像的像素差异。
@@ -7294,9 +7325,6 @@ void fragment()
 
 - 2D 图像边缘检测技术可以使用卷积（convolution）；
 - 3D 物体的边缘检测，可以使用 3D 场景中的深度信息，或者使用表面法线向量；
-
-卷积是一种积分变换的数学方法，与傅立叶变换有着密切的联系。在数字信号处理、通信系统、光学系统、神经网络
-计算许多方面得到了广泛应用。卷积算法可以应用于许多场景，轻松实现模糊、边缘检测、浮雕等滤镜效果。
 
 在教科书上，卷积的定义通常是用函数的乘积组合定义的，而在图形处理上，可以用意图形象直观地展示：
 

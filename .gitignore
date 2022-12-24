@@ -10,3 +10,6 @@ README.html
 # Mono-specific ignores
 .mono/
 data_*/
+
+# rust cargo ignores
+target

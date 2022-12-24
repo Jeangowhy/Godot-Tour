@@ -1,0 +1,17 @@
+[gd_resource type="Animation" format=2]
+
+[resource]
+length = 30.0
+loop = true
+tracks/0/type = "value"
+tracks/0/path = NodePath("Camera:rotation_degrees")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 9.2, 19.6, 30 ),
+"transitions": PoolRealArray( 1, 1, 1, 1 ),
+"update": 0,
+"values": [ Vector3( 0, 0, 0 ), Vector3( -30, 110.4, 0 ), Vector3( 30, 235.2, 0 ), Vector3( 0, 360, 0 ) ]
+}

@@ -484,6 +484,8 @@ bg_color = Color( 0.419608, 0.0745098, 0.0745098, 0.494118 )
 script = ExtResource( 5 )
 
 [node name="MyTitle" parent="bg" index="0"]
+custom_colors/font_color = Color( 0.960784, 0.960784, 0.960784, 1 )
+custom_colors/font_color_shadow = Color( 1, 0.54902, 0, 1 )
 text = " Spritesheet & Animation Blending"
 __meta__ = {
 "_edit_lock_": true
@@ -596,7 +598,7 @@ script = ExtResource( 1 )
 position = Vector2( 20, 20 )
 frames = ExtResource( 4 )
 animation = "spikey"
-frame = 2
+frame = 3
 playing = true
 
 [node name="ViewportContainer" type="ViewportContainer" parent="CanvasLayer" index="6"]
@@ -614,7 +616,7 @@ render_target_update_mode = 3
 [node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="CanvasLayer/ViewportContainer/Viewport" index="0"]
 frames = ExtResource( 4 )
 animation = "fly"
-frame = 5
+frame = 6
 playing = true
 
 [node name="Camera" type="Camera" parent="CanvasLayer/ViewportContainer/Viewport" index="1"]

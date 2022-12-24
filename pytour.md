@@ -72,6 +72,36 @@ Python在人工智能大范畴领域内的机器学习、神经网络、深度�
 # =🚩 Python Doc Contents
 
 
+为了方便在文档之间快速跳转，推荐在 Sublime Text 环境下阅读文档，只需要安装 run-snippet 插件，
+使用 F9 快捷键跳转到光标下的文件或链接。
+
+快速安装 RunSnippet 插件：
+
+- Ctrl+Shift+P 打开 Sublime Text 命令调板；
+- 执行 Add Repository 添加本插件代码仓库地址: https://github.com/jimboyeah/run-snippet
+- 然后执行 Install Package 并输入 RunSnippt 进行确认安装；
+
+手动添加 Repository，执行菜单： Perferences 🡒 Package Settings 🡒 Package Control 🡒 Settings
+
+    "repositories":
+    [
+        "https://github.com/jimboyeah/run-snippet",
+    ],
+
+可以在 Packages 目录执行以下命令安装 RunSnippet 插件：
+
+    git clone git@github.com/jimboyeah/run-snippet.git
+
+添加配置文件，默认启用分组跳转，如果 Sublime Text 没有设置分组，则在当前 View 弹出文件跳转窗口，
+这种行为有点打断思路。更合理的做法是 GUI 设置 2 个 Group，并且在另一个 Group 弹出文件 Panel。
+Load settings from /Packages/Users/RunSnippet.sublime-settings
+
+```json
+    {
+        "jump_between_group": true,
+    }
+```
+
 ## ==⚡ Python 3.10.2 Doc - rsStructuredText
 
 官方文档基于 reStructuredText 格式，使用 Sphinx documentation 转译。
@@ -12053,7 +12083,7 @@ Awaitables Objects
 
 
 ## ==⚡ Speed Up Your Python Program With Concurrency
-- Speed Up Your Python Program With Concurrency by Jim Anderson https://realpython.com/python-concurrency/
+- [Speed Up Your Python Program With Concurrency by Jim Anderson](https://realpython.com/python-concurrency/)
 
 Jim Anderson 关于并发编程模型的这篇教程写得真得是不要太好了，我决定不翻译，而是摘录其中关键的部分，另外再添加一些需要结合自己状况的一些补充内容，作为我的 Concurrency in Python 文章的实操代码。
 

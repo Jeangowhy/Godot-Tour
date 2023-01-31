@@ -1,6 +1,7 @@
 extends Node2D
 
 signal SignalReceived(count)
+signal SignalQueueFree()
 
 var count = 0
 
@@ -9,7 +10,10 @@ func _ready():
 	pass
 
 func _on_pressed(name):
-	$Label.text = name + " pressed"
+	%note.text = name + " pressed"
 	count += 1
-	emit_signal("SignalReceived", count)
+	if count>3:
+		emit_signal("SignalQueueFree")
+	else:
+		emit_signal("SignalReceived", count)
 

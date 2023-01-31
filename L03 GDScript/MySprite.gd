@@ -1,7 +1,8 @@
-tool
+@tool
 
-extends Sprite
-class_name MySprite, "res://icon.png"
+extends Sprite2D
+class_name MySprite
+@icon("res://icon.png")
 # https://docs.godotengine.org/en/stable/development/file_formats/gdscript_grammar.html
 
 # Declare member variables here. Examples:
@@ -18,10 +19,10 @@ func _ready():
 # In Godot we sort of get this decoupling by having the 
 # _physics_process() (fixed time step) and the _process() (as fast as possible) functions.
 func _process(delta):
-	if Engine.editor_hint:
-		rotation_degrees += 90 * delta
+	if Engine.is_editor_hint():
+		rotation += 90 * delta * 3.14 / 180
 	else:
-		rotation_degrees -= 18 * delta
+		rotation -= 18 * delta * 3.14 / 180
 
 #func _physics_process(delta):
 #	pass

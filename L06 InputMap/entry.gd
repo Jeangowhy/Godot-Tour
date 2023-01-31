@@ -1,69 +1,76 @@
 extends Node2D
 
-onready var up: = $PanelContainer/GridContainer/move_up
-onready var down: = $PanelContainer/GridContainer/move_down
-onready var left: = $PanelContainer/GridContainer/move_left
-onready var right: = $PanelContainer/GridContainer/move_right
+@onready var up: = $PanelContainer/HSplitContainer/GridContainer/move_up
+@onready var down: = $PanelContainer/HSplitContainer/GridContainer/move_down
+@onready var left: = $PanelContainer/HSplitContainer/GridContainer/move_left
+@onready var right: = $PanelContainer/HSplitContainer/GridContainer/move_right
+@onready var list = %ItemList
+@onready var list2 = %ItemList2
 
-var remap:Button = null
-var actions:Array = ["move_up", "move_right", "move_down", "move_left"]
+var current_act = null
 
 func get_key(event:InputEventKey):
-	var key = OS.get_scancode_string(event.get_scancode_with_modifiers())
-	var code = event.scancode | event.physical_scancode
-	var fallback = OS.get_scancode_string(code)
-	return key if key else fallback
+#	var key = OS.get_scancode_string(event.get_keycode_with_modifiers())
+	var key = OS.get_keycode_string(event.physical_keycode)
+	return key if key else OS.get_keycode_string(event.keycode)
 
-func get_button_name(raw_name):
-	var name = remap.name.split("_")[1]
+func get_button_name(raw_name:String):
+	var name = raw_name.split("_")[1]
 	assert(name != null)
 	return name.capitalize()
 
 func reset_button():
-	if remap != null:
-		var event = InputMap.get_action_list(remap.name)[0] as InputEventKey
-		remap.text = "%s(%s)" % [get_button_name(remap.name), get_key(event)]
-		remap = null
+	if current_act != null:
+		var event = InputMap.action_get_events(current_act.name)[0]
+		var key = ""
+		if event is InputEventKey:
+			key = get_key(event)
+		elif event is InputEventJoypadButton or event is InputEventMouseButton:
+			key = event.button_index
+		current_act.text = "%s(%s)" % [get_button_name(current_act.name), key]
+		current_act = null
 	
 func _ready():
-	up.connect("pressed", self, "_on_pressed", [up])
-	down.connect("pressed", self, "_on_pressed", [down])
-	left.connect("pressed", self, "_on_pressed", [left])
-	right.connect("pressed", self, "_on_pressed", [right])
-	init_actions()
-
-func init_actions():
-	for act in actions:
-		if not InputMap.has_action(act):
-			InputMap.add_action(act)
-	print_all_actions()
-	print_action_events("move_up")
-
-func print_all_actions():
-	print("all actions has defined: ", InputMap.get_actions())
-
-func print_action_events(action):
-	print("events for %s:" % action, InputMap.get_action_list(action))
+	up.connect("pressed", _on_pressed.bind(up))
+	down.connect("pressed", _on_pressed.bind(down))
+	left.connect("pressed", _on_pressed.bind(left))
+	right.connect("pressed", _on_pressed.bind(right))
+	set_process_unhandled_input(false)
+	set_process_unhandled_key_input(false)
+	
+	for act in InputMap.get_actions():
+		list.add_item(act)
 
 func _on_pressed(button:Button):
+	set_process_unhandled_input(true)
+	set_process_unhandled_key_input(true)
 	reset_button()
-	remap = button
-	remap.text = "%s(%s)" % [get_button_name(remap.name), "..."]
-	print(button)
-	# set_process_unhandled_key_input(true)
+	current_act = button
+	button.text = "%s(...)" % get_button_name(button.name)
 
-func _input(event):
-	print("root node input: ", event)
-	#get_tree().set_input_as_handled()
-	
-func _unhandled_key_input(event):
-	if event.scancode == KEY_ESCAPE:
+func _unhandled_input(event):
+	# joypad and mouse, button and motion...
+	print("unhandled input", event)
+	if not current_act:
+		return
+	if event is InputEventJoypadButton or event is InputEventMouseButton:
+		InputMap.action_erase_events(current_act.name)
+		InputMap.action_add_event(current_act.name, event)
+		set_process_unhandled_input(false)
 		reset_button()
-	
-	if remap != null:
-		var action = remap.name
-		InputMap.action_erase_events(action)
-		InputMap.action_add_event(action, event)
-		remap.text = "%s(%s)" % [get_button_name(remap.name), get_key(event)]
-		remap = null
-	# set_process_unhandled_key_input(false)
+
+func _unhandled_key_input(event: InputEvent):
+	print("unhandled key input", event)
+	if Input.is_key_pressed(KEY_ESCAPE):
+		return reset_button()
+	if current_act:
+		InputMap.action_erase_events(current_act.name)
+		InputMap.action_add_event(current_act.name, event)
+	set_process_unhandled_key_input(false)
+	reset_button()
+
+func _on_item_list_item_selected(index):
+	var act = list.get_item_text(index)
+	list2.clear()
+	for event in InputMap.action_get_events(act):
+		list2.add_item(event.to_string())

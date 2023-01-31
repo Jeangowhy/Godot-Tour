@@ -1,41 +1,31 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=6 format=3 uid="uid://j73mqk0damc"]
 
-[ext_resource path="res://L07 UI/RichTextLabel.gd" type="Script" id=1]
-[ext_resource path="res://L07 UI/theme.tres" type="Theme" id=2]
+[ext_resource type="Theme" uid="uid://cgee18wx2qqyc" path="res://L07 UI/theme.tres" id="1_bc4n1"]
+[ext_resource type="PackedScene" uid="uid://bq8at4qgb7jbs" path="res://L0 Basic Guide/entry.tscn" id="1_gdd7n"]
+[ext_resource type="Script" path="res://L07 UI/entry.gd" id="2_omcjv"]
+[ext_resource type="Script" path="res://L07 UI/RichTextLabel.gd" id="2_rfack"]
 
-[node name="Node2D" type="Node2D"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_fa4is"]
+content_margin_top = 24.0
 
-[node name="VSplitContainer" type="VSplitContainer" parent="."]
-margin_left = 24.0
-margin_top = 12.0
-margin_right = 1000.0
-margin_bottom = 586.0
-split_offset = 70
+[node name="BasicRoot" instance=ExtResource("1_gdd7n")]
+script = ExtResource("2_omcjv")
 
-[node name="Title" type="Label" parent="VSplitContainer"]
-margin_top = 35.0
-margin_right = 976.0
-margin_bottom = 67.0
-size_flags_horizontal = 5
-theme = ExtResource( 2 )
-theme_type_variation = "MyLabel"
-custom_colors/font_color_shadow = Color( 0.858824, 0.788235, 0.788235, 1 )
+[node name="MyTitle" parent="bg" index="0"]
 text = "User Interface, Theme and Fonts"
-align = 1
-valign = 1
 
-[node name="HSplitContainer" type="HSplitContainer" parent="VSplitContainer"]
-margin_top = 114.0
-margin_right = 976.0
-margin_bottom = 574.0
-rect_pivot_offset = Vector2( -475, -161 )
-split_offset = 499
+[node name="VBoxContainer" type="VBoxContainer" parent="." index="1"]
+offset_left = 416.0
+offset_top = 220.0
+offset_right = 1504.0
+offset_bottom = 860.0
+size_flags_horizontal = 6
+size_flags_vertical = 6
 
-[node name="Label" type="Label" parent="VSplitContainer/HSplitContainer"]
-margin_right = 500.0
-margin_bottom = 460.0
+[node name="Label" type="Label" parent="VBoxContainer" index="0"]
+layout_mode = 2
 size_flags_vertical = 1
-theme = ExtResource( 2 )
+theme = ExtResource("1_bc4n1")
 text = "    Bitmap Font Generator
     字体示范 
     Example: The word [url=https://www.bbcode.org]BBCode[/url] is clickable.
@@ -44,19 +34,20 @@ text = "    Bitmap Font Generator
 
 SplitContainer > HSplitContainer and VSplitContainer
 "
-autowrap = true
 
-[node name="RichTextLabel" type="RichTextLabel" parent="VSplitContainer/HSplitContainer"]
-margin_left = 512.0
-margin_right = 976.0
-margin_bottom = 460.0
-theme = ExtResource( 2 )
+[node name="RichTextLabel" type="RichTextLabel" parent="VBoxContainer" index="1"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 1
+theme = ExtResource("1_bc4n1")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_fa4is")
 text = "Bitmap Font Generator
     字体示范 
     Example: The word [url=https://www.bbcode.org]BBCode[/url] is clickable.
-    [img]res://icon.png[/img]
+    [url=https://godotengine.org/][img]res://icon.png[/img][/url]
     The word BBCode is clickable, use meta_clicked signal to handle it.
 "
-script = ExtResource( 1 )
+meta_underlined = false
+script = ExtResource("2_rfack")
 
-[connection signal="dragged" from="VSplitContainer/HSplitContainer" to="VSplitContainer/HSplitContainer/RichTextLabel" method="_on_dragged"]
+[connection signal="meta_clicked" from="VBoxContainer/RichTextLabel" to="VBoxContainer/RichTextLabel" method="_on_meta_clicked"]

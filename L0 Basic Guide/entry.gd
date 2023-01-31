@@ -1,13 +1,18 @@
 extends Node2D
 class_name BasicScene
 
-onready var basic_root = $"."
+@onready var basic_root = $"."
 
 var note:String = "This is Basic Guide."
 
 func _ready():
+	#_initialize_Steam()
 	pass
 
+#func _initialize_Steam() -> void:
+#	var INIT: Dictionary = Steam.steamInit()
+#	print("Did Steam initialize?: "+str(INIT))
+#	#[GodotSteam tutorials - Initializing](https://godotsteam.com/tutorials/initializing/)
 
 func _on_box_circle_hit(event):
 	match $bg/note.text:
@@ -19,7 +24,3 @@ func _on_box_circle_hit(event):
 			$bg/note.text = "Woo, it hurt!"
 		_:
 			$bg/note.text = "Basic Guide"
-
-
-func _on_CheckButton_toggled(button_pressed):
-	pass # Replace with function body.

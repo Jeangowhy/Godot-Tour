@@ -1,35 +1,30 @@
-tool
+@tool
 extends Node2D
 
 class_name Circle
 signal circle_hit(event)
 
-export(Color, RGBA) var color = Color(.2,.2,.2,.5) setget _set_color
-export(float, 0, 100, .1) var radius = 20.0 setget _set_radius
-export(float) var detectionRadius = 20.0 setget _set_detectionRadius
-export(bool) var rectangular = false setget _set_rectangular
-export(Texture) var texture setget _set_texture
-
-func _set_color(value):
-	color = value
-	update()
-
-func _set_radius(value):
-	radius = value
-	update()
-
-func _set_detectionRadius(value):
-	detectionRadius = value
-	update()
-
-func _set_rectangular(value):
-	rectangular = value
-	update()
-
-func _set_texture(value):
-	texture = value
-	update()
-
+@export var color: Color = Color(.2,.2,.2,.5):
+	set(value):
+		print("set_color...")
+		color = value
+		queue_redraw()
+@export_range(0, 100, .1) var radius = 20.0:
+	set(value):
+		radius = value
+		queue_redraw()
+@export var detectionRadius = 20.0:
+	set(value):
+		detectionRadius = value
+		queue_redraw()
+@export var rectangular = false:
+	set(value):
+		rectangular = value
+		queue_redraw()
+@export var texture:Texture:
+	set(value):
+		texture = value
+		queue_redraw()
 
 func _draw():
 	var w = 1.4142135623730 * radius

@@ -1,20 +1,20 @@
-tool
+@tool
 
 # BasicScene defined in L0 Basic Guide/entry.gd
 extends BasicScene
 
 # (optional) class definition with a custom icon
-class_name SceneL8, "res://icon.png"
+class_name SceneL8
+@icon("res://icon.png")
 
-onready var camera_2d = $Camera2D
-onready var save_button = $save_button
-onready var load_button = $load_button
+@onready var save_button = $save_button
+@onready var load_button = $load_button
 
 var path = "user://save_game.json"
 
 func _ready():
-	save_button.connect("pressed", self, "save_game")
-	load_button.connect("pressed", self, "load_game")
+	save_button.connect("pressed", save_game)
+	load_button.connect("pressed", load_game)
 
 
 func save_game():
@@ -29,40 +29,38 @@ func save_game():
 			text = $bg/note.text
 			}
 		content.append(item)
-	var file = File.new()
-	var err = file.open(path, File.WRITE)
+	var file = FileAccess.open(path, FileAccess.WRITE)
+	var err = FileAccess.get_open_error()
 	if err:
 		$bg/note.text = "Fail to open file: " + path
-	file.store_string(to_json(content))
-	file.close()
+	file.store_string(JSON.stringify(content))
+	file = null # File is closed. not file.close()
 	$bg/note.text = "Save game to file:" + path
 
 func load_game():
-	var file = File.new()
-	file.open(path, File.READ)
+	var file = FileAccess.open(path, FileAccess.READ)
 	var content = file.get_as_text()
-	file.close()
-	for variant in parse_json(content):
+	file = null # File is closed. not file.close()
+	for variant in JSON.parse_string(content):
 		print("load: ", variant)
 		get_node(variant.path).text = variant.text
 	return content
 
 func _test_json():
-	var path = "user://path/to/save.json"
-	var file = File.new()
-	var dir = Directory.new()
-	if not file.file_exists(path):
-		dir.make_dir_recursive(path)
-		dir.remove(path)
-		var json: String = to_json({NodePath=self.get_path()})
-		var err = file.open(path, File.WRITE)
-		if err != OK:
+	path = "user://path/to/save.json"
+	if not FileAccess.file_exists(path):
+		DirAccess.make_dir_recursive_absolute(path)
+		DirAccess.remove_absolute(path)
+		var json: String = var_to_str({NodePath=self.get_path()})
+		var file = FileAccess.open(path, FileAccess.WRITE)
+		if FileAccess.get_open_error() != OK:
 			return print("fail to write file: ", path)
 		file.store_string(json)
+		file = null
 		print("json save to file: ", path)
 	else:
-		file.open(path, File.READ)
+		var file = FileAccess.open(path, FileAccess.READ)
 		var json = file.get_as_text()
-		var variant = parse_json(json)
+		var variant = str_to_var(json)
 		print("json read from file: ", path, "\n", variant)
-	file.close()
+		file = null # File is closed. not file.close()

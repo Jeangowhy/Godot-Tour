@@ -1,0 +1,25 @@
+[gd_resource type="AnimationNodeBlendTree" load_steps=4 format=3 uid="uid://dqre3pcwe6tp"]
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_awwro"]
+animation = &"jump_right"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_m6qw6"]
+animation = &"jump_left"
+
+[sub_resource type="AnimationNodeTransition" id="AnimationNodeTransition_o5qoo"]
+enabled_inputs = 2
+input_0/name = "state 0"
+input_0/auto_advance = false
+input_1/name = "state 1"
+input_1/auto_advance = false
+
+[resource]
+graph_offset = Vector2(-482.667, 8)
+nodes/Animation/node = SubResource("AnimationNodeAnimation_m6qw6")
+nodes/Animation/position = Vector2(-180, 20)
+"nodes/Animation 2/node" = SubResource("AnimationNodeAnimation_awwro")
+"nodes/Animation 2/position" = Vector2(-20, 100)
+nodes/Transition/node = SubResource("AnimationNodeTransition_o5qoo")
+nodes/Transition/position = Vector2(200, 30)
+nodes/output/position = Vector2(390, 30)
+node_connections = [&"output", 0, &"Transition", &"Transition", 0, &"Animation", &"Transition", 1, &"Animation 2"]

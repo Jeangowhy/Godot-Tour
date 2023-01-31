@@ -1,0 +1,18 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build",
+      "command": "C:\\download\\games\\Godot_v4.0-beta16_mono_win64\\Godot_v4.0-beta16_mono_win64.exe",
+      "type": "process",
+      "args": [
+        "--build-solutions",
+        "--path",
+        "${workspaceRoot}",
+        "--no-window",
+        "-q"
+      ],
+      "problemMatcher": "$msCompile"
+    }
+  ]
+}

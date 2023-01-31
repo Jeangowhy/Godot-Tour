@@ -1,214 +1,191 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=12 format=3 uid="uid://ckenrf6ux4n04"]
 
-[ext_resource path="res://L06 InputMap/RichTextLabel.gd" type="Script" id=1]
-[ext_resource path="res://L07 UI/theme.tres" type="Theme" id=2]
-[ext_resource path="res://L06 InputMap/entry.gd" type="Script" id=3]
-[ext_resource path="res://L06 InputMap/icon.gd" type="Script" id=4]
+[ext_resource type="Script" path="res://L06 InputMap/entry.gd" id="1_k4t8r"]
+[ext_resource type="PackedScene" uid="uid://bq8at4qgb7jbs" path="res://L0 Basic Guide/entry.tscn" id="1_rwyuv"]
+[ext_resource type="FontFile" uid="uid://bbwlnjgw645l4" path="res://L07 UI/latin32bit.fnt" id="2_i5n0m"]
+[ext_resource type="FontFile" uid="uid://047n07rxyhdq" path="res://L07 UI/latin8bit.fnt" id="3_me02e"]
+[ext_resource type="Texture2D" uid="uid://dg0n0pvfnsgfn" path="res://icon.png" id="4_to6n6"]
+[ext_resource type="AnimationNodeBlendTree" uid="uid://dqre3pcwe6tp" path="res://L06 InputMap/blend_tree.tres" id="6_d81io"]
+[ext_resource type="Texture2D" uid="uid://cs3em12scoy6c" path="res://assets/2d_animation_frog_spritesheet.png" id="6_orobj"]
+[ext_resource type="AnimationLibrary" uid="uid://b27yx64gk4dwc" path="res://L06 InputMap/frog_animation.res" id="7_kgf3r"]
+[ext_resource type="Script" path="res://L06 InputMap/frog.gd" id="8_nd0nq"]
 
-[sub_resource type="GDScript" id=2]
-script/source = "extends Button
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_lb8qv"]
+texture = ExtResource("4_to6n6")
+margin_left = 9.1768
+margin_top = 10.0111
+margin_right = 8.06446
+margin_bottom = 8.89871
+region_rect = Rect2(-2.48254, -2.20448, 69.2431, 67.5746)
 
-func _input(event):
-	text = event.as_text()
-"
+[sub_resource type="Theme" id="Theme_gya7s"]
+Button/font_sizes/font_size = 24
+Button/fonts/font = null
+Label/colors/font_color = Color(0.584314, 0.541176, 0.694118, 1)
+Label/colors/font_color_shadow = Color(0, 0, 0, 1)
+Label/colors/font_outline_modulate = Color(0, 0, 0, 1)
+Label/constants/line_spacing = 0
+Label/constants/shadow_as_outline = 0
+Label/constants/shadow_offset_x = 0
+Label/constants/shadow_offset_y = 0
+Label/fonts/Title_font = ExtResource("2_i5n0m")
+Label/fonts/font = ExtResource("3_me02e")
+Label/styles/not_normal = SubResource("StyleBoxTexture_lb8qv")
+MyLabel/base_type = &"Label"
+MyLabel/fonts/font = ExtResource("2_i5n0m")
+RichTextLabel/colors/default_color = Color(1, 1, 1, 1)
+RichTextLabel/colors/font_color_selected = Color(0, 0, 0, 1)
+RichTextLabel/colors/font_color_shadow = Color(0, 0, 0, 1)
+RichTextLabel/colors/selection_color = Color(0, 0, 0, 1)
+RichTextLabel/constants/line_separation = 0
+RichTextLabel/constants/shadow_as_outline = 0
+RichTextLabel/constants/shadow_offset_x = 0
+RichTextLabel/constants/shadow_offset_y = 0
+RichTextLabel/constants/table_hseparation = 0
+RichTextLabel/constants/table_vseparation = 0
+RichTextLabel/fonts/bold_font = null
+RichTextLabel/fonts/bold_italics_font = null
+RichTextLabel/fonts/italics_font = null
+RichTextLabel/fonts/mono_font = null
+RichTextLabel/fonts/normal_font = ExtResource("2_i5n0m")
+RichTextLabel/styles/focus = null
+RichTextLabel/styles/normal = null
 
-[sub_resource type="GDScript" id=1]
-script/source = "extends Button
+[node name="BasicRoot" instance=ExtResource("1_rwyuv")]
+script = ExtResource("1_k4t8r")
 
-var accepted = false
+[node name="MyTitle" parent="bg" index="0"]
+text = "User Input Mapping"
 
-func _ready():
-	pass
-
-func _input(event):
-	print(\"button input: \", event)
-	if accepted and event is InputEventKey:
-		accept_event()
-		print(\"button will accept key input event: \", event)
-
-
-
-func _on_Button_pressed():
-	accepted = !accepted
-	text = \"Input Key Accepted\" if accepted else \"Accept Event\"
-	pass # Replace with function body.
-"
-
-[node name="Node2D" type="Node2D"]
-script = ExtResource( 3 )
-
-[node name="PanelContainer" type="PanelContainer" parent="."]
-margin_left = 24.0
-margin_top = 95.0
-margin_right = 1000.0
-margin_bottom = 586.0
-
-[node name="GridContainer" type="GridContainer" parent="PanelContainer"]
-margin_left = 338.0
-margin_top = 97.0
-margin_right = 638.0
-margin_bottom = 393.0
-rect_min_size = Vector2( 300, 200 )
+[node name="PanelContainer" type="PanelContainer" parent="." index="1"]
+offset_left = 758.0
+offset_top = 450.0
+offset_right = 1178.01
+offset_bottom = 746.0
 size_flags_horizontal = 4
 size_flags_vertical = 4
-theme = ExtResource( 2 )
-theme_type_variation = "PanelContainer"
+metadata/_edit_use_anchors_ = true
+
+[node name="HSplitContainer" type="HSplitContainer" parent="PanelContainer" index="0"]
+layout_mode = 2
+
+[node name="GridContainer" type="GridContainer" parent="PanelContainer/HSplitContainer" index="0"]
+custom_minimum_size = Vector2(333, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
 columns = 3
 
-[node name="Tile" type="Label" parent="PanelContainer/GridContainer"]
-margin_right = 98.0
-margin_bottom = 96.0
+[node name="Tile" type="Label" parent="PanelContainer/HSplitContainer/GridContainer" index="0"]
+layout_mode = 2
 size_flags_horizontal = 5
 size_flags_vertical = 7
-theme = ExtResource( 2 )
-theme_type_variation = "MyLabel"
-custom_colors/font_color_shadow = Color( 0.858824, 0.788235, 0.788235, 1 )
+theme = SubResource("Theme_gya7s")
+theme_type_variation = &"MyLabel"
 text = "
 "
-align = 1
-valign = 1
 
-[node name="move_up" type="Button" parent="PanelContainer/GridContainer"]
-margin_left = 102.0
-margin_right = 199.0
-margin_bottom = 96.0
-rect_min_size = Vector2( 96, 96 )
+[node name="move_up" type="Button" parent="PanelContainer/HSplitContainer/GridContainer" index="1"]
+custom_minimum_size = Vector2(128, 96)
+layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+theme = SubResource("Theme_gya7s")
 text = "Up(W)"
 
-[node name="Tile2" type="Label" parent="PanelContainer/GridContainer"]
-margin_left = 203.0
-margin_top = 16.0
-margin_right = 300.0
-margin_bottom = 80.0
+[node name="Tile2" type="Label" parent="PanelContainer/HSplitContainer/GridContainer" index="2"]
+layout_mode = 2
 size_flags_horizontal = 5
-theme = ExtResource( 2 )
-theme_type_variation = "MyLabel"
-custom_colors/font_color_shadow = Color( 0.858824, 0.788235, 0.788235, 1 )
+theme = SubResource("Theme_gya7s")
+theme_type_variation = &"MyLabel"
 text = "
 "
-align = 1
-valign = 1
 
-[node name="move_left" type="Button" parent="PanelContainer/GridContainer"]
-margin_top = 100.0
-margin_right = 98.0
-margin_bottom = 196.0
-rect_min_size = Vector2( 96, 96 )
+[node name="move_left" type="Button" parent="PanelContainer/HSplitContainer/GridContainer" index="3"]
+custom_minimum_size = Vector2(128, 96)
+layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+theme = SubResource("Theme_gya7s")
 text = "Left(A)"
 
-[node name="Tile3" type="Label" parent="PanelContainer/GridContainer"]
-margin_left = 102.0
-margin_top = 116.0
-margin_right = 199.0
-margin_bottom = 180.0
+[node name="Tile3" type="Label" parent="PanelContainer/HSplitContainer/GridContainer" index="4"]
+layout_mode = 2
 size_flags_horizontal = 5
-theme = ExtResource( 2 )
-theme_type_variation = "MyLabel"
-custom_colors/font_color_shadow = Color( 0.858824, 0.788235, 0.788235, 1 )
+theme = SubResource("Theme_gya7s")
+theme_type_variation = &"MyLabel"
 text = "
 "
-align = 1
-valign = 1
 
-[node name="move_right" type="Button" parent="PanelContainer/GridContainer"]
-margin_left = 203.0
-margin_top = 100.0
-margin_right = 300.0
-margin_bottom = 196.0
-rect_min_size = Vector2( 96, 96 )
+[node name="move_right" type="Button" parent="PanelContainer/HSplitContainer/GridContainer" index="5"]
+custom_minimum_size = Vector2(128, 96)
+layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+theme = SubResource("Theme_gya7s")
 text = "Right(D)"
 
-[node name="Tile4" type="Label" parent="PanelContainer/GridContainer"]
-margin_top = 200.0
-margin_right = 98.0
-margin_bottom = 296.0
+[node name="Tile4" type="Label" parent="PanelContainer/HSplitContainer/GridContainer" index="6"]
+layout_mode = 2
 size_flags_horizontal = 5
 size_flags_vertical = 5
-theme = ExtResource( 2 )
-theme_type_variation = "MyLabel"
-custom_colors/font_color_shadow = Color( 0.858824, 0.788235, 0.788235, 1 )
+theme = SubResource("Theme_gya7s")
+theme_type_variation = &"MyLabel"
 text = "
 "
-align = 1
-valign = 1
 
-[node name="move_down" type="Button" parent="PanelContainer/GridContainer"]
-margin_left = 102.0
-margin_top = 200.0
-margin_right = 199.0
-margin_bottom = 296.0
-rect_min_size = Vector2( 96, 96 )
+[node name="move_down" type="Button" parent="PanelContainer/HSplitContainer/GridContainer" index="7"]
+custom_minimum_size = Vector2(128, 96)
+layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+theme = SubResource("Theme_gya7s")
 text = "Down(S)"
 
-[node name="Tile5" type="Label" parent="PanelContainer/GridContainer"]
-margin_left = 203.0
-margin_top = 216.0
-margin_right = 300.0
-margin_bottom = 280.0
+[node name="Tile5" type="Label" parent="PanelContainer/HSplitContainer/GridContainer" index="8"]
+layout_mode = 2
 size_flags_horizontal = 5
-theme = ExtResource( 2 )
-theme_type_variation = "MyLabel"
-custom_colors/font_color_shadow = Color( 0.858824, 0.788235, 0.788235, 1 )
+theme = SubResource("Theme_gya7s")
+theme_type_variation = &"MyLabel"
 text = "
 "
-align = 1
-valign = 1
 
-[node name="Title" type="Label" parent="."]
-margin_left = 22.0
-margin_top = 31.0
-margin_right = 998.0
-margin_bottom = 63.0
-size_flags_horizontal = 5
-theme = ExtResource( 2 )
-theme_type_variation = "MyLabel"
-custom_colors/font_color_shadow = Color( 0.858824, 0.788235, 0.788235, 1 )
-text = "User Input Mapping"
-align = 1
-valign = 1
+[node name="AnimationTree" type="AnimationTree" parent="." index="2"]
+unique_name_in_owner = true
+tree_root = ExtResource("6_d81io")
+anim_player = NodePath("../AnimationPlayer")
+active = true
+parameters/Transition/current = 1
 
-[node name="icon" type="Node2D" parent="."]
-scale = Vector2( 0.997, 1 )
-script = ExtResource( 4 )
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." index="3"]
+libraries = {
+"": ExtResource("7_kgf3r")
+}
 
-[node name="RichTextLabel" type="RichTextLabel" parent="icon"]
-anchor_right = 1.0
-margin_left = 480.441
-margin_top = 304.0
-margin_right = 552.441
-margin_bottom = 375.0
-size_flags_horizontal = 5
-size_flags_vertical = 5
-theme = ExtResource( 2 )
-bbcode_enabled = true
-bbcode_text = "[url=https://godotengine.org/][img]res://icon.png[/img][/url]"
-script = ExtResource( 1 )
+[node name="player_relocated" type="Node2D" parent="." index="4"]
+position = Vector2(964, 600)
+script = ExtResource("8_nd0nq")
 
-[node name="Button" type="Button" parent="."]
-margin_left = 744.0
-margin_top = 525.0
-margin_right = 913.0
-margin_bottom = 545.0
-grow_horizontal = 0
-text = "Key Event Status"
-align = 2
-script = SubResource( 2 )
+[node name="Sprite2D" type="Sprite2D" parent="player_relocated" index="0"]
+texture = ExtResource("6_orobj")
+hframes = 4
+vframes = 2
+metadata/_edit_lock_ = true
 
-[node name="Button2" type="Button" parent="."]
-margin_left = 746.0
-margin_top = 437.0
-margin_right = 915.0
-margin_bottom = 494.0
-text = "Accept Event"
-script = SubResource( 1 )
+[node name="ItemList" type="ItemList" parent="." index="5"]
+unique_name_in_owner = true
+offset_top = 72.0
+offset_right = 375.0
+offset_bottom = 1080.0
 
-[connection signal="pressed" from="Button" to="Button" method="_on_Button_pressed"]
-[connection signal="pressed" from="Button2" to="Button2" method="_on_Button_pressed"]
+[node name="ItemList2" type="ItemList" parent="." index="6"]
+unique_name_in_owner = true
+offset_left = 1546.0
+offset_top = 72.0
+offset_right = 1921.0
+offset_bottom = 1080.0
+item_count = 2
+item_0/text = "Select action from list at left side "
+item_1/text = "to see input map "
+
+[connection signal="item_selected" from="ItemList" to="." method="_on_item_list_item_selected"]

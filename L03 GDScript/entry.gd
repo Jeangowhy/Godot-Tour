@@ -1,34 +1,53 @@
-tool
+@tool
 
 # BasicScene defined in L0 Basic Guide/entry.gd
 extends BasicScene
 
 # (optional) class definition with a custom icon
-class_name SceneL3, "res://icon.png"
+class_name SceneL3
+@icon("res://icon.png")
 
 const tscn = preload("res://L0 Basic Guide/entry.tscn") # class PackedScene
 const gd   = preload("res://L0 Basic Guide/entry.gd")   # class GDScript
 
-export var LabelText:String setget label
-export var Activated:bool = false setget activated
+@export var LabelText: String:
+	set(text):
+		LabelText = text
+
+@export var Activated:bool = false :
+	set(state):
+		Activated = state
+		if not editor:
+			return
+		var selection = editor.get_selection()
+		if Activated and not selection.is_connected("selection_changed", self.attach_to_scenetree):
+			selection.connect("selection_changed", self.attach_to_scenetree)
+			get_tree().connect("node_added", self._on_node_added, CONNECT_ONE_SHOT)
+		else:
+			if selection.is_connected("selection_changed", attach_to_scenetree):
+				selection.disconnect("selection_changed", attach_to_scenetree)
+			if get_tree().is_connected("node_added", _on_node_added):
+				get_tree().disconnect("node_added", _on_node_added)
+
+
 
 # Use EditorPlugin in Editor Mode
 var editor:EditorInterface
 
 func _ready():
 	
-	if Engine.editor_hint:
+	if Engine.is_editor_hint():
 		#editor = ClassDB.instance("EditorPlugin").get_editor_interface()
 		editor = EditorPlugin.new().get_editor_interface()
-		var _view = editor.get_editor_viewport() # main editor control
-		#_view.connect("gui_input", self, '_on_gui_input')
-		activated(Activated)
+		var _view = editor.get_base_control() # main editor control
+		#_view.connect("gui_input", self._on_gui_input)
+		Activated = Activated
 		
-	print("basic scene ", tscn, tscn.instance())
+	print("basic scene ", tscn, tscn.instantiate())
 	print("basic script ", gd, gd.new())
 	
-	MyObject.new("argument pass to _init()")
-
+	MyObject.new("argument pass to _init()").queue_free()
+	
 	var scene = get_tree().current_scene
 	print(self, " current_scene ", scene, " is instacne of gd? ", self is gd)
 
@@ -67,31 +86,14 @@ func attach_to_scenetree():
 		return
 	print("node owner is ", nodes[0].owner)
 	
-	var label = ClassDB.instance("Label") # Label.new()
+	var label = ClassDB.instantiate("Label") # Label.new()
+	label.name = "Label_attached"
 	label.text = LabelText
 	nodes[0].add_child(label)
 	label.owner = nodes[0].owner if nodes[0].owner else nodes[0]
 	
 	#yield(editor.get_tree(), "idle_frame")
 	#call_deferred("add_child", label)
-
-func activated(state: bool):
-	Activated = state
-	if not editor:
-		return
-	var selection = editor.get_selection()
-	if Activated and not selection.is_connected("selection_changed", self, "attach_to_scenetree"):
-		selection.connect("selection_changed", self, "attach_to_scenetree")
-		get_tree().connect("node_added", self, "_on_node_added", [], CONNECT_ONESHOT)
-	else:
-		if selection.is_connected("selection_changed", self, "attach_to_scenetree"):
-			selection.disconnect("selection_changed", self, "attach_to_scenetree")
-		if get_tree().is_connected("node_added", self, "_on_node_added"):
-			get_tree().disconnect("node_added", self, "_on_node_added")
-
-
-func label(text):
-	LabelText = text
 
 # Inner class
 

@@ -2,7 +2,8 @@ extends "res://L03 GDScript/MySprite.gd"
 
 #extends MySprite
 
-class_name MyObject, 'res://icon.png'
+class_name MyObject
+@icon('res://icon.png')
 
 func _ready():
 	# Anonymous types: local script as GDScript class

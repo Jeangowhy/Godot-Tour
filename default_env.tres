@@ -1,35 +1,14 @@
-[gd_resource type="Environment" load_steps=3 format=2]
+[gd_resource type="Environment" load_steps=3 format=3 uid="uid://dl8upcqu0rn0w"]
 
-[sub_resource type="Gradient" id=2]
-colors = PoolColorArray( 0, 0, 0, 1, 0.937255, 0.964706, 1, 1 )
+[sub_resource type="PhysicalSkyMaterial" id="PhysicalSkyMaterial_aulus"]
+ground_color = Color(0.14902, 0.109804, 0.0627451, 1)
 
-[sub_resource type="GradientTexture2D" id=3]
-gradient = SubResource( 2 )
-fill_from = Vector2( 0.0770833, 0 )
-fill_to = Vector2( 0.85625, 0 )
+[sub_resource type="Sky" id="1"]
+sky_material = SubResource("PhysicalSkyMaterial_aulus")
+radiance_size = 1
 
 [resource]
-background_color = Color( 0.635294, 0.819608, 0.968627, 1 )
-background_canvas_max_layer = 1
-background_camera_feed_id = 3
-fog_color = Color( 0.360784, 0.380392, 0.403922, 1 )
-fog_sun_color = Color( 0.815686, 0.752941, 0.596078, 1 )
-fog_sun_amount = 1.0
-fog_depth_begin = 8.0
-fog_depth_end = 77.1
-fog_depth_curve = 0.57435
-fog_transmit_enabled = true
-fog_transmit_curve = 0.189465
-fog_height_max = 32.0
-tonemap_white = 3.23
-auto_exposure_scale = 0.93
-ss_reflections_fade_in = 0.126134
-ss_reflections_fade_out = 1.86607
-dof_blur_far_transition = 13.77
-glow_levels/2 = true
-glow_levels/3 = false
-glow_levels/4 = true
-glow_levels/5 = false
-glow_bloom = 0.05
-adjustment_enabled = true
-adjustment_color_correction = SubResource( 3 )
+background_mode = 2
+background_canvas_max_layer = 9
+sky = SubResource("1")
+ambient_light_color = Color(0.85098, 0.858824, 0.909804, 1)

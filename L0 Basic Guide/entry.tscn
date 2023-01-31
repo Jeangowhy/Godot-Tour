@@ -1,51 +1,52 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=6 format=3 uid="uid://bq8at4qgb7jbs"]
 
-[ext_resource path="res://L07 UI/theme.tres" type="Theme" id=1]
-[ext_resource path="res://L03 GDScript/MyTitle.gd" type="Script" id=2]
-[ext_resource path="res://L0 Basic Guide/entry.gd" type="Script" id=3]
-[ext_resource path="res://L0 Basic Guide/Circle.gd" type="Script" id=4]
-
-[sub_resource type="StyleBoxFlat" id=1]
-bg_color = Color( 0.6, 0.6, 0.6, 0.207843 )
+[ext_resource type="Theme" uid="uid://cgee18wx2qqyc" path="res://L07 UI/theme.tres" id="1"]
+[ext_resource type="Script" path="res://L03 GDScript/MyTitle.gd" id="2"]
+[ext_resource type="Script" path="res://L0 Basic Guide/entry.gd" id="3"]
+[ext_resource type="Script" path="res://L0 Basic Guide/Circle.gd" id="4"]
+[ext_resource type="Texture2D" uid="uid://dg0n0pvfnsgfn" path="res://icon.png" id="4_cgppw"]
 
 [node name="BasicRoot" type="Node2D"]
-script = ExtResource( 3 )
+script = ExtResource("3")
 
-[node name="bg" type="Label" parent="."]
-margin_right = 1024.0
-margin_bottom = 600.0
-custom_styles/normal = SubResource( 1 )
+[node name="bg" type="Node" parent="."]
+metadata/_edit_lock_ = true
 
 [node name="MyTitle" type="Label" parent="bg"]
-margin_right = 1024.0
-margin_bottom = 64.0
-rect_min_size = Vector2( 1024, 64 )
-theme = ExtResource( 1 )
-theme_type_variation = "MyLabel"
-custom_colors/font_color = Color( 0.960784, 0.960784, 0.960784, 1 )
-custom_colors/font_color_shadow = Color( 1, 0.54902, 0, 1 )
-custom_constants/shadow_offset_x = 2
-custom_constants/shadow_offset_y = 2
+custom_minimum_size = Vector2(1920, 0)
+offset_right = 1920.0
+offset_bottom = 72.0
+theme = ExtResource("1")
+theme_type_variation = &"MyLabel"
+theme_override_colors/font_color = Color(0.960784, 0.960784, 0.960784, 1)
+theme_override_colors/font_shadow_color = Color(1, 0.54902, 0, 1)
+theme_override_constants/shadow_offset_x = 2
 text = "Welcome to Godot Tour"
-align = 1
-valign = 1
-script = ExtResource( 2 )
+horizontal_alignment = 1
+vertical_alignment = 1
+script = ExtResource("2")
+resource = ExtResource("4_cgppw")
+ResourceInfo = "res://icon.png"
+AutoRefresh = false
+metadata/_edit_lock_ = true
 
 [node name="circle" type="Node2D" parent="bg"]
-position = Vector2( 509, 440 )
-script = ExtResource( 4 )
+position = Vector2(963, 823)
+script = ExtResource("4")
 radius = 25.4
 
 [node name="note" type="Label" parent="bg"]
+anchors_preset = 14
 anchor_top = 0.5
 anchor_right = 1.0
 anchor_bottom = 0.5
-margin_top = 193.0
-margin_bottom = 226.0
+offset_top = 406.0
+offset_bottom = 497.0
+grow_horizontal = 2
+grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 10
 text = "Basic Guide"
-align = 1
-valign = 1
+horizontal_alignment = 1
 
 [connection signal="circle_hit" from="bg/circle" to="." method="_on_box_circle_hit"]

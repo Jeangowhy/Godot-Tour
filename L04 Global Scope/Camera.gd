@@ -1,4 +1,4 @@
-extends Camera
+extends Camera3D
 
 
 func _ready():

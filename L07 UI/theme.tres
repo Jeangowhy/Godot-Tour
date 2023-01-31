@@ -1,28 +1,36 @@
-[gd_resource type="Theme" load_steps=4 format=2]
+[gd_resource type="Theme" load_steps=5 format=3 uid="uid://cgee18wx2qqyc"]
 
-[ext_resource path="res://L07 UI/latin8bit.fnt" type="BitmapFont" id=1]
-[ext_resource path="res://L07 UI/latin32bit.fnt" type="BitmapFont" id=2]
+[ext_resource type="FontFile" uid="uid://bbwlnjgw645l4" path="res://L07 UI/latin32bit.fnt" id="1_2kebc"]
+[ext_resource type="FontFile" uid="uid://047n07rxyhdq" path="res://L07 UI/latin8bit.fnt" id="2_u046v"]
+[ext_resource type="Texture2D" uid="uid://dg0n0pvfnsgfn" path="res://icon.png" id="3_qbwkk"]
 
-[sub_resource type="StyleBoxFlat" id=1]
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_lb8qv"]
+texture = ExtResource("3_qbwkk")
+margin_left = 9.1768
+margin_top = 10.0111
+margin_right = 8.06446
+margin_bottom = 8.89871
+region_rect = Rect2(-2.48254, -2.20448, 69.2431, 67.5746)
 
 [resource]
-Label/colors/font_color = Color( 0.584314, 0.541176, 0.694118, 1 )
-Label/colors/font_color_shadow = Color( 0, 0, 0, 1 )
-Label/colors/font_outline_modulate = Color( 0, 0, 0, 1 )
+Button/font_sizes/font_size = 24
+Button/fonts/font = null
+Label/colors/font_color = Color(0.584314, 0.541176, 0.694118, 1)
+Label/colors/font_color_shadow = Color(0, 0, 0, 1)
+Label/colors/font_outline_modulate = Color(0, 0, 0, 1)
 Label/constants/line_spacing = 0
 Label/constants/shadow_as_outline = 0
 Label/constants/shadow_offset_x = 0
 Label/constants/shadow_offset_y = 0
-Label/fonts/Title_font = ExtResource( 2 )
-Label/fonts/font = ExtResource( 1 )
-Label/styles/normal = null
-MyLabel/base_type = "Label"
-MyLabel/fonts/font = ExtResource( 2 )
-PanelContainer/styles/panel = SubResource( 1 )
-RichTextLabel/colors/default_color = Color( 1, 1, 1, 1 )
-RichTextLabel/colors/font_color_selected = Color( 0, 0, 0, 1 )
-RichTextLabel/colors/font_color_shadow = Color( 0, 0, 0, 1 )
-RichTextLabel/colors/selection_color = Color( 0, 0, 0, 1 )
+Label/fonts/Title_font = ExtResource("1_2kebc")
+Label/fonts/font = ExtResource("2_u046v")
+Label/styles/not_normal = SubResource("StyleBoxTexture_lb8qv")
+MyLabel/base_type = &"Label"
+MyLabel/fonts/font = ExtResource("1_2kebc")
+RichTextLabel/colors/default_color = Color(1, 1, 1, 1)
+RichTextLabel/colors/font_color_selected = Color(0, 0, 0, 1)
+RichTextLabel/colors/font_color_shadow = Color(0, 0, 0, 1)
+RichTextLabel/colors/selection_color = Color(0, 0, 0, 1)
 RichTextLabel/constants/line_separation = 0
 RichTextLabel/constants/shadow_as_outline = 0
 RichTextLabel/constants/shadow_offset_x = 0
@@ -33,6 +41,6 @@ RichTextLabel/fonts/bold_font = null
 RichTextLabel/fonts/bold_italics_font = null
 RichTextLabel/fonts/italics_font = null
 RichTextLabel/fonts/mono_font = null
-RichTextLabel/fonts/normal_font = ExtResource( 2 )
+RichTextLabel/fonts/normal_font = ExtResource("1_2kebc")
 RichTextLabel/styles/focus = null
 RichTextLabel/styles/normal = null

@@ -1,0 +1,38 @@
+[gd_scene load_steps=7 format=3 uid="uid://5yyfni4uo78i"]
+
+[ext_resource type="Script" path="res://L04 Global Scope/viewport.gd" id="1_7qhfp"]
+[ext_resource type="Script" path="res://L04 Global Scope/Camera.gd" id="2_ah7n3"]
+[ext_resource type="Environment" uid="uid://dl8upcqu0rn0w" path="res://default_env.tres" id="3_47gul"]
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_d8ikk"]
+viewport_path = NodePath("2DViewport")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_umgpx"]
+resource_local_to_scene = true
+albedo_texture = SubResource("ViewportTexture_d8ikk")
+uv2_scale = Vector3(2, 2, 2)
+
+[sub_resource type="BoxMesh" id="BoxMesh_e2l1x"]
+
+[node name="Node3D" type="Node3D"]
+script = ExtResource("1_7qhfp")
+
+[node name="MeshInstance" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_umgpx")
+mesh = SubResource("BoxMesh_e2l1x")
+
+[node name="Camera" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.303155, 3.4414)
+fov = 29.3518
+script = ExtResource("2_ah7n3")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0.726511, 0.415071)
+
+[node name="DirectionalLight" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.910214, -0.232654, 0.34261, 0, 0.827286, 0.561781, -0.414137, -0.511341, 0.753008, 0, 3.3487, 0)
+light_color = Color(0.588235, 0.47451, 0.0901961, 1)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = ExtResource("3_47gul")

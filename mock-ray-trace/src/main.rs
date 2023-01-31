@@ -1,25 +1,31 @@
+use std::io::Read;
 
-// https://stackoverflow.com/questions/65985081
-// error[E0716]: temporary value dropped while borrowed
-
-struct Animal<'a> {
-  format: &'a dyn Fn() -> (),
+mod errors {
+    use error_chain::error_chain;
+    error_chain! {
+        // types {
+        //     MyError, MyErrorKind, MyResult;
+        // }
+        foreign_links {
+            Io(std::io::Error);
+            HttpRequest(reqwest::Error);
+        }
+    }
 }
-impl<'a> Animal<'a> {
-  // Getting rid of 'a here satisfies the compiler, why?
-  pub fn set_formatter(&mut self, _fmt: &'a dyn Fn() -> ()) -> () {}
-  pub fn bark(&self) {}
-}
+use errors::*;
 
-fn main() {
-  let x = 0;
-  let mut dog: Animal = Animal { format: &|| println!("{}", x) };
-  // let mut dog: Animal = Animal { format: &|| {()} };
-  dog.set_formatter(&|| {
-      // Commenting this out gets rid of the error. Why?
-      // println!("{}", x);
-  });
-  // Commenting this out gets rid of the error. Why?
-  dog.bark();
-  dbg!(x);
+
+fn main() -> Result<()> {
+
+    let v: Vec<u32>;
+
+    let mut res = reqwest::blocking::get("http://httpbin.org/get")?;
+    let mut body = String::new();
+    res.read_to_string(&mut body)?;
+
+    println!("Status: {}", res.status());
+    println!("Headers:\n{:#?}", res.headers());
+    println!("Body:\n{}", body);
+
+    Ok(())
 }

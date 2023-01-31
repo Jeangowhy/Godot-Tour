@@ -5,16 +5,31 @@
 
 ## 🟡🟠 Godot Docs 官方文档阅读指南
 - [动画师救生手册 - 动画十二原则](https://www.bilibili.com/video/BV1x54y1e7J9)
-- [GAMES101-现代计算机图形学入门-闫令琪](https://www.bilibili.com/video/BV1X7411F744/)
-- [GAMES202-高质量实时渲染](https://www.bilibili.com/video/BV1YK4y1T7yY/)
-- [GAMES202-高质量实时渲染](https://sites.cs.ucsb.edu/~lingqi/teaching/games202.html/)
-- [GAMES104-现代游戏引擎：从入门到实践-王希](https://www.bilibili.com/video/BV1J3411n7WT/)
+- [GAMES101-现代计算机图形学入门 - 闫令琪](https://www.bilibili.com/video/BV1X7411F744/)
+- [GAMES202-高质量实时渲染 - 闫令琪](https://www.bilibili.com/video/BV1YK4y1T7yY/)
+- [GAMES202-高质量实时渲染课程主页](https://sites.cs.ucsb.edu/~lingqi/teaching/games202.html/)
+- [GAMES102-几何建模与处理基础 - 刘利刚](https://www.bilibili.com/video/BV1NA411E7Yr/)
+- [GAMES103-基于物理的计算机动画入门 - 王华民](https://www.bilibili.com/video/BV12Q4y1S73g/)
+- [GAMES105-计算机角色动画基础 - 刘利斌](https://www.bilibili.com/video/BV1GG4y1p7fF/)
+- [GAMES104-现代游戏引擎：从入门到实践 - 王希](https://www.bilibili.com/video/BV1J3411n7WT/)
+- [GAMES201-高级物理引擎实战指南 - 胡渊鸣](https://www.bilibili.com/video/BV1ZK411H7Hc)
 - [CSD 15-462 Computer Graphics - Carnegie Mellon University](https://www.cs.cmu.edu/afs/cs/academic/class/15462-f11/www/)
+- [CMU - 15-462/662 Computer Graphics - Keenan Crane](https://www.bilibili.com/video/BV1QZ4y1K7ga/)
 - [龚大的上帝视角看GPU教程](https://www.bilibili.com/video/BV1P44y1V7bu/)
 - [The Book of Shaders by Patricio Gonzalez Vivo & Jen Lowe](https://thebookofshaders.com/?lan=ch)
 - [Godot Download](https://godotengine.org/download/windows)
 - [Godot Demo Projects](https://godotengine.github.io/godot-demo-projects)
 - [Godot Demo Projects](https://github.com/godotengine/godot-demo-projects)
+
+Digital Content Creation (DCC) 数字内容创作工具是最现代代的生产力工具，包括但不仅限于 2D/3D、
+音频/视频剪辑合成、动态/互动内容创作、图像编辑等等。
+
+例如，用于视频游戏制作的 UE5、U3D，完全免费开源的 Godot，建模与动画工具 Blender 等等。2D 动画制作
+工作如 Spine、OpenToonz 等等。程序化贴图 SubstanceDesigner，数字化布料 Style3D (国产之光)、
+VStitcher、MarvelousDesigner，雕刻建模工具 ZBrush，电影特效魔术师 Houdini，工业设计和建筑设计
+Rhino，以及传统的收费 3D 工具，如 3Dmax、Maya 等等。
+
+Godot 作为一个新秀，完全开源，并且学易易用，并且具有适量的源代码，不会像 UE5 那样宏大难以分解。
 
 要阅读好 Godot 官方文档，需要掌握文档的使用方法，并且最好有计算机图形学基础，掌握 Python 脚本语言
 可以快速掌握 GDScript 脚本。
@@ -32,10 +47,12 @@ Godot 除了自带的 GDScript 脚本外，通过模块扩展支持了多种语�
 - Dictionary pattern
 - Multiple patterns
 
-另外，提升动画艺术水平，学习一些动画原理很有必要，工具有 Spine、Blender、SketchBook、Krita、SAI 等等。
+计算机图形领域一个较难的领域是现代 GPU 编程，即着色器程序开发，入门体验容易，想要好效果难。一个比较
+好的入门教材是 The Book of Shaders，尽管这是一个烂尾工程。Godot 3.x 使用 OpenGL GLES 2/3，
+未来 Godot 4.x 会使用 Vulkan。
 
-然而，还有一个较难的领域是现代 GPU 编程，即着色器程序开发，Godot 3.x 使用 OpenGL GLES 2/3，
-未来 Godot 4.x 会使用 Vulkan。一个比较好的入门教材是 The Book of Shaders，尽管这是一个烂尾工程。
+另外，提升动画艺术水平，学习一些动画原理很有必要，工具有 Spine、Blender、SketchBook、Krita、SAI
+等等。最重要的是提升美学水平，一个作品好与坏，下限由工具决定，上限由制作人决定！
 
 Godot 官方示范项目很赞，提供了许多基础功能的演示，Godot 3.x/4.x 版本分使用 master 或 4.0-dev 分支：
 
@@ -509,6 +526,8 @@ Godot 项目设置中 display/window/stretch/mode 拉伸模式会影响画面的
 或者想要支持全屏，那么推荐启用项目设置中的 Display > Window > Dpi > Allow Hidpi 以获得高清
 画面。否则，可能在高分屏幕上看到像素化的画面，这是因为像素都按 DPI 比例缩放了。
 
+Godot 4.x 中需要启用 Advanced Settings 才可以设置 hiDPI 选项。
+
 注意，Allow Hidpi 选项仅在 Windows 和 macOS 上有效，其它平台会忽略这个选项。
 
 Godot IDE 本身是打开这个选项的，与 DPI 相关的，可以在编辑器中设置缩放比例，高分屏默认为 200%。
@@ -517,9 +536,9 @@ Godot IDE 本身是打开这个选项的，与 DPI 相关的，可以在编辑�
 Godot 尚未支持手动设置 2D 缩放比例，所以无法在非游戏应用中支持 hiDPI。因此，推荐为非游戏应用禁用
 Allow Hidpi 选项，操作系统会回退到低 DPI。
 
-
 高分屏系统中，还可能出现调试游戏时，在没有启用 hiDPI 时，窗口位置超出右下角的情况。这种情况可以通过
 修改编辑器配置 run/window_placement 改变窗口位置，默认是居中，是启用高分屏支持就没有问题。
+
 
 虽然当前活动场景树只有一个，但是可以使用 Godot 的自动加载功能，工程配置 AutoLoad 栏目中设置，
 可以实现将其它场景、或者脚本加载到全局空间运行，例如背景音乐需要避免转场中断，可以在自动加载场景中
@@ -580,7 +599,7 @@ FPS 低于游戏设计时，可能会有输入延迟和卡顿。在需要快速�
 print 函数打印信息到控制台上，尽管这个函数本身是线程安全的，但是可能因为线程切换导致缓冲区被破坏
 而输出一些奇怪的字符，包括 NULL 字符，应该在打印操作后执行 flush 清空缓冲区，以免输出内容被破坏。
 
-```py
+```py,ignore
 import os
 import clipboard
 import requests
@@ -714,18 +733,86 @@ if __name__ == "__main__":
         download_all(items)
 ```
 
+## 🟡🟠 sango2 三国群英传2兵种与阵法相克规则设计
 
-## 🟡🟠 GDNative C++ 开发
+三国群英传2兵种相克表：
+
+- 以朴刀、武斗、藤甲为代表的短兵器;
+- 以长枪、大刀、铁锤为代表的长兵器;
+- 以弓箭、弩兵、飞刀为代表的远程兵种。
+
+黄巾兵、朴刀兵作为最常见的两个兵种，它们克制的兵种相对少，前者克制蛮族、女兵、飞刀，后者在这些之上还克制弓箭、武斗、黄巾。
+
+相克顺口溜：
+
+    远克长，长克短，短兵循环又克远。
+    大刀破短很能干，飞刀爆的链锤惨。
+    弩兵全能很能干，飞弓藤甲干就完。
+    武斗不惧箭飞锤，黄巾只克女飞蛮。
+    藤甲不畏箭飞朴，朴蛮黄女倒霉蛋。
+
+长克短、短克远，远克长，具体如下，最倒霉的三大兵种是蛮族、黄巾、女兵：
+
+        | 朴刀 长枪 大刀 弓箭 链锤 飞刀 武斗 蛮族 铁锤 藤甲 黄巾 弩兵 女兵 | 总和
+    ----|--------------------------------------------------------|----
+    朴刀 |   0 -42 -58  44  -47  47  21  14  -51 -31  22  -8   10 | -79
+    长枪 |  42   0 -12 -58  -23 -53  60  49   27  66  44  -52  39 |  129
+    大刀 |  58  12   0 -66   22 -64  63  53  -14  68  68  -18 -43 |  139
+    弓箭 | -44  58  66   0   54   8 -56 -36   47 -54  28   32 -29 |   74
+    链锤 |  47  23 -22 -54    0 -48 -26  36   13  65  37  -45  32 |   58
+    飞刀 | -47  53  64 -8    48   0 -55 -39   39 -67 -24   56 -32 | -12
+    武斗 | -21 -60 -63  56   26  55   0   8   42  16  33  -18   6 |   80
+    蛮族 | -14 -49 -53  36  -36  39 -8    0  -41  17 -62  -10  30 | -151
+    铁锤 |  51 -27  14 -47  -13 -39 -42  41    0  64  41  -28  36 |   51
+    藤甲 |  31 -66 -68  54  -65  67 -16 -17  -64   0  21    8  26 | -89 
+    黄巾 | -22 -44 -68 -28  -37  24 -33  62  -41 -21   0  -24  56 | -176
+    弩兵 |   8  52  18 -32   45 -56  18  10   28 -8   24    0  12 |  119
+    女兵 | -10 -39  43  29  -32  32 -6  -30  -36 -26 -56  -12   0 | -143
+
+
+阵型相克表：
+
+- 以方形、园形、鱼丽形为代表的平头阵，强度依次减弱，并且鱼丽有倒克方形之势；
+- 以钩形、雁形、为代表的凹头阵，强度依次减弱；
+- 以冲锋形、锥形、箭矢形为代表的尖头阵，强度依次减弱；
+
+玄襄形像十字星，既有平头属性，又有凹头属性，克制尖头阵，冲锋形，还有箭矢形，同时又被圆形、方形克制。
+
+《左传·桓公五年》 晋 杜预：“《司马法》：‘车战二十五乘为偏。’以车居前，以伍次之，承偏之隙而弥缝阙漏也。五人为伍。此盖鱼丽陈法。”
+
+平克凹、凹克尖、尖克平。负值表示在表格竖向的阵法被横向所示的阵法克制，负数绝对值越大克制越强：
+
+          方形 圆形 锥形 雁形 玄襄 鱼丽 钩形 冲锋 箭矢
+    ----|--------------------------------------
+    方形 |   0
+    圆形 | -7     0
+    锥形 |  18   12   0
+    雁形 | -19  -22  19   0
+    玄襄 | -13  -21  11  5    0
+    鱼丽 |  6   -6  -25  11  18   0
+    钩形 | -23  -12  25 -3   6  -23   0
+    冲锋 |  23   24  7  -15 -24  10 -14   0
+    箭矢 |  15   18 -6  -20 -19  17 -15  12   0
+    ----|--------------------------------------
+    总和 |  0    0   1   0   -1   0   1   1   -2
+
+
+## 🟡🟠 GDNative/GDExtension 扩展开发
+- [Godot Engine Download](https://downloads.tuxfamily.org/godotengine/)
 - [Godot API Headers](https://github.com/godotengine/godot-headers)
 - [godot-cpp](https://github.com/godotengine/godot-cpp)
 - [GDNative demos](https://github.com/godotengine/gdnative-demos) 
 - [GDNative C++](https://docs.godotengine.org/en/latest/tutorials/scripting/gdnative/index.html)
 - [Custom modules in C++](https://docs.godotengine.org/en/stable/development/cpp/custom_modules_in_cpp.html)
 - [Godot Compiling](https://docs.godotengine.org/en/stable/development/compiling/index.html)
-- [Godot Engine Download](https://downloads.tuxfamily.org/godotengine/)
 - [Godot Engine – Multi-platform 2D and 3D game engine](https://github.com/godotengine/godot/releases)
 - [Godot Rust bindings - GDNative and GDExtension APIs](https://godot-rust.github.io/)
 - [Platform Support](https://doc.rust-lang.org/nightly/rustc/platform-support.html)
+- [The godot-rust Book](https://godot-rust.github.io/book/gdextension/)
+- [Introducing GDNative's successor, GDExtension](https://godotengine.org/article/introducing-gd-extensions)
+- [GodotSteam tutorials - Initializing](https://godotsteam.com/tutorials/initializing/)
+
+避免重新编译 Godot 源代码进行功能扩展的方法有 GDNative 和 GDExtension，它们分别在 Godot 3.x 和 4.x 中使用。
 
 通常，在产品需要快速迭代前期开发阶段，GDScript 主要的开发语言工具，只有在需要处理性能瓶颈问题时，
 或者有潜在性能瓶颈的功能需要处理，才会考虑使用 C/C++ 或者 Rust 等语言进行静态编译，以获得高性能
@@ -818,11 +905,123 @@ env.Append(LIBPATH=[godot_bindings_path + "/bin/"])
 # ellipsis ...
 ```
 
+ClassDB 是扩展类型数据库管理类型，提供了各种绑定方法，用于向 GDScript 提供方法绑定。以下代码片段
+摘自 Godot-CPP 中的示范工程：
+
+```cpp,ignore
+    // Methods.
+    ClassDB::bind_method(D_METHOD("simple_func"), &Example::simple_func);
+    ClassDB::bind_method(D_METHOD("simple_const_func"), &Example::simple_const_func);
+    ClassDB::bind_method(D_METHOD("return_something"), &Example::return_something);
+    ClassDB::bind_method(D_METHOD("return_something_const"), &Example::return_something_const);
+    ClassDB::bind_method(D_METHOD("return_empty_ref"), &Example::return_empty_ref);
+    ClassDB::bind_method(D_METHOD("return_extended_ref"), &Example::return_extended_ref);
+    ClassDB::bind_method(D_METHOD("extended_ref_checks", "ref"), &Example::extended_ref_checks);
+
+    ClassDB::bind_method(D_METHOD("test_array"), &Example::test_array);
+    ClassDB::bind_method(D_METHOD("test_tarray_arg", "array"), &Example::test_tarray_arg);
+    ClassDB::bind_method(D_METHOD("test_tarray"), &Example::test_tarray);
+    ClassDB::bind_method(D_METHOD("test_dictionary"), &Example::test_dictionary);
+    ClassDB::bind_method(D_METHOD("test_node_argument"), &Example::test_node_argument);
+
+    ClassDB::bind_method(D_METHOD("def_args", "a", "b"), &Example::def_args, DEFVAL(100), DEFVAL(200));
+
+    ClassDB::bind_static_method("Example", D_METHOD("test_static", "a", "b"), &Example::test_static);
+    ClassDB::bind_static_method("Example", D_METHOD("test_static2"), &Example::test_static2);
+
+    {
+        MethodInfo mi;
+        mi.arguments.push_back(PropertyInfo(Variant::STRING, "some_argument"));
+        mi.name = "varargs_func";
+        ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "varargs_func", &Example::varargs_func, mi);
+    }
+
+    {
+        MethodInfo mi;
+        mi.arguments.push_back(PropertyInfo(Variant::STRING, "some_argument"));
+        mi.name = "varargs_func_nv";
+        ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "varargs_func_nv", &Example::varargs_func_nv, mi);
+    }
+
+    {
+        MethodInfo mi;
+        mi.arguments.push_back(PropertyInfo(Variant::STRING, "some_argument"));
+        mi.name = "varargs_func_void";
+        ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "varargs_func_void", &Example::varargs_func_void, mi);
+    }
+
+    // Properties.
+    ADD_GROUP("Test group", "group_");
+    ADD_SUBGROUP("Test subgroup", "group_subgroup_");
+
+    ClassDB::bind_method(D_METHOD("get_custom_position"), &Example::get_custom_position);
+    ClassDB::bind_method(D_METHOD("get_v4"), &Example::get_v4);
+    ClassDB::bind_method(D_METHOD("set_custom_position", "position"), &Example::set_custom_position);
+    ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "group_subgroup_custom_position"), "set_custom_position", "get_custom_position");
+
+    // Signals.
+    ADD_SIGNAL(MethodInfo("custom_signal", PropertyInfo(Variant::STRING, "name"), PropertyInfo(Variant::INT, "value")));
+    ClassDB::bind_method(D_METHOD("emit_custom_signal", "name", "value"), &Example::emit_custom_signal);
+
+    // Constants.
+    BIND_ENUM_CONSTANT(FIRST);
+    BIND_ENUM_CONSTANT(ANSWER_TO_EVERYTHING);
+
+    BIND_CONSTANT(CONSTANT_WITHOUT_ENUM);
+```
 
 Godot 4.x 引入 GDExtension 作为 GDNative 的替代模块，或者说是 GDNative 应用层的重构版本，
 扩展的目标还为了减轻给 Godot 引擎开发插件的难度。GDExtension 是 C API，提供方法注册动态库中的类。
 注册后的类，就可以供 Godot 引擎使用，因为是平台编译的共享库，所以能更好地集成到引擎内。配合现有的
 godot-cpp 库，可以非常方便地使用 C++ 开发静态编译的模块。
+
+与 C++ 扩展中直接使用 Godot 引擎源代码的头文件不同，Rust 绑定需要使用它强大的宏编程能力，以生成
+Godot 引擎的 API 绑定代码，Godot 命令行提供 dump-extension-api 选项导出当前版本的 GDNative
+类型信息到 JSON 文件，Godot Rust 绑定模块会分析 JSON 文件并生成相应的绑定代码。
+
+使用 Rust 编写好的扩展时，先为 Godot 工程准备好 GDExtension 配置文件 example.gdextension：
+
+```sh
+[configuration]
+
+entry_symbol = "example_library_init"
+
+[libraries]
+
+macos.debug = "res://bin/libgdexample.macos.template_debug.framework"
+macos.release = "res://bin/libgdexample.macos.template_release.framework"
+windows.debug.x86_64 = "res://bin/libgdexample.windows.template_debug.x86_64.dll"
+windows.release.x86_64 = "res://bin/libgdexample.windows.template_release.x86_64.dll"
+...
+```
+
+然后在 godot 工程文件中添加 GDExtension 配置：
+
+```sh
+[native_extensions]
+
+paths=["res://example.gdextension"]
+```
+
+配置文件中的入口需要对应 C++ 代码中的 GDE_EXPORT 导出函数：
+
+```cpp
+extern "C" {
+// Initialization.
+GDExtensionBool GDE_EXPORT example_library_init(const GDExtensionInterface *p_interface, GDExtensionClassLibraryPtr p_library, GDExtensionInitialization *r_initialization) {
+    godot::GDExtensionBinding::InitObject init_obj(p_interface, p_library, r_initialization);
+
+    init_obj.register_initializer(initialize_example_module);
+    init_obj.register_terminator(uninitialize_example_module);
+    init_obj.set_minimum_library_initialization_level(MODULE_INITIALIZATION_LEVEL_SCENE);
+
+    return init_obj.init();
+}
+}
+```
+
+
+使用 Rust 语言编写扩展，目前 GDExtension 还不稳定，编译后的扩展库可能不可以正常使用：
 
     git clone --depth=1 git@github.com:godot-rust/book
     git clone --depth=1 git@github.com:godot-rust/gdnative
@@ -839,6 +1038,14 @@ Rust 编译脚本中，需要根据具体情况添加 C++ 头文件的目录，�
 
 其中，gdnative-sys 这个模块会包装 godot-headers，它会依赖一部分平台相关的头文件，可以直接修改
 buider.rs 编译脚本，添加 clang_arg 指定编译器参数 -I 来指定头文件路径，但不推荐直接修改。
+
+Godot 4.x 中的 GDExtension 代码结构有改变，并且目前还未发布稳定版本。并且 godot-ffi 模块会调用
+godot4 可执行程序用于生成 API JSON 信息文件，也可以配置 `GODOT4_BIN` 环境变量指向可执行程序：
+
+```sh
+    # powershell
+    [System.Environment]::SetEnvironmentVariable("GODOT4_BIN", "C:\games\Godot_v4.0-beta10_win64.exe")
+```
 
 交叉编译涉及问题很多，通常根据当前平台的架构来编译是容易通过的，可以使用 rustup 查询当前的平台构架
 及工具链。即使在交叉编译时，bindgen 也需要访问平台标头以了解平台的类型定义么。gdnative syscrate
@@ -880,6 +1087,12 @@ let mut builder = bindgen::Builder::default()
 
     error[E0308]: mismatched types - types differ in mutability
 
+Clang 自身没有配备自己完整的工具链，它通常使用本地平台使用的标准的 C/C++ 库和头文件。Windows 平台上
+，Visual C++ 和 Mingw 是两个比较常用的工具链，应该指定合适的 target 参数:
+
+    clang --target=i686-pc-vs2013
+    clang --target=i686-pc-mingw32
+    clang --target=x86_64-pc-mingw32
 
 Rust 中使用 `cpp` crate 定义的 `cpp!` 宏来嵌入 C++ 代码，它通过获取所有的内联 C++ 代码并将
 其写入一个单独的 cpp 文件来实现这一点，该文件将被编译为 Rust crate 的最终目标代码。
@@ -897,7 +1110,963 @@ Rust 编译生成的库文件类型有以下这些：
 - **bin** — A runnable executable program.
 - **proc-macro** — Generates a format suitable for a procedural macro library that may be loaded by the compiler.
 
+GDExtension 扩展入口函数原型定义在 gdextension\godot-codegen\input\gdnative_interface.h
 
+```cpp
+/* Define a C function prototype that implements the function below and expose it to dlopen() (or similar).
+ * This is the entry point of the GDExtension library and will be called on initialization.
+ * It can be used to set up different init levels, which are called during various stages of initialization/shutdown.
+ * The function name must be a unique one specified in the .gdextension config file.
+ */
+typedef GDNativeBool (*GDNativeInitializationFunction)(const GDNativeInterface *p_interface, const GDNativeExtensionClassLibraryPtr p_library, GDNativeInitialization *r_initialization);
+```
+
+使用 #[gdextension] 过程宏定义入口函数，默认入口函数名为 `gdextension_rust_init`：
+
+```rust
+/// Defines the global entry point for the GDExtension library.
+///
+/// Typical usage:
+/// ```
+/// use godot::init::{gdextension, ExtensionLibrary};
+///
+/// // This is just a type tag without any functionality
+/// struct MyExtension;
+///
+/// #[gdextension]
+/// unsafe impl ExtensionLibrary for MyExtension {}
+/// ```
+///
+/// # Safety
+/// By using godot-rust, you opt-in to the library's safety requirements (to be described in detail).
+/// The library cannot enforce any guarantees outside Rust code, which means users need to adhere to certain rules for a safe usage.
+#[proc_macro_attribute]
+pub fn gdextension(meta: TokenStream, input: TokenStream) -> TokenStream {
+    translate_meta(meta, input, gdextension::transform)
+}
+```
+
+参考 GDExtension 扩展配置文件内容如下，参考文件名 some.gdextension：
+
+```sh
+    [configuration]
+    entry_symbol = "gdextension_rust_init"
+
+    [libraries]
+    linux.64 = "res://../../../target/debug/libsome.so"
+    macos.64 = "res://../../../target/debug/libsome.dylib"
+    windows.64 = "res://../../../target/debug/some.dll"
+```
+
+
+
+## 🟡🟠 Godot with CSharp
+- http://www.mono-project.com/docs/about-mono/compatibility
+- https://docs.godotengine.org/en/3.5/tutorials/scripting/c_sharp/c_sharp_features.html
+- https://docs.godotengine.org/en/3.5/tutorials/scripting/c_sharp/c_sharp_differences.html
+- https://docs.godotengine.org/en/stable/tutorials/scripting/cross_language_scripting.html
+- https://docs.godotengine.org/en/stable/tutorials/scripting/creating_script_templates.html
+- https://docs.godotengine.org/en/latest/tutorials/scripting/c_sharp/index.html
+- https://docs.godotengine.org/en/latest/tutorials/scripting/c_sharp/c_sharp_basics.html
+- https://docs.godotengine.org/en/latest/tutorials/scripting/c_sharp/c_sharp_exports.html
+- https://docs.godotengine.org/en/latest/tutorials/scripting/c_sharp/c_sharp_differences.html
+- https://docs.godotengine.org/en/latest/tutorials/scripting/c_sharp/c_sharp_signals.html
+- https://docs.godotengine.org/en/latest/contributing/development/core_and_modules/object_class.html#doc-binding-properties-using-set-get-property-list
+- [Bunnymark](https://github.com/cart/godot3-bunnymark)
+- [Godot.NET.Sdk](https://www.nuget.org/packages/Godot.NET.Sdk/#versions-body-tab)
+- [Mono SDK](https://www.mono-project.com/download/stable/#download-lin)
+- [.NET SDK](https://dotnet.microsoft.com/download)
+- [Visual Studio Code](https://code.visualstudio.com/)
+- [Godot 3.5.1 Mono](https://downloads.tuxfamily.org/godotengine/3.5.1/mono/)
+- godot-docs\tutorials\scripting\c_sharp\c_sharp_basics.rst
+
+Godot 有两套语言支持构建：
+
+- 默认的支持 GDScript，GDExtension
+- 另一套则集成了 .NET 6 支持 C#, GDScript, GDExtension。
+
+要使用 C# 语言进行 Godot 项目开发，系统上需要安装 .NET SDK 6.0 或 7.0，.NET 7.0 的支持还不完善。
+相比 GDScript 脚本，C# 是一个编译型的高级语言，Godot 通过开源的 Mono 6.x 框架支持 C# 8.0 语言版本。
+与作用快速原型开发使用 GDScript 脚本不同，每次执行之前都需要进行编译，以生成最新的 C# 程序集。但是，
+作为预编译语言，它的运行效率虽然不能和 C++ 看齐，但比 GDSCript 有非常大的效率提升，简单情况有 4x 提升。
+并且，在使用的便利程序上，要比 C++ 好，所以在不是极限性能需要情况下，C# 是值得一试的方案。
+
+参考 Bunnymark V2 测试数据，数值越大越好，测试 Sprite 绘制并使用 GetChildren() 迭代：
+
+| Language             | Bunnies Rendered |
+|----------------------|------------------|
+| ECMAScript/Javascript| 4660             |
+| GDScript (Release)   | 18560            |
+| C#/Mono              | 27555            |
+| GDNative (D)         | 28020            |
+| GDNative (Nim)       | 29920            |
+| GDNative (C++)       | 37480            |
+
+测试平台信息：
+
+    ### Hardware:
+
+    * CPU: Intel i7 7700k 4.2GHz
+    * GPU: Nvidia GeForce GTX 1070
+    * RAM: 16GB DDR4
+
+    ### Build Info:
+
+    * OS: Arch Linux
+    * Official Godot 3.1 release
+
+Godot 3.2.3 开始，不需安装 Mono SDK，除非需要从源代码构建 Godot，但是 .NET SDK 还是要安装。
+注意，使用的 Godot 要与 SDK 的版本比特位一致，建议使用 64-bit 的版本。由于 Godot 只提供了 C#
+的最小支持，可以考虑使用外部编辑器，如 Visual Studio Code，以提供更完善的自动完成、调试等功能。
+Godot 目前支持以下作用外部编辑器，可以通过 Editor → Editor Settings → Mono → Editor 修改：
+
+- Visual Studio 2019
+- Visual Studio Code
+- MonoDevelop
+- Visual Studio for Mac
+- JetBrains Rider
+
+以 VSCode 配置为例，最新的 Godot 4 不需要配置 Builds：
+
+- Set **Mono** -> **Editor** -> **External Editor** to **Visual Studio Code**.
+- Set **Mono** -> **Builds** -> **Build Tool** to **dotnet CLI**.
+
+并且在 Visual Studio Code 中安装以下扩展：
+
+- [C#](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csharp)
+- [Mono Debug](https://marketplace.visualstudio.com/items?itemName=ms-vscode.mono-debug)
+- [C# Tools for Godot](https://marketplace.visualstudio.com/items?itemName=neikeq.godot-csharp-vscode)
+
+C# Tools for Godot 扩展支持 Godot 3.2.2 以上版本，可以提供以下功能：
+
+- Debugging.
+- Launch a game directly in the Godot editor from VSCode.
+- Additional code completion for Node paths, Input actions, Resource paths, Scene paths and Signal names.
+
+如果使用 Linux 操作系统，需要安装 Mono SDK 以支持 Godot 的 C# 工具插件。
+
+配置 VSCdoe 以实现 Godot 工程的运行：
+
+- 执行菜单 Run → **Add Configuration...**  → **C# Godot**
+- 编辑配置文件 ``tasks.json`` 和 ``launch.json``，使用 executable 和 Command 指向正确的 Godot 可执行文件。
+
+完成以上配置后，就可以直接在 VScode 中运行 Godot 项目：
+
+- 使用命令调板，Ctrl-Shift-P 打开面板并输入 C# Godot 查询相关命令；
+- 在状态栏中，点击 Godot Project 字样处选择工程目录；
+- 在状态栏中，点击 Play in Editor (mono) 字样处运 Godot 工程；
+- 直接打开 Run and Debug 侧栏面板选择 ``launch.json`` 配置的调试的方式：
+    - Play in Editor 直接通过编辑器中运行；
+    - Launch 执行 `Godot.exe --path ${workspaceRoot}`
+    - Launch (Select Scene) 选择场景执行 `Godot.exe --path ${workspaceRoot} ${command:SelectLaunchScene}`
+    - Attach 附着到本地调试进程；
+
+如果工程不能正常运行，而 VScode 又看不到错误信息，就可以到 Godot 的 MSBuild 面板查询编译日志信息，
+例如，当前系统曾经删除过 Xamarin 的 NuGet 模块目录，导致 Godot 编译时出现问题，只需要恢复目录即可：
+
+    SDK 解析程序失败: 
+    "尝试解析 SDK "Godot.NET.Sdk/4.0.0-beta.16" 时，SDK 解析程序 "NuGetSdkResolver" 失败。
+    异常: "NuGet.Packaging.Core.PackagingException: 无法找到回退包文件夹“C:\Microsoft\Xamarin\NuGet\”。
+
+NuGet 是依赖管理工具，包含为开放源代码 .NET 库而创建的 NuGet.org 包管理平台，上面公开发布了
+所有包的推荐元数据。NuGet 包 `*.nupkg` 是一个 zip 文件，其中包含 .NET 程序集和关联的元数据。
+
+NuGet 是 .NET 生态系统的包管理器，并且是开发人员用来发现并获取 .NET 开放源代码库的主要方法。
+NuGet.org（由托管 NuGet 包的 Microsoft 提供的免费服务）是公共 NuGet 包的主要主机，但可以
+发布到自定义 NuGet 服务，如 MyGet 和 Azure Artifacts。
+
+创建 NuGet 包有两种主要方式。 较新的推荐方式是从 SDK 样式项目，其内容以 `<Project Sdk="Microsoft.NET.Sdk">` 
+开头的项目文件创建包。 程序集和目标会自动添加到包，剩余元数据会添加到 MSBuild 文件，如包名称和版本号。
+使用 `dotnet pack` 命令编译会输出 `*.nupkg` 文件，而不是程序集。
+
+本地下载安装的缓冲目录可以使用以下命令查询及清理：
+
+    nuget locals all -list
+    nuget locals all -clear
+
+配置文件 ``tasks.json`` 默认只提供了一个构建任务，可以通过菜单 Terminal → Run Build Task... 执行： 
+
+```json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build",
+      "command": "Godot_v4.0-beta16_mono_win64.exe", //"<insert-godot-executable-path-here>",
+      "type": "process",
+      "args": [
+        "--build-solutions",
+        "--path",
+        "${workspaceRoot}",
+        "--no-window",
+        "-q"
+      ],
+      "problemMatcher": "$msCompile"
+    }
+  ]
+}
+```
+
+如果添加运行配置时，没有提供 **C# Godot** 配置，请检查以上三个扩展是否完成安装，并且处于启用状态。
+配置好开发环境，就可以在 Godot 给节点附加脚本时，在 Attach Script 对话框中选择 C# 语言。
+
+Node 节点类扩展代码示例：
+
+```C#,ignore
+    using Godot;
+    using System;
+
+    public class MyNode2D : Node
+    {
+        // Member variables here, example:
+        private int a = 2;
+        private string b = "textvar";
+
+        public override void _Ready()
+        {
+            // Called every time the node is added to the scene.
+            // Initialization here.
+            GD.Print("Hello from C# to Godot :)", Time.GetTicksMsec());
+        }
+
+        public override void _Process(float delta)
+        {
+            // Called every frame. Delta is time since the last frame.
+            // Update game logic here.
+        }
+    }
+```
+
+使用 C# 与 GDScript 的一些差异：
+
+- C# 使用 ``PascalCase`` 代码风格，GDSCript/C++ 使用 ``snake_case`` 风格，`AddChild()` vs. `add_child()`。
+- C# 类名要求代码文件名一致，否由会提示 *"Cannot find class XXX for script res://XXX.cs"*
+- C# 中使用 Godot 命令空间下的 GD 管理 @GDscript 和 @GlobbalScope 全局函数符号。
+- C# 导出符号生效之前，需要重新编译程序集，通过 Godot 界面右上角的 Build 按钮构建工程。
+- C# 语句使用分号作为结束符号，而 GDScript 不需要。
+- C# 中以 `Godot.Object` 作为所有类型的基类，新版本更名为 `Godot.GodotObject`。
+- C# 使用 this 引用当前类实例，GDScript 使用 self 引用当前类实例。
+
+在 C# 中，也不能像 GDScript 那样，直接拖动节点到脚本中创建引用，也不能使用 onready，而需要在
+Ready 这类事件中，使用 FindNode 或者 GetNode 获取节点引用：
+
+```C#
+    //Button n = FindNode("Button") as Button; // FindNode -> FindChild (Godot 4)
+    Button n = (Button) GetNode("Button");
+    if (n != null) {
+        // n.Connect(nameof(Button.Pressed), this, "handle_button_click");
+        n.Connect("pressed", this, "handle_button_click");
+        GD.Print($"button: {n.Text}");
+    }
+```
+
+使用 C# 进行 Godot 项目开发，还需要解决以下这些基本问题：
+
+- 不同语言之间的相互调用问题；
+- Godot 信号系统的使用方式的差异；
+- C# 与 GDScript API 之间的差异；
+- Godot 不同版本之间的差异处理等等；
+
+
+Godot 考虑到了不同语言之间相互调用，C# 调用 GDScript API 或者属性读写使用 GodotObject 提供的方法：
+
+```C#,ignore
+    //
+    // 摘要:
+    //     Calls the method on the object and returns the result. This method supports a
+    //     variable number of arguments, so parameters are passed as a comma separated list.
+    //     Example:
+    //     call("set", "position", Vector2(42.0, 0.0))
+    [GodotMethodAttribute("call")]
+    public object Call(string method, params object[] args);
+    //
+    // 摘要:
+    //     Calls the method on the object during idle time. This method supports a variable
+    //     number of arguments, so parameters are passed as a comma separated list. Example:
+    //     call_deferred("set", "position", Vector2(42.0, 0.0))
+    [GodotMethodAttribute("call_deferred")]
+    public void CallDeferred(string method, params object[] args);
+    //
+    // 摘要:
+    //     Calls the method on the object and returns the result. Contrarily to Godot.Object.Call(System.String,System.Object[]),
+    //     this method does not support a variable number of arguments but expects all parameters
+    //     to be via a single Godot.Collections.Array.
+    //     callv("set", [ "position", Vector2(42.0, 0.0) ])
+    [GodotMethodAttribute("callv")]
+    public object Callv(string method, Collections.Array argArray);
+
+    //
+    // 摘要:
+    //     Assigns a new value to the given property. If the property does not exist or
+    //     the given value's type doesn't match, nothing will happen.
+    [GodotMethodAttribute("set")]
+    public void Set(string property, object value);
+    //
+    // 摘要:
+    //     Returns the Variant value of the given property. If the property doesn't exist,
+    //     this will return null.
+    [GodotMethodAttribute("get")]
+    public object Get(string property);
+```
+
+而在 GDscript 访问 C# API 则是直接调用，就像使用其它 GDScript 对象一样，实例化操作如下所示：
+
+```py
+    # Instantiating C# nodes from GDScript
+    var my_csharp_script = load("res://path_to_cs_file.cs")  # CSharpScript
+    var my_csharp_node = my_csharp_script.new()
+    print(my_csharp_node.some_property)
+```
+
+```C#
+    // Instantiating GDScript nodes from C#
+    GDScript MyGDScript = (GDScript) GD.Load("res://path_to_gd_file.gd");
+    Object myGDScriptNode = (Godot.Object) MyGDScript.New();
+    myGDScriptNode.Call("some_method", new int[] { 1, 2, 3 }); // some_method(1, 2, 3)
+    myGDScriptNode.Call("some_method", (object)new int[] { 1, 2, 3 }); // some_method([1, 2, 3])
+```
+
+注意，实例化得到的类型以 Godot 内置类型为准，而不是按 C# 或 GDScript 中声明的类型作为判断标准。
+比如，后面的 MyNode2D 在使用 GDScript `is` 关键字做类型判断时，需要使用内置类型 Node 作为参考。
+C# 调用 GDScript API 时注意，如果第一个参数是一个数组，那么就需要显式转换为 `object` 类型。否则，
+数组元素就会被当作一个参数使用，并可能导致函数签名不匹配。
+
+
+编写 C# 类代码时注意，类名与 ``.cs`` 代码文件名一致，否则提供错误：
+
+    Invalid call. Nonexistent function `new` in base.
+
+比如，MyCoolNode.cs 文件就应该定义 MyCoolNode 类型。并且需要继承自 ``Godot.Object`` 或其它
+子类。最后，C# 工程文件 ``.csproj``中要正确引用``.cs`` 文件，这样才会生效。
+
+
+
+Godot 4.x Mono 信号机制在 C# 使用委托机制实现，并且可以使用更高效的 += 和 -= 运算符监听、或者
+取消监听。另外，Connect 方法也有更新，使用 Callable 对象包装回调函数及回调参数。另外，通过节点的
+嵌套类 SignalName 可以访问信号名称，它继承自 GodotObject.SignalName。清理节点时，Godot 会
+负责所有信号监听事件的清理：
+
+```C#
+    Timer myTimer = GetNode<Timer>("Timer");
+    myTimer.Timeout += () => GD.Print("Timeout!");
+    // public Error Connect(StringName signal, Callable callable, uint flags = 0);
+
+    await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+```
+
+以下是 Callable 类参考文档中展示的用法，使用了嵌套类 MethodName 或者 nameof 获取方法名称。但是
+在默认参数绑定操作上有差别，GDScript 中可以直接调用 Callable 对象的 bind() 方法绑定默认参数。
+而目前在 C# 中给信号绑定默认参数则需要使用 lambdas 来构造出一个包含默认参数的 Callable 对象。
+如果方法没有参数，也没有返回值，可以包装成 Action，由 Callable.From() 再包装成可调用对象。
+
+```C#
+    // Default parameter values are not supported.
+    public void PrintArgs(Variant arg1, Variant arg2, Variant arg3 = default)
+    {
+        GD.PrintS(arg1, arg2, arg3);
+    }
+
+    public void Test()
+    {
+        Callable callback = Callable.From(() => GD.Print("Hello World"));
+
+        // Invalid calls fail silently.
+        Callable callable = new Callable(this, MethodName.PrintArgs);
+        callable.Call("hello", "world"); // Default parameter values are not supported, should have 3 arguments.
+        callable.Call(Vector2.Up, 42, callable); // Prints "(0, -1) 42 Node(Node.cs)::PrintArgs".
+        callable.Call("invalid"); // Invalid call, should have 3 arguments.
+    }
+```
+
+Godot 4.x Mono 所有信号定义名称使用 EventHandler 结尾，定义好信号后，完成后，Godot 在幕后
+自动使用 C# `event` 关键字创建相应的事件。然后，可以像其他 Godot 信号一样使用自定义信号事件。
+注意，类型定义使用的 partial class，即表示类定义代码是分开文件存放的，还可以包含在其它代码文件。
+除了直接使用委托方式定义信号，还可以使用 AddUserSignal() 方法添加自定义信号。
+
+
+Godot 3.x Mono 自定义信号的使用有些差别，获取信号名称使用 nameof(MySignal) 语法，并且信号
+连接依然是使用节点的 Connect 方法进行。信号名称的获取这种操作一致性不够好，例如，获取按钮节点的
+信号就不能使用 nameof(Button.Pressed) 这样的表达，而是直接使用 "pressed" 字符串字面量。
+
+总结起来，C# 中有三种获取或使用信号名称的方式，Godot 3.x 只支持前两种：
+
+- `EmitSignal("MySignal");` 直接使用字符串字面量
+- `EmitSignal(nameof(MySignal));` 使用 nameof 关键字
+- `EmitSignal(SignalName.MySignal);` 使用内嵌类 SignalName
+
+
+```C#,ignore
+    //     Represents the method that handles the Godot.EditorPlugin.SceneChanged event
+    //     of a Godot.EditorPlugin class.
+    //public delegate void SceneChangedEventHandler(Node sceneRoot);
+    //public event SceneChangedEventHandler SceneChanged;
+
+    public partial class MyNode2D : Node2D
+    {
+        // Declaring a signal in Godot 3.x with C# is done with the [Signal] attribute on a delegate.
+        [Signal]
+        delegate void MySignal();
+
+        [Signal]
+        delegate void MySignalWithArguments(string foo, int bar);
+
+        public override void _Ready() 
+        {
+            MyMethodEmittingSignals();
+        }
+
+        // Emitting signals is done with the EmitSignal method.
+        public void MyMethodEmittingSignals()
+        {
+            //AddUserSignal("MyOtherSignal");
+            EmitSignal(nameof(MySignal));
+            EmitSignal("MySignalWithArguments", "hello there", 28);
+        }
+    }
+
+    public partial class AnotherNode : Node2D
+    {
+        MyNode instance;
+
+        public override void _Ready()
+        {
+            instance = GetNode("MyNode")
+        }
+        // These signals can then be connected either in the editor or from code with Connect.
+        public void MyCallback()
+        {
+            GD.Print("My callback!");
+        }
+
+        public void MyCallbackWithArguments(string foo, int bar)
+        {
+            GD.Print("My callback with: ", foo, " and ", bar, "!");
+        }
+
+        public void SomeFunction()
+        {
+            instance.Connect("MySignal", this, "MyCallback");
+            instance.Connect("MySignal", this, "MyCallbackWithArguments", new Godot.Collections.Array{"Mono", 123});
+            instance.Connect(nameof(MySignalWithArguments), this, "MyCallbackWithArguments");
+        }
+    }
+```
+
+使用自定义信号可能遇到的问题是：调用 EmitSignal() 时报错，表示信号不存在，而调用 AddUserSignal()
+手动添加信号时，又表示不能重复添加已经定义的信号，这可能是定义信号的代码没有写到类体内部：
+
+    E 0:00:07.120   emit_signal: Can't emit non-existing signal "MySignal".
+      <C++ Error>   Condition "!signal_is_valid && !script.is_null() && !Ref<Script>(script)->has_script_signal(p_name)" is true. Returned: ERR_UNAVAILABLE
+      <C++ Source>  core/object.cpp:1177 @ emit_signal()
+      <Stack Trace> :0 @ void Godot.NativeCalls.godot_icall_2_695(IntPtr , IntPtr , System.String , System.Object[] )()
+                    Object.cs:365 @ void Godot.Object.EmitSignal(System.String , System.Object[] )()
+                    Node_2D.cs:17 @ void Node_2D.MyMethodEmittingSignals()()
+
+    E 0:00:03.798   add_user_signal: Trying to add already existing signal 'MySignal'.
+      <C++ Error>   Condition "signal_map.has(p_signal.name)" is true.
+      <C++ Source>  core/object.cpp:1121 @ add_user_signal()
+      <Stack Trace> :0 @ void Godot.NativeCalls.godot_icall_2_694(IntPtr , IntPtr , System.String , IntPtr )()
+                    Object.cs:337 @ void Godot.Object.AddUserSignal(System.String , Godot.Collections.Array )()
+                    Node_2D.cs:18 @ void Node_2D.MyMethodEmittingSignals()()
+
+
+一些 GDScript 遇不到的问题，如下：
+
+```C#,ignore
+public partial class MyNode2D : Node2D
+{
+    public override _Ready()
+    {
+        // Position.X = 100.0f;
+        // CS1612: Cannot modify the return value of 'Node2D.Position' because
+        // it is not a variable.
+        var newPosition = Position;
+        newPosition.X = 100.0f;
+        Position = newPosition;
+
+        // C# 10 is required:
+        // Position = Position with { X = 100.0f };
+    }
+}
+```
+
+一个类型中结构体，Vector2，在 C# 中是通过拷贝进行赋值的，也就是说在获取 Position 属性时，获取到
+的是一个副本，对这个副本赋值并不会影响到原来归属的节点。解决方法：创建一个变量引用 Position 再进行
+赋值操作。在 C# 10 版本中，可以对结构体使用 with 表达式来解决这种问题。
+
+通常，使用 C# 编程而不是 GDScript，一个主要的目的可能是为了提升程序运行速度，所以应该避免编写无
+效率的代码，以下是两种节点的移动方式对比，后者更高效：
+
+```C#
+using Godot;
+
+public partial class YourCustomClass : Node3D
+{
+    private void ExpensiveReposition()
+    {
+        for (var i = 0; i < 10; i++)
+        {
+            // Position is read and set 10 times which incurs native interop.
+            // Furthermore the object is repositioned 10 times in 3D space which
+            // takes additional time.
+            Position += new Vector3(i, i);
+        }
+    }
+
+    private void Reposition()
+    {
+        // A variable is used to avoid native interop for Position on every loop.
+        var newPosition = Position;
+        for (var i = 0; i < 10; i++)
+        {
+            newPosition += new Vector3(i, i);
+        }
+        // Setting Position only once avoids native interop and repositioning in 3D space.
+        Position = newPosition;
+    }
+}
+```
+
+给 Godot C# API 传递原始的 byte[] 或者字符串，需要 marshalling 操作，这相对不够高效。隐式转换
+string 为 NodePath 或 StringName 会产生原生互操作和 marshalling 成本，因为字符串必须编组并
+传递给相应的原生构造函数。
+
+
+### 🟢🔵 Export in CSharp
+
+以下演示在 Godot 4.x Mono 中使用 C# [Export] 标注导出符号，以及使用 [Signal] 自定义信号：
+
+```C#,ignore
+using Godot;
+
+[Signal]
+public delegate void MySignalEventHandler();
+
+[Signal]
+public delegate void MySignalWithArgumentEventHandler(string myString);
+
+public partial class MyNode : Node
+{
+    [Export]
+    private NodePath _nodePath;
+
+    [Export]
+    private string _name = "default";
+
+    [Export(PropertyHint.Range, "0,100000,1000,or_greater")]
+    private int _income;
+
+    [Export(PropertyHint.File, "*.png,*.jpg")]
+    private string _icon;
+
+    public void MyMethodEmittingSignals()
+    {
+        EmitSignal(SignalName.MySignal);
+        EmitSignal(SignalName.MySignalWithArgument, "World");
+    }
+}
+```
+
+其它导出标注用法参考，高级导出参考 get_property_list 方法的使用，目前 Godot 3 不支持导出分组：
+
+```C#,ignore
+    [ExportGroup("My Properties")]
+    [Export]
+    private int Number = 3;
+
+    [ExportSubgroup("Extra Properties")]
+    [Export]
+    private string Text = "";
+    [Export]
+    private bool Flag = false;
+
+    [ExportCategory("Main Category")]
+    [Export]
+    private int Number = 3;
+    [Export]
+    private string Text = "";
+
+    [ExportCategory("Extra Category")]
+    [Export]
+    private bool Flag = false;
+
+
+    [Export]
+    private Resource Resource;
+
+    [Export]
+    private AnimationNode Resource;
+
+    [Export]
+    private Color Col;
+
+    [Export(PropertyHint.ColorNoAlpha)]
+    private Color Col;
+
+
+    [Export]
+    private Vector3[] Vector3s = new Vector3[0];
+    [Export]
+    private String[] String = new String[0];
+
+
+    [Export(PropertyHint.Layers2dPhysics)]
+    private int Layers2dPhysics;
+    [Export(PropertyHint.Layers2dRender)]
+    private int Layers2dRender;
+    [Export(PropertyHint.Layers3dPhysics)]
+    private int layers3dPhysics;
+    [Export(PropertyHint.Layers3dRender)]
+    private int layers3dRender;
+
+
+    // Set any of the given flags from the editor.
+    [Export(PropertyHint.Flags, "Fire,Water,Earth,Wind")]
+    private int SpellElements = 0;
+
+
+    [Export(PropertyHint.ExpEasing)]
+    private float TransitionSpeed;
+
+    [Export(PropertyHint.Range, "0,20,")]
+    private int Number;
+
+    [Export(PropertyHint.Range, "-10,20,")]
+    private int Number;
+
+    [Export(PropertyHint.Range, "-10,20,0.2")]
+    private float Number;
+
+    [Export(PropertyHint.Range, "0,100,1,or_greater,or_lesser")]
+    private int Number;
+
+    [Export(PropertyHint.ExpRange, "100,1000,20")]
+    private float Number;
+
+
+    [Export(PropertyHint.File)]
+    private string GameFile;
+
+    [Export(PropertyHint.Dir)]
+    private string GameDirectory;
+
+    [Export(PropertyHint.File, "*.txt,")]
+    private string GameFile;
+
+
+    [Export]
+    private NodePath MyNodePath;
+    private Label MyNode;
+
+    public override void _Ready()
+    {
+        MyNode = GetNode<Label>(MyNodePath);
+    }
+
+    // Editor will enumerate as 0, 1 and 2.
+    [Export(PropertyHint.Enum, "Warrior,Magician,Thief")]
+    private int CharacterClass;
+    
+    [Export(PropertyHint.Enum, "Rebecca,Mary,Leah")]
+    private string CharacterName;
+
+    private enum NamedEnum
+    {
+        Thing1,
+        Thing2,
+        AnotherThing = -1
+    }
+    [Export(PropertyHint.Enum)]
+    private NamedEnum X;
+```
+
+### 🟢🔵 Godot Plugin in CSharp
+- https://github.com/m50/Godot-CSharp-Node-Exports
+- [.NET project SDKs](https://learn.microsoft.com/en-us/dotnet/core/project-sdk/overview)
+- [Attribute 基类](https://learn.microsoft.com/zh-cn/dotnet/api/system.attribute?view=net-7.0)
+- [CompilerServices 命名空间](https://learn.microsoft.com/zh-cn/dotnet/api/system.runtime.compilerservices)
+- https://referencesource.microsoft.com/#mscorlib/system/runtime/compilerservices/datetimeconstantattribute.cs
+- https://docs.godotengine.org/en/3.5/tutorials/plugins/editor/index.html
+
+C# 中没有 class_name 这样的关键字用来注册自定义节点，这可以使用插件的 Custom types。通过菜单
+创建插件：Project → Project Settings → Plugins → Create new Plugin。使用 C# 创建插件时，
+注意脚本名称和类名要一致。C# 中可以自定义标注实现类似 [ClassName] 这样的标注，以替代 GDScript
+中的 classname 注册自定义类型：
+
+- **System.Attribute** 自定义标注需要继承的基类；
+- **System.AttributeUsage** 设置自定义标注的用途，以及 AllowMultiple，Inherited 等属性；
+- **System.AttributeTargets** 提供标注用途的枚举类型定义，如 Class, Method, Property 等等用途；
+- [System.AttributeUsage(System.AttributeTargets.Class)] 指定自定义标注作用于类型定义；
+- [System.AttributeUsage(System.AttributeTargets.Method)] 指定自定义标注作用于类型定义；
+
+此外，System.Runtime.CompilerServices 命名空间下提供了一系列编译获取信息的标注，如：
+
+- **CallerFilePathAttribute** 获取包含调用方的源文件的完整路径。 这是编译时的文件路径。
+- **CallerLineNumberAttribute** 获取源文件中调用方法的行号。
+- **CallerMemberNameAttribute** 获取方法调用方的方法或属性名称。
+- **DateTimeConstantAttribute** 为字段或参数永久保存一个 8 字节的 DateTime 常数。
+
+Caller 和 Callee 分别表示一个方法调用另一个方法的双方，Caller 是主动调用，Callee 是被调用方。
+向 Godot 注册自定义类型需要使用其脚本，需要使用 [CallerFilePath] 标注获取脚本路径，并通过资源
+管理器 ResourceLoader 加载它得到脚本对象。加载脚本得到的是一个资源类型，可以使用多种方式进行转换：
+
+```C#
+    Script script = ResourceLoader.Load(target.ScriptPath) as Script;
+    Script script = ResourceLoader.Load<Script>(target.ScriptPath);
+    Script script = (Script) ResourceLoader.Load(target.ScriptPath);
+```
+
+最新的 Godot 4 beta 16 提供了一个 GodotClassNameAttribute 标注，。
+
+C# 元数据编程中，一个方格号内可以包含多个标注，每个标注使用圆括号对其属性进行赋值。对标注好的代码
+进行处理时，使用程序集对象 Assembly 提供的反射方法，对当前运行中的程序集进行处理。通过处理程序集中
+标注过的类型，使用 AddCustomType() 将自定义类型注册到 Godot 系统内：
+
+```C#
+    using System.Reflection;
+
+    var assembly = Assembly.GetExecutingAssembly();
+    foreach (var t in assembly.GetTypes())
+    {
+        MyAttribute mytype = t.GetCustomAttribute<MyAttribute>();
+        if (item == null) continue;
+        ...
+    }
+
+    // in Godot 4.x
+    Connect("resource_saved", new Callable(this, nameof(OnResourceSaved)));
+    AddToolMenuItem("Reload C# Resources", new Callable(this, nameof(BuildTypes)));
+    // in Godot 3.x
+    Connect("resource_saved", this, "OnResourceSaved");
+    AddToolMenuItem("Reload C# Resources", this, nameof(BuildTypes));
+```
+
+在 Godot 触发自定义节点注册行为，可以通过添加工具菜单 AddToolMenuItem() 来让用户操作，它会向
+Project → Tools 添加菜单，需要在禁用插件配合 RemoveToolMenuItem() 做菜单清理，避免重复添加。
+也可以使用 EditorPlugin 的信号来触发，插件提供的信号包含场景变动、资源保存、工程配置变动等等。保存
+文件，包括各种资源文件，就会触发 **resource_saved** 信号。
+
+插件中的自定义标注需要在 Godot 工程中其它代码引用，C# 工程文件 ``.csproj`` 要正确引用``.cs``，
+并且需要构建好 C# 项目使其生效。否则，启用插件时就会提示不能加载插件脚本，因为 Godot 不能通过脚本
+提供类型名称找到相应的程序集中对应的类型。
+
+```sh
+<Project Sdk="Godot.NET.Sdk/4.0.0-beta.16">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="addons/**/*.cs" Condition=" '$(Configuration)' == 'Debug' " />
+    <Compile Include="src/*.cs" />
+  </ItemGroup>
+</Project>
+```
+
+一个最简单的插件可以只包含两个方法，它向引擎注册自定义节点：
+
+```py
+    tool
+    extends EditorPlugin
+
+    func _enter_tree():
+        # When this plugin node enters tree, add the custom type
+        add_custom_type("Heart", "Node2D", preload("res://addons/custom_node/heart.gd"), preload("res://addons/custom_node/heart_icon.png"))
+        # public void AddCustomType(string type, string @base, Script script, Texture2D icon);
+
+    func _exit_tree():
+        # When the plugin node exits the tree, remove the custom type
+        remove_custom_type("Heart")
+        # public void RemoveCustomType(string type);
+```
+
+```C#,ignore
+    #if TOOLS
+    using Godot;
+    using System;
+
+    [Tool]
+    public partial class Plugin : EditorPlugin
+    {
+        public override void _EnterTree()
+        {
+            // Initialization of the plugin goes here.
+        }
+
+        public override void _ExitTree()
+        {
+            // Clean-up of the plugin goes here.
+        }
+    }
+    #endif
+```
+
+一个节点，包括插件，连接到 Root Viewport 即成为场景树中的一个部分，最后节点被移除，依次触发回调方法：
+
+```py
+_enter_tree() 
+_ready() 
+_exit_tree()
+```
+
+节点树所有节点会按位置先后、由表层到内层依次执行 enter_tree 方法，而 ready 和 exit_tree 方法，
+则不同，会先由内层到外层的顺序执行，父级节点需要等待内层节点工作完成才能执行 ready 等动作。
+
+对于插件，Project → Project Settings → Plugins 面板中启用它，即添加到场景树上，禁用时即移除。
+插件代码如果有更新，也需要通过禁用再重新启用来更新，并重新执行初始化。Godot 4 beta 16 中，只要
+重新执行构建扣，插件功能即可以随之更新，不需要重新设置工程插件配置，但初始化在下次启用插件时执行。
+
+以下是 CustomTypes 插件的实现，有两个 C# 代码文件，一个标注定义，另一个是主脚本。通过工程配置
+启用插件：Project → Project Settings... → Plugins → CustomTypes → Enable/Disable。
+
+然后，插件会向 Project → Tools 工具菜单中注册两个功能，分别用于更新自定义类型的注册和清理：
+
+- Project → Tools → C# Custom Types: Register
+- Project → Tools → C# Custom Types: Clear
+
+标注定义代码文件 ClassNameAttribute.cs 内容：
+
+```C#,ignore
+    using System;
+    using System.Runtime.CompilerServices;
+
+    namespace CustomTypes.Attributes
+    {
+      [AttributeUsage(AttributeTargets.Class, Inherited = false)]
+      class ClassNameAttribute : Attribute
+      {
+        // [DateTimeConstantAttribute(1675150868847)]
+        // public DateTime timestamp;
+        public string Name = "";
+        public string Icon = "";
+        public string ScriptPath = "";
+
+        public ClassNameAttribute([CallerFilePath] string scriptPath = "")
+        {
+          ScriptPath = scriptPath;
+        }
+      }
+    }
+```
+
+Custom Types 插件主脚本文件 Plugin.cs，在创建插件时将其填写到 Script Name 字段中：
+
+```C#,ignore
+    #if TOOLS
+    using Godot;
+    using System;
+    using System.Reflection;
+    using System.Collections.Generic;
+    using CustomTypes.Attributes;
+
+    namespace CustomTypes
+    {
+        
+    [Tool]
+    /// <summary>
+    /// Register custom types like GDScript class_name.
+    /// to enable/disable CustomType plugin, use Project Setting:
+    ///         Project → Project Settings... → Plugins → CustomTypes → Enable/Disable
+    /// 
+    /// to register/unregister, use Project menu :
+    ///         Project → Tools → C# Custom Types: Register
+    ///         Project → Tools → C# Custom Types: Clear
+    /// </summary>
+    ///
+    /// example:
+    ///
+    /// ```csharp
+    /// using CustomTypes.Attributes;
+    /// using Godot;
+    ///
+    /// [ClassName(Icon="res://Path/To/Icon.png")]
+    /// public class MyResource : Resource
+    /// {
+    ///     //...
+    /// }
+    /// 
+    /// [ClassName(Name="MyCsharpNode2D", Icon="res://bullet.svg")]
+    /// public partial class MyNode2D : Node2D
+    /// {
+    ///     // ...
+    /// }
+    /// ```
+    public partial class Plugin : EditorPlugin
+    {
+        
+        string toolname_add = "C# Custom Types: Register";
+        string toolname_clear = "C# Custom Types: Clear";
+        List<string> types = new List<string>();
+
+        public void RegCustomTypes()
+        {
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            foreach (var item in assembly.GetTypes())
+            {
+                var target = item.GetCustomAttribute<ClassNameAttribute>();
+                // GD.Print("target: ", item);
+                
+                if (target == null) continue;
+                if (!item.IsSubclassOf(typeof(Godot.Resource)) && !item.IsSubclassOf(typeof(Godot.Node)))
+                {
+                    GD.Print($"CustomTypes can be Godot.Resource or Godot.Node, but not {item}!");
+                    continue;
+                }
+                Script script = ResourceLoader.Load(target.ScriptPath) as Script;
+                // Script script = (Script) ResourceLoader.Load(target.ScriptPath);
+                // Script script = ResourceLoader.Load<Script>(target.ScriptPath);
+                Texture2D icon = new Texture2D();
+                if (target.Icon != "") {
+                    icon = ResourceLoader.Load(target.Icon) as Texture2D;
+                }
+                string name = target.Name == ""? item.Name : target.Name;
+                AddCustomType(name, item.BaseType.Name, script, icon);
+                types.Add(name);
+
+                GD.Print($"Add Custom Type: {name}:{item.BaseType.Name}");
+            }
+        }
+
+        public override void _EnterTree()
+        {
+            // Initialization of the plugin goes here.
+            SceneChanged += (Node sceneRoot) => GD.Print("SceneChanged: ", sceneRoot);
+            SceneClosed += (string filepath) => GD.Print("SceneClosed: ", filepath);
+            MainScreenChanged += (string screenName) => GD.Print("MainScreenChanged: ", screenName);
+            ResourceSaved += (Resource resource) => GD.Print("ResourceSaved: ", resource);
+            ProjectSettingsChanged += () => GD.Print("ProjectSettingsChanged");
+            GD.Print("Signals tester registered.");
+            AddToolMenuItem(toolname_add, new Callable(this, nameof(RegCustomTypes)));
+            AddToolMenuItem(toolname_clear, new Callable(this, nameof(ClearCustomType)));
+            RegCustomTypes();
+        }
+
+        public override void _Ready()
+        {
+            GD.Print("plugin ready: CustomTypes");
+        }
+
+        public override void _ExitTree()
+        {
+            RemoveToolMenuItem(toolname_add);
+            RemoveToolMenuItem(toolname_clear);
+            ClearCustomType();
+        }
+
+        void ClearCustomType()
+        {
+            foreach (var item in types)
+            {
+                RemoveCustomType(item);
+                GD.Print($"RemoveCustomType: {item}");
+            }
+        }
+    }
+    }
+
+    #endif
+```
 
 ## 🟡🟠 CLI 命令行工具
 - https://docs.godotengine.org/en/stable/tutorials/editor/command_line_tutorial.html
@@ -1131,6 +2300,91 @@ func _ready():
       --startup-benchmark-file <path>              Benchmark the startup time and save it to a given file in JSON format.
 
 
+
+
+## 🟡🟠 Debug & Profiler 调试与性能分析、优化
+- [The Profiler](https://docs.godotengine.org/en/latest/tutorials/scripting/debug/the_profiler.html)
+- [Optimization](https://docs.godotengine.org/en/stable/tutorials/performance/index.html)
+- [Debugging and profiling](https://docs.godotengine.org/en/latest/contributing/development/debugging/index.html)
+- [Using C++ profilers](https://docs.godotengine.org/en/stable/development/cpp/using_cpp_profilers.html)
+- https://github.com/VerySleepy/verysleepy/wiki/User-Interface
+- godot-docs\tutorials\scripting\debug\overview_of_debugging_tools.rst
+- godot-docs\tutorials\scripting\debug\the_profiler.rst
+- godot-docs\development\cpp\using_cpp_profilers.rst
+
+在使用 C++ 分析器之前，需要为 Godot 主程序设置调试符号信息，官方提供的下载已经清理了调试符号数据以
+减小下载数据。需要在本地重新编译 Godot 并且按以下编译配置保留调试符号数据：
+
+- For editor binaries: ``target=release_debug use_lto=yes``
+- For debug export templates: ``target=release_debug use_lto=yes``
+- For release export templates: ``tools=no target=release debug_symbols=yes``
+
+默认情况下，导出模板中已经删除调试符号，对于导出模板 ``debug_symbols=yes`` 是必需的。
+
+不要使用编译器的 ``strip`` 命令，它会清理调试符号，这样编译的程序并不能有效地进行性能分析。
+
+Godot 4.x 受到 Windows 10 配置影响，在开发过程中，调试程序遇到首次启动慢的情况，因为开发中每次
+启动都是一个新程序，需要配置，即每次启动都是首次运行，所以特别慢，旧版本中不存在这样的问题。
+
+表现为两个层面：
+
+- Godot 编辑器中执行调试时，程序启动慢。
+- 导出的工程执行程序在首次启动慢，后面启动速度正常，但修改可执行程序文件名后，首次启动依然慢。
+
+测试程序不涉及网络访问，所以不需要修改防火墙规则配置。
+
+问题指向 NVIDIA 驱动安装未正确安装，可能是因为禁用了独立显卡，导致程序启动慢。Godot 4.x 升级后
+使用了 Vulkan 驱动，这需要程序重新进行配置。也有可能是 Godot 尝试检查所有连接的 USB 设备，检查
+键盘、游戏控制器、VR耳机等。USB 控制器/驱动程序未正确安装，重新安装驱动程序将解决此问题。
+
+
+C++ 应用性能分析器推荐：
+
+- VerySleepy (Windows) http://www.codersnotes.com/sleepy/
+- HotSpot (Linux) https://github.com/KDAB/hotspot
+- Xcode Instruments (macOS) https://developer.apple.com/xcode/
+
+在使用 VerySleepy 分析器前，先启动 Godot，或者工程，如果启动了项目管理器，需要确保 Godot 运行了项目。
+因为分析器并不能分析 Godot 工程管理器产生的子线程，每个 Godot 编辑器都是它的子线程运行的。
+
+然后运行 VerySleepy 对已经运行中的 Godot 进程实例进行分析，从进程列表中选择。点击 **Profile All** 
+按钮启动分析并记录数据，然后操作 Godot 工程进行测试。完成测试后，点击 **Stop** (*not* Abort) 结束记录。
+然后，对记录到的 API 数据进行分析。
+
+数据记录包含一个函数列表，可以使用右键菜单过滤指定模块的 API：
+
+- **Name** - the name of the function. If debugging symbols are not available, the instruction address will be displayed instead.
+- **Exclusive** - displays the time spent during the execution of that function, but not of any of its callees.
+- **Inclusive** - displays the time spent during the execution of that function, including any other functions called from it (and their callees, and so on).
+- **% Exclusive**, **% Inclusive** - as above, but as a percentage of the program's total execution time.
+- **Module** - the module (.exe or .dll file) this function belongs to.
+- **Source File** - the path to the source code file containing the function. If debugging symbols are not available, this column will display [unknown]).
+- **Source Line** - the line number corresponding to the beginning of the function's definition. If debugging symbols are not available, this column will display 0).
+- **Address** - the address in memory of the function's compiled code.
+
+
+Godot 自带的性能分析器在调试器面板中，通过手动点击 Start 按钮启动，然后运行工程就可以记录相应 API
+的时间消耗信息，收集到数据后就可以关闭 Profiler，然后对数据进行分析，以确定性能瓶颈在 CPU 还 GPU。
+
+
+Measuring manually in microseconds
+
+```py
+# Measuring the time it takes for worker_function() to run
+var start = OS.get_ticks_usec()
+worker_function()
+var end = OS.get_ticks_usec()
+var worker_time = (end-start)/1000000.0
+
+# Measuring the time spent running a calculation over each element of an array
+start = OS.get_ticks_usec()
+for calc in calculations:
+    result = pow(2, calc.power) * calc.product
+end = OS.get_ticks_usec()
+var loop_time = (end-start)/1000000.0
+
+print("Worker time: %s\nLoop time: %s" % [worker_time, loop_time])
+```
 
 
 ## 🟡🟠 Signals & Notifications 信号与消息
@@ -3503,6 +4757,34 @@ get_tree().input_event(ie)
 - [CS3621 Introduction to Computing with Geometry Notes](https://pages.mtu.edu/~shene/COURSES/cs3621/NOTES/)
 - [Mesh Shimplification](https://pages.mtu.edu/~shene/COURSES/cs3621/SLIDES/Simplification.pdf)
 - [Multiresolution Modeling A Very Brief Introduction](https://pages.mtu.edu/~shene/COURSES/cs3621/SLIDES/Multiresolution.pdf)
+- [Beziers, curves and paths](https://docs.godotengine.org/en/latest/tutorials/math/beziers_and_curves.html)
+- [Interpolation](https://docs.godotengine.org/en/latest/tutorials/math/interpolation.html)
+
+曲线与插值密切相关，Godot 提供的矢量类型都有线性插值方法，Vector2.lerp() 或 Vector3.lerp()，或者，
+进行三次插值，Vector2.cubic_interpolate() 或 Vector3.cubic_interpolate()，它们都是 Bezier 插值。
+Curve2D, Curve3D, Path 和 Path2D 都是插值绘制的曲线节点，只需要提供相应的控制点坐标。
+
+以下代码演示插值方法来移动一个 Sprite 节点来跟踪鼠标位置：
+
+```py
+const FOLLOW_SPEED = 4.0
+
+func _physics_process(delta):
+    var mouse_pos = get_local_mouse_position()
+
+    $Sprite2D.position = $Sprite2D.position.lerp(mouse_pos, delta * FOLLOW_SPEED)
+```
+
+变换矩阵也可以进行插值：
+
+```py
+var t = 0.0
+
+func _physics_process(delta):
+    t += delta
+
+    $Monkey.transform = $Position1.transform.interpolate_with($Position2.transform, t)
+```
 
 Bézier Curve 贝塞尔曲线是计算机图形学二维图形应用程序的数学曲线，曲线定义有起始点、终止点、控制点，
 通过调整控制点，贝塞尔曲线的形状会发生变化。
@@ -3627,592 +4909,6 @@ SVG 矢量图形对象布尔运算是常规需求，这是很有趣的问题，�
 另一图的运算。
 
 
-
-
-
-
-## 🟡🟠 Godot 2D Animation 平面动画
-- [Animation Retargeting in Godot 4.0](https://godotengine.org/article/animation-retargeting-in-godot-4-0)
-- [Movie Maker mode arrives in Godot 4.0](https://godotengine.org/article/movie-maker-mode-arrives-in-godot-4)
-- [Creating movies](https://docs.godotengine.org/en/latest/tutorials/animation/creating_movies.html)
-- [SceneTreeTween](https://docs.godotengine.org/en/stable/classes/class_scenetreetween.html)
-- [Tween](https://docs.godotengine.org/en/stable/classes/class_tween.html)
-- [Canvas layers](https://docs.godotengine.org/en/3.6/tutorials/2d/canvas_layers.html)
-- [2D Sprite animation](https://docs.godotengine.org/en/3.5/tutorials/2d/2d_sprite_animation.html)
-- [Abstract Platformer](https://kenney.nl/assets/abstract-platformer)
-- [How to make your bullets look awesome in Godot - Advanced Trails](https://www.bilibili.com/video/BV1iA411A7gz/)
-- [Godot Advanced Trails Examples](https://github.com/RPicster/Godot-Advanced-Trails-Examples)
-- [Using TileMaps](https://docs.godotengine.org/en/3.6/tutorials/2d/using_tilemaps.html)
-- [Using GridMaps](https://docs.godotengine.org/en/latest/tutorials/3d/using_gridmaps.html)
-- [Real Time Navigation (3D)](https://docs.godotengine.org/en/3.6/tutorials/navigation/real_time_navigation_3d.html)
-
-官方文档推荐了一个动画资源 Abstract Platformer，这组资源可以用来做 TileMap、AnimatedSprite
-之类的动画演示。或者，使用官文展示的一组青蛙 Sprites：
-
-![Frog Spritesheet](https://docs.godotengine.org/en/3.5/_images/2d_animation_frog_spritesheet.png)
-
-TileMap 瓦片地图是 2D 游戏常见的技术，通过定义瓦片图集 TileSet，就是将图片按区域划分最小的区块，
-然后，再用类似绘画的方式一样，将瓦片图绘制到 TileMap 上，最后得到的一个游戏关卡地图。技术上来讲，
-TileMap 就是一个按格子分割的区域，用格子的形式来记录什么位置的格子要绘制什么图像。
-
-TileMap 中的图像常采用斜角地图的形式，即 Isometric View，即等距视角下的地图，和透视相对，是指
-视野内的物体，无论远近都用同一大小来表现，而绘画中常用的透视 Perspective 却是远小近大。
-
-使用多个 TileMap 可以在同一块位置添加多张图像，以得到合适的场景。
-
-为 TileMap 创建新的瓦片集，并点击打开编辑界面：
-
-![TileMap Tool](https://docs.godotengine.org/en/3.6/_images/tilemap_tool.png)
-
-先将源图片导入瓦片集中，然后点击 New Single Tile 创建第一个瓦片，通过拖动出一个矩形区 Region
-定义好这个瓦片所使用的图像区域。要编辑已有的瓦片，点击 Edit 进行编辑状态，点击需要编辑的瓦片，然后
-拖动鼠标重新定义瓦片区域。瓦片的其它属性，如名称等，可以在属性探测器面板中设置。
-
-有了第一块瓦片，就可以将它绘制到 TileMap 中的网格上了。
-
-对于代表玩家不能穿越的区域，可以给瓦片设置碰撞检测区，在瓦片编辑状态下，点击 Collision 定义一个
-矩形，或者多边形作为碰撞检测时的参考区。
-
-遮挡、导航形状区域定义用于 AI 寻路导航使用。
-
-
-除了以上 Single Tile 方式单个地创建瓦片，还可以使用以下两种方式定义瓦片：
-
-Atlas tiles：可以为图集一次定义一组瓦片，而不是一次添加一个，并且这种方式可以在绘画到 TileMap
-时打开 Enabled Priority 以随机生成瓦片。并且，可以为其中任意的瓦片定义碰撞检测区。这种模式下，
-可以在 Icon Mode 下选择一个图案作为在 TileMap 绘图列表的图标显示。而 Z-Index 模式则用来定义
-各个瓦片的绘图时的 Z 深度值。还有优先级模式 Priority Mode 用来设置瓦片出现的随机概率值。
-
-
-Autotiles：也类似地允许一次定义一组平铺，然后可以根据相邻单元格的内容添加规则来控制用于绘图的平铺，
-瓦片选择由位掩码控制。单击 Bitmask 设置位掩码，然后单击要添加或删除掩码的瓦片进行设置：
-
-- 左键单击瓦片的某个区域可添加 “on” 标记位，显示为红色；
-- 右键点击设置 “off” 标记位，正常状态；
-- Shift + 左键单击可设置 “ignore” 标记位；
-
-Godot 使用 Autotiles 更新单元格时，首先会根据已设置的相邻单元格创建图案。它在 Autotiles 中搜索
-具有与创建的图案匹配的位掩码的瓦片，如果找不到匹配的位掩码，将改用 “Icon” 瓦片。如果找到多个匹配，
-将根据优先级设置随机选择其中一个。如何匹配 Bitmask 与图案的规则取决于 Autotile bitmask mode
-属性，在探测器面板中设置，允许设置为：
-
-- “2x2” 模式包含 4 个标记位，对应瓦片的四个角；
-- “3x3 (minimal)” 模式包含 9 个标记位，四个角标记位功能同上；
-- “3x3”。
-
-必须满足所有 “open” 和 “off” 的标记位，才能匹配位掩码，但忽略 “ignore” 标记位。
-
-另外，通过编程，可以批量修改 TileMap 的内容，TileSet 提供了方法根据 tile 名称获取 ID，然后可以
-在 TileMap 中定位到全部分使用了 ID 对应的图像的格子坐标，这个坐标是格子的行列坐标，和世界坐标之间
-可以相互转换。给 set_cell() 传递 -1 作为 tile ID 则可以清空格子内容。
-
-通过这些方法，可以使用 TileMap 绘制各种对象的占位符号，然后编程替换成需要的节点对象。Godot 4.x
-版本中，直接可以在 TileMap 中将场景当作 tile 使用。 
-
-```py
-# TileSet
-int find_tile_by_name(name: String) const
-
-# TileMap
-Array get_used_cells_by_id(id: int) const
-Vector2 world_to_map(world_position: Vector2) const
-Vector2 map_to_world(map_position: Vector2, ignore_half_ofs: bool = false) const
-
-# Node2D
-Vector2 to_global(local_point: Vector2) const
-Vector2 to_local(global_point: Vector2) const
-```
-
-
-缓动曲线是用数学公式计算一个时间段内某一个变量的平滑变化产生动画的技术，例如，在 1s 时间内将节点
-的 x 位置坐标从 0 慢慢增加到 100，这种平滑的变化有不同的公式产生不同的动画效果，曲线参考图如下：
-
-![Tween easing and transition types cheatsheet](https://raw.githubusercontent.com/godotengine/godot-docs/master/img/tween_cheatsheet.png)
-
-使用 SceneTreeTween 和旧式的 Tween 对象创建缓动曲线动画变换效果，这是最基本的 2D 动画技术。
-
-2D 动画涉及到的节点类型除了缓动程序，还包括但不仅限如下这些：
-
-|     Objects      |         Base Type          |
-|------------------|----------------------------|
-| SpriteFrames     | Resource                   |
-| AnimatedTexture  | Texture < Resource         |
-| Animation        | Resource                   |
-| Sprite           | Node2D < CanvasItem < Node |
-| AnimatedSprite   | Node2D < CanvasItem < Node |
-| AnimatedSprite3D | Spatial < Node             |
-| AnimationPlayer  | Node                       |
-| AnimationTree    | Node                       |
-
-前两个资源类型用于包装动画图像资源，而 Animation 动画资源则作为动画轨道记录动画帧属性。
-
-SpriteFrames 包装动画帧图像资源，可以包含多个动画配置。
-
-AnimatedTexture 是动态纹理资源，本身就具有动画播放能力。作为一个资源类型，类似使用图片纹理对象。
-但可以设置多个帧，而不是一张静态图片，然后可以提供给 AnimatedSprite、TileMap 等需要图像资源的
-节点使用。用户可以对帧率 FPS、每帧延时，或者暂停、单次播放 Oneshot 等进行设置。Godot 引擎架构中
-负责视觉处理的 VisualServer 以动态纹理规定的速率按顺序绘制区域。好消息是，这不涉及引擎的额外逻辑。
-坏消息是，用户几乎没有控制权。
-
-例如，AnimatedTexture + AnimatedSprite 组合，这就有了双重动画，一边 AnimatedTexture 按自己
-的动画节凑播放各帧图像，每一帧的图像输出又被 AnimatedSprite 重新制作的动画进行播放。也就是前者负责
-变换图片，后者负责制作动画，二者组合得到最终效果。用在大量的自动动画背景中，单个批处理绘制调用就可完成渲染。
-
-
-AnimatedSprite + SpriteFrames 组合制作图片帧动画，可以创建多个动画。对比单独使用 Sprite 节点，
-它加载一张 Spritesheet 图像，则只能创建一个动画，但如果用好 **AnimationPlayer** 来控制其属性，
-也可以创建多个动画资源。AnimatedSprite3D 则是在 3D 场景下创建的一个能展示帧动画的 2D 平面。
-
-动画资源类型 **Animation** 保存的是动画相关数据，在 AnimationPlayer 编辑界面中以轨道的形式展示，
-也可以通过编程方式设置动画轨道及关键帧数据：
-
-```py
-# This creates an animation that makes the node "Enemy" move to the right by
-# 100 pixels in 0.5 seconds.
-var animation = Animation.new()
-var track_index = animation.add_track(Animation.TYPE_VALUE)
-animation.track_set_path(track_index, "Enemy:position:x")
-animation.track_insert_key(track_index, 0.0, 0)
-animation.track_insert_key(track_index, 0.5, 100)
-```
-
-AnimationPlayer 节点作为关键帧动画，通过 Animation 资源类型记录场景内其它节点的属性变化来生产动画，
-可以创建多个动画，以对象属性轨道的方式编辑，它还可以用于各种动画 2D 动画：
-
-- Cut-Out animations: 剪影动画，如皮影戏的效果；
-- 2D Mesh animations: 绑定骨骼控制图像的变形；
-
-Animation 可以记录 6 种轨道数据，TrackType 定义的值如下：
-
-● **TYPE_VALUE** 属性轨道，只记录可以插值的属性。
-● **TYPE_TRANSFORM** 变换矩阵轨道，用于改变节点局部变换、骨骼姿态。
-● **TYPE_METHOD** 方法调用轨道，设置要在动画播放时触发的函数，可以带参数。
-● **TYPE_BEZIER** 贝塞尔曲线自定义插值轨道，可以对向量、颜色等属性的分量做动画。
-● **TYPE_AUDIO** 音频轨道，使用 AudioStreamPlayer 播放音频流，可以在动画中修剪和预览该流。
-● **TYPE_ANIMATION** 动画轨道，用于播放其它 AnimationPlayer 节点的动画。
-
-动画播放器可以配合 Path2D、Path3D 以及 PathFollw 可以制作运动路径跟随，内嵌 RemoteTransform
-作为子节点，它可以将自身的位置等状态，包含路径运动的产生的运动信息，发送给其它对象以实现路径跟随运动，
-例如用路径控制运动学刚体 KinematicBody。
-
-
-视差，即远慢近快的视觉现象，是常被 2D 采用的一种动画技术，游戏、动画片中非常多应用，使用视差背景图节点
-ParallaxBackground，就可以实现，继承自 CanvasLayer。将视差图层节点 ParallaxLayer 放置到视差
-背影节点内，设置视差图层的 Motion 属性以确定视差效果。
-
-最主要的 Scale 参数，决定了视差图层与相机运动的速度比例，0 表示固定不动，类似 CanvasLayer 图层
-下的节点一样固定位置。设置 [0, 1] 表示比相机运动速度慢，通常就是远景的设置，大于 1 就是近景的设置。
-
-场景中总是存在 Viewport，至少场景树的顶级有一个不可见的 Viewport，它设置了 canvas_transform，
-允许对它所包含的 CanvasItem 施加一个自定义的 Transform2D 变换. Camera2D 的主要工作方式就是
-改变这个 Transform2D 变换实现画布内容的变换控制。
-
-![CanvasLayers](https://docs.godotengine.org/en/3.6/_images/canvaslayers.png)
-
-在 3D 场景中也可以使用 **CanvasLayer** 来显示 2D 节点内容，避免受到画布因相机视角变换的影响，
-可以实现的功能不仅以下功能：
-
-- Parallax Backgrounds 视差效果，配合 ParallaxLayer 节点设置背景图片，可以设置镜像延伸。
-- UI: 游戏中的用户界面，或者 head-up display (HUD) ，它们应该固定在屏幕中，不随游戏世界变换。
-- Transitions: 视觉变换，如渐变、混合效果，这些内容也固定位置。
-
-类似的，CanvasItem 提供了一个方法，**set_as_toplevel()** 可以将 2D 节点添加顶级状态，以避免
-受到父级的变换影响，同时绘图时会覆盖在其它未标记为 Top Level 的基点。
-
-场景中可以使用一个 **WorldEnvironment** 节点，同时只能有一个，包括继承的场景在内。然后为环境节点
-创建一个 **Environment** 资源，用于配置环境，如设置背景属性：
-
-- Background Mode 设置为 Canvas 模式；
-- Canvas Max Layer 设置一个序数，层序小于这个值的 CanvasLayer 就会当作背景层；
-
-Layer 序号越大，绘图顺序越靠后，就可以覆盖其它 Layer 更小的节点。2D 场景默认图层绘画顺序为 0，如果
-CanvasLayer 序号设置为更小的值，如 -1 则会先行绘制，作为背景。CanvasLayers 拥有独立的绘图顺序，
-由 Layer 序号决定，它们独立于场景树的节点顺序，可以在需要时调整。
-
-
-场景中相机运动可以使用以下代码片段，使用鼠标移动来决定相机位置：
-
-```py
-exetends Node2D
-
-onready var camera_2d = $Camera2D
-
-func _input(event):
-    if event is InputEventMouseMotion:
-        #camera_2d.anchor_mode = Camera2D.ANCHOR_MODE_FIXED_TOP_LEFT
-        camera_2d.position = (event.position - get_viewport().size/2) / 2
-```
-
-
-动画的基本原理就是连续的相似图像在人眼的视觉暂留产生的运动感觉，2D Sprite animation 就是将一组
-相似的但又有关键区别的图像按指定时间间隔播放的动画效果，在场景中使用 **AnimatedSprite** 节点，
-在属性探测器中设置节点的 Frames 属性，它关联一个 **SpriteFrames** 动画帧资源，包含多个动画配置，
-可供 AnimatedSprite 或 AnimatedSprite3D 播放。
-
-
-打开动画帧资源，在动画帧编辑面板中有一个默认的 default 动画，根据需要创建更多的动画，如行走、跳动
-等等，然后为每个动画导入相关图片，可以是单张单个动作的图像，或者一张包含所有动作的 Sprites 图像，
-即 Sprites Sheet 图像，要求各个动作图像大小相等，导入后需要通过画网格来定位。
-
-然后，设置帧动画的播放速度 Speed，默认为 5 FPS，即每秒 5 帧，还可以勾选 Loop 表示循环播放不终止。
-AnimatedSprite 播放完每一个动画时，会发布一个 **animation_finished** 信号，可以利用它来做
-动画转换以完成动画组合。
-
-```py
-onready var animated_sprite = $ColorRect/AnimatedSprite
-
-
-func _on_AnimatedSprite_animation_finished():
-    print("AnimatedSprite finished ", animated_sprite.animation)
-
-
-func _on_ColorRect_gui_input(event):
-    if event is InputEventMouseButton and event.is_pressed():
-        var ans = animated_sprite.frames.get_animation_names()
-        var idx = ans.find(animated_sprite.animation)
-        idx = (idx + 1) % ans.size()
-        animated_sprite.play(ans[idx])
-```
-
-以下是定制 Sprite 实现的 MyAnimatedSprite 动画节点：
-
-```py
-extends Sprite
-class_name MyAnimatedSprite
-
-signal animation_finished
-
-var timer:Timer = Timer.new()
-
-export(int, 0, 120, 1) var FPS = 4
-export(bool) var pause = false setget set_pause
-export(bool) var loop = false
-export(bool) var TextureMovtion = true setget set_TextureMovtion
-
-func _enter_tree():
-    timer.connect("timeout", self, "_on_Timer_timeout")
-    add_child(timer)
-
-func _ready():
-    connect("animation_finished", self, "_on_animation_finished")
-    set_animation()
-    
-func _input(event):
-    if event.is_pressed() and event is InputEventMouseButton:
-        var mouse = event as InputEventMouseButton
-        var distance = position.distance_to(mouse.position)
-        if distance > 32:
-            return
-        if mouse.button_index == BUTTON_LEFT:
-            set_TextureMovtion(!TextureMovtion)
-        else:
-            set_pause(!pause)
-    
-    
-func _on_Timer_timeout():
-    var frames = hframes * vframes
-    frame = (frame + 1) % frames 
-    if frame == frames - 1:
-        yield(get_tree(), "idle_frame") # wait next idle frame
-        emit_signal("animation_finished")
-
-func _on_animation_finished():
-    if not loop:
-        timer.stop()
-    
-
-func set_pause(state):
-    pause = state
-    set_animation()
-
-func set_animation():
-    if not pause and texture:
-        timer.start(1.0 / FPS)
-    else:
-        timer.stop()
-
-func set_TextureMovtion(state):
-    TextureMovtion = state
-    var at = texture as AnimatedTexture
-    at.pause = !state
-    property_list_changed_notify()
-```
-
-
-使用 **Sprite** 和 **AnimationPlayer** 搭配也可以实现 AnimatedSprite 一样的帧动画，只不过
-AnimationPlayr 是记录节点的属性作为关键帧，一个动画包含多个关键帧。首先，给 Sprite 节点的纹理属性
-指定一张 Spritesheet 图像，然后通过 Hframes 和 Vframes 两个属性将图像拆分作多个帧。然后，打开
-底部 Animation 动画播放节点设置面板，创建一个动画，为 Sprite 节点的 Frames 属性添加一条轨道，
-并在轨道中添加关键帧。可以通过右键菜单，也可以通过 Sprite 的属性面板的 Key 图标设置。
-
-注意，AnimationPlayer 中的动画轨道是和属性的路径字符串关联的，如果对应的节点位置有变量，轨道中的
-属性路径可能也需要更新，否则可能因找不到节点而导致原有的动画设置不能生效。
-
-```py
-extends Sprite
-
-onready var player:AnimationPlayer = $AnimationPlayer
-onready var timer = $Timer
-onready var sprite = $"."
-
-enum Direction { Left = -1, Right = 1 }
-export(Direction) var direction = Direction.Left
-
-func _on_Timer_timeout():
-    player.current_animation = "fog jump"
-    #player.play("fog jump")
-
-
-func _on_AnimationPlayer_animation_started(anim_name):
-    var tween = get_tree().create_tween().set_trans(Tween.TRANS_QUART)
-    var up = Vector2(direction * 50.0, -30.0)
-    var dn = Vector2(direction * 40.0, 30.0)
-    tween.tween_property(sprite, "position", up, 0.3).as_relative().set_ease(Tween.EASE_OUT)
-    tween.tween_property(sprite, "position", dn, 0.15).as_relative().set_ease(Tween.EASE_IN)
-
-
-func _on_AnimationPlayer_animation_finished(anim_name):
-    var vs = get_viewport().size
-    if sprite.position.x > vs.x:
-        sprite.scale.x = direction
-        direction *= -1
-    elif sprite.position.x < 0:
-        sprite.scale.x = direction
-        direction *= -1
-```
-
-2D/3D 动画最重要的一个节点是 **AnimationTree**，旧的 AnimationTreePlayer 由于太复杂已经丢弃。
-动画树实现的功能是动画混合技术 Animation Blending，作为独立一小节讲解。
-
-
-## 🟡🟠 Animation Blending 动画混合
-- [Using AnimationTree](https://docs.godotengine.org/en/3.5/tutorials/animation/animation_tree.html)
-- [Adobe Mixamo](https://www.mixamo.com)
-- [Third Person Shooter demo](https://github.com/godotengine/tps-demo)
-- [Retargeting 3D Skeletons](https://docs.godotengine.org/en/latest/tutorials/assets_pipeline/retargeting_3d_skeletons.html)
-- [Animation Retargeting in Godot 4.0](https://godotengine.org/article/animation-retargeting-in-godot-4-0)
-- [Better collada plugin for Blender](https://github.com/HungryProton/collada-exporter-2.8)
-- [09.高级动画技术：动画树、IK和表情动画 | GAMES104-现代游戏引擎：从入门到实践](https://www.bilibili.com/video/BV1pY411F7pA)
-- https://threejs.org/examples/#webgl_animation_skinning_additive_blending
-- [spine-godot Runtime](http://esotericsoftware.com/spine-godot)
-- [Spine Runtimes - spine-godot](https://github.com/EsotericSoftware/spine-runtimes)
-
-官方文档提供的第三人称射击游戏示范项目 Third Person Shooter demo 是学习动画混合的好例子。
-
-Adobe Mixamo 是学习 3D 动画的一个资源网站，它用许多现成的模型和动画预设，可以实现自动化的骨骼
-绑定及动画制作，只要上传自己的角色模型稍作校正就可以完成动画制作，现有的动画素材也是很好的学习资源。
-
-动画混合是一种重要的计算机动画技术，基本的动画技术在使用上存在难以使用的的问题。例如，游戏中玩家角色
-同时可以不同的动作，也就是不同的动画融合在一起。比如，简单的动画可能有步行、跳跃、攻击行为等，在简单
-播放动画的技术中，它们都是独立的，一个播放完就进行下一个动画。
-
-典型的动画混合例子，就是将 3D 人物模型从走路动画过滤过渡到奔跑动画。但是，在游戏交互中要求远不止如此，
-可能玩家在做跳跃动作时还突然想做出攻击动作，那么传统的动画就无法很好适应这种中间转播其它动画的操作。
-
-
-游戏、动画工业对动画有大量的需求，动画制作完成后还有复用的需要，即将同一套动画应用于骨骼结构相似的
-模型上。这里就存在动画重定向的问题，Animation Retargeting。基于骨骼绑定制作的动画，有一个特点，
-就是模型不同的部分绑定不同的骨骼，通过调整骨骼姿态使用模型产生相应的姿态，记录到关键帧后就得到动画。
-所以，动画重定向就需要将动画来源的骨骼与目标模型的骨骼做校对，以使用原动画的数据适用于新的模型上。
-
-同样，2D 动画也有类似的动画复用问题，在 Godot 中使用 AnimationPlayer 节点制作的关键帧动画，其
-目标节点是通过节点路径表示的，就是一个字符串，通过改变这个节点路径，就可以将动画应用于不同的节点上。
-
-Godot 动画节点中最重要的一个节点是 **AnimationTree**，旧版本的 AnimationTreePlayer 由于太
-复杂已经丢弃。动画树实现的功能是动画混合技术 Animation Blending，它的功能涉及内容较多，也是比较
-复杂的一个节点。一般它和 AnimationPlayer 搭配使用，用于管理不同动画的切换播放。
-
-AnimationTree 动画混合使用到三大类型节点：
-
-- **Animation** 动画资源类型，动画树引用通过 anim_player 属性连接到 AnimationTree 上的动画。
-- **AnimationRootNode** 根节点用来混合子节点，最常用的是 Blend Tree 混合树。
-- **Blend Nodes** 混合节点用于 Blend Tree 混合树，多个输入端口接入的混合节点，最终混合成单个图。
-
-动画树需要指定一个动画播放节点的路径以调用其动画配置，还需要设置一个顶层资源动画节点，以下 5 个继承自
-AnimationRootNode < AnimationNode 的类型对应了 5 种不同的动画混合方法：
-
-- **AnimationNodeAnimation**: 动画节点，只是简单地从已经连接的动画中选择要播放的动画。
-- **AnimationNodeBlendTree**: 混合树可以混合不同的根节点，常常用它作为动画树的根节点使用。
-- **AnimationNodeStateMachine**: 状态机可以包含多个根节点，它们都是状态，使用转换方法切换状态。
-- **AnimationNodeBlendSpace2D**: 2D 混合空间，混合点可以在二维平面运动，可以混合多个动画。
-- **AnimationNodeBlendSpace1D**: 1D 混合空间，简化版本，混合点只能一维方向变化，混合两个动画。
-
-根运动技术 **Root Motion** 是指，即因角色动作导致需要移到模型位置，拼接两个动画，就需要处理前后
-两个动画中的模型位置，使其前后连接流畅。假设，现成的模型动画基于原点定位，当一个使用 Root Motion 
-的动画播放到结束时，模型已经偏移原点。所以，当下一个动画跟着播放时，又瞬时回到了原点，这里就有位移差
-要处理好才能将两个动画无缝拼接起来。3D 动画技术中，模型网格的骨架用于为角色提供推动力，动画师常用的
-技术是使用根骨骼为其余骨骼提供运动。这允许角色的步行可以稳贴地板，产生真实的角色动画，而不会出现摩擦
-地板的脚掌拖动现象。
-
-对于一个动画而言，只是角色运动中的一个周期而已，当动画播放完一个周期，它又需要让图像恢复原位，再从头
-来过，这样周而复始地播放。在实际使用中，动画循环播放应该产生连续的位移，而不是来回跳动。
-
-
-Godot 中播放动画时，亦可以使用根骨骼作为根运动轨迹 Root Motion Track，这样将在视觉上取消骨骼变换，
-动画将保持位置不变。根运动轨迹可以通过 get_root_motion_track() 获取再传递给 KinematicBody 的
-**move_and_slide()** 方法以控制角色运动。
-
-RootMotionView 是一个工具节点，放置在场景中当作地板，为角色动画提供参照，在游戏中时默认是禁用的。
-
-使用官文展示的一组青蛙 Sprites 为例，它可以制作为一个跳跃动画，这个跳跃动作会产生位移：
-
-![Frog Spritesheet](https://docs.godotengine.org/en/3.5/_images/2d_animation_frog_spritesheet.png)
-
-假定制作了 jump_left 和 jump_right 两个跳跃动画，因为图像的青蛙是向左的，如果在 Sprte 显示
-图像，可以通过设置 scale.x 为 -1 进行左右反转，从而得到向右的图像。使用 AnimationPlayer 制作
-动画时，是可以知道角色移动距离的，那么在动画播放完成时，通过接收 animation_finished 信号，并在
-信号触发时主动移动相应的距离，然后再开始下一轮的动画播放，这样移动就可以衔接起来。注意 Loop 方式开启
-AnimationPlayer 就不会发出 animation_finished 信号。另外，通过 AnimationTree 触发的动画
-播放行为也不会生产 AnimationPlayer 的这些动画播放的相关信号，因为它们属于不同的对象。
-
-
-以最简单的 1D 混合空间为例，给 AnimationTree 添加上 **AnimationNodeBlendSpace1D** 根节点，
-打开 Bottom Panel 中的动画树面板，可以看到混合编辑器中只是一维的时间坐标轴，可以往不同的位置添加
-动画节点，或者嵌套地添加其它 Animation Root 根节点用来混合更多的子节点。
-
-直接通过 Create Points -> Add Animation 将两个青蛙跳跃动画添加到轴线上，然后设置 Blending 
-Position，在两个动画定位点之间移动，即混合两个动画的数据。在正中中间时，因为动画使用的 scale.x
-分别为 1 和反转时的 -1，所以结果会将青蛙的图形的 scale.x 混合为 0，使用得图像不可见。将混合点
-移动到任意一侧，则结果就是完全输出最靠近的这个动画，另一个动画对结果完全没有影响。
-
-2D 混合空间则可以在二维空间中设置混合点，在二维空间中至少放置 3 个动画点，以形成一个 2D 图形区域，
-当混合点与动画点越接近时就得到这个动画点的更多混合量，直到完全输出这个动画点的动画：
-
-![BlendSpace2D](https://docs.godotengine.org/en/3.5/_images/animtree8.gif)
-
-2D 混合模式有三种选择，默认情况下，Blend Mode 为线性模式，通过在最近的三角形内插入点进行混合。
-处理 2D 动画（逐帧）时，可能需要切换到离散模式 Discrete mode，下拉菜单中显示为 3 个点。或者，
-如果希望在离散动画之间切换时保持当前播放位置，则使用有进位模式 Carry mode。
-
-同样使用青蛙的跳跃动画来演示状态机的使用，给动画树添加 StateMachine 根节点，然后在底面板的动画树
-编辑器中，点击状态机管理界面中的 + 号增加动画节点，分别添加 jump_left、jump_right，还有动画树
-默认提供的 RESET，即休息节点，没有动画的静止状态。然后，点击穿线箭头图标，看起来像飞机，给三个状态
-添加连接线，使用 RESET 与其它两个动画实现双向连接，而两个跳跃动画相互不连接。
-
-例如，当前处于 jump_left 状态中，播放的就是向左跳跃动画。然后，再点击 jump_right 状态的播放图标，
-如果 Play Mode 设置为遍历模式 Travel，表示状态不会直接从 jump_left 切换到 jump_rigth 状态，
-而是按连接线，先切换到 RESET 状态，再切换到 jump_right 动画状态。
-
-状态机中每个节点都是一个状态，对应的一个动画，点击状态节点上的播放图标就可以切换到这个状态。节点上
-显示的文字就是状态名称，调用 **start()** 等方法做状态转换时，需要使用这个名称，不因为有空格导致
-状态名称不匹配而不能播放动画。节点状态会一直保持播放状态，除非调用 **stop()** 方法停止。
-
-注意，默认的 **RESET** 动画用于最初加载对象时的姿态，只有一个帧，并且不期待被用于时间轴的回放。
-为了动画混合结果可以重播保持一致，要混合的属性需要设置初始值。所以，在状态机中执行了 RESET 动画
-状态时，它可能会影响到其它和 RESET 相关的动画。
-
-对于 Skeleton3D 骨骼使用位置/旋转/缩放 3D 轨迹时，初始值为复位骨骼 Bone Rest。对于其他属性，
-初始值是 0，如果轨迹出现在 **RESET** 动画中，则使用其第一个关键帧的值。
-
-2D 或者 3D 的旋转轨道设置的插值方式为线性角或者立方体角度时，Linear Angle or Cubic Angle，
-可以用来限制旋转角度保持在与初始角度到 180 度的范围，这可以用来避免角色肢体发生违反生理现象的旋转。
-可以在混合动画时防止骨骼穿透身体，因此，Skeleton3D 的 Bone Rest 值应尽可能接近可移动范围的中点。
-这意味着，对于人形模型，最好以 T 形姿势导入。像上面的角色演示动画这样，可以看到动画按 Bone Rests
-位置优化最短的旋转路径，而不是两个动画之间的最短旋转路径。
-
-需要通过混合动画旋转 Skeleton3D 超过 180 度的情况，可以考虑使用 Root Motion 功能。通过动画树
-获取到的 Root Motion 是一个变换矩阵对象，它包含了根骨骼的实时运动，可以将这个变换信息传递给角色
-控制类型的运动处理方法就可以让动画前后流畅地拼接起来：
-
-```py
-func _process(delta):
-    var motion:Transform = animation_tree.get_root_motion_transform()
-    # This can be fed to functions to control the character movement, such as 
-    # KinematicBody.move_and_slide (Godot 3.x)
-    # CharacterBody3D.move_and_slide (Godot 4.x) 
-```
-
-状态转换模式设置决定了状态机如何切换动画，有 3 个切换模式：
-
-- Immediate：立即模式，将立即切换到下一状态，当前状态将结束并融入新状态的开始。
-- Sync：同步模式，将立即切换到下一个状态，但会 seek 寻找到新状态到与旧状态一致的回放位置。
-- At End：结束时模式，将等待当前状态播放结束，然后切换到下一个状态动画的开始。
-
-
-A* 算法实现的遍历功能是 Godot 的 StateMachine 实现中的一个很好的特性，可以指示从当前状态转到
-另一个状态图，同时访问所有中间状态。要使用状态遍历功能或进行状态转换，首先，从动画树节点检索出状态机
-回放对象 **AnimationNodeStateMachinePlayback**。注意，它通过导出的属性引用，属性导出路径可以
-在动画树的属性面板中找 Parameters -> Playback，拖动属性到脚本编辑器中即可，然后使用 Object 
-**get()** 方法获取。调用 **get_travel_path()** 可以获取遍历的路径：
-
-```py
-# AnimationNodeStateMachinePlayback
-var playback_path = "parameters/playback" # or parameters/StateMachine/playback
-var state_machine = $AnimationTree.get(playback_path)
-state_machine.travel("jump_left")
-state_machine.start("jump_right")
-```
-
-对于已对配置好的动画树根节点，可以在动画树的属性探测器面板中点击 Tree Root 属性右侧的下拉菜单保存
-到动画树资源文件中，以便后续再使用。Blend Tree 编辑器也可以保存节点资源配置，操作麻烦点：
-
-- 点击 Blend Tree 属性探测器面板上下拉菜单，竖直的三个点图标，执行 Make Resource Built-in；
-- 点击磁盘图标弹出菜单的 Save 执行关联式保存，这种方式会将节点关联到一个资源文件，保存项目时也会写入；
-- 或者，直接点击 Save As... 另存资源文件，这种方式不会执行关联操作，保存项目时也不会主动写入这个文件；
-- 对于已经关联保存的节点资源文件，可以再次执行 Make Resource Built-in 将资源数据内置，不再使用文件；
-
-为了方便复用已经配置好的动画节点资源，根据需要选择这两种资源保存方式，关联式保存可以在修改节点后自动在
-保存项目时更新资源文件，非关联式保存则可以避免这种自动更新，对于不需要或很少更新资源，就不需要关联。
-
-
-**Blend Tree** 混合树可以混合不同的根节点，它总是有一个默认输出节点，AnimationNodeOutput，
-可以将各种混合节点连接到输出节点，也可添加不同类型的混合节点，以混合多个动画：
-
-- **AnimationNodeAdd2** 2 端口叠加混合，Add Amount 指定叠加比例，0.0 表示不叠加 add 端口。
-- **AnimationNodeAdd3** 3 端口叠加混合，Add Amount 指定叠加比例，0.0 表示不叠加 ±add 端口。
-- **AnimationNodeBlend2** 2 端口混合，Blend Amount 指定混合比例，0.0 表示不混合 bledn 端口。
-- **AnimationNodeBlend3** 3 端口混合，Blend Amount 指定混合比例，0.0 表示不混合 ±bledn 端口。
-- **AnimationNodeOneShot** 单次触发，Active 打开时，表示触发 shot 输入端口的动画。
-- **AnimationNodeTimeScale** 时间缩放，对输入端的动画进行速度缩放，0 表示动画停止。
-- **AnimationNodeTimeSeek** 动画时间定位，用于改变动画回放时间点。
-- **AnimationNodeTransition** 是一个简单状态机，适用于不需要更高级的状态机的情况。
-
-其中 NodeAdd2、NodeAdd3、NodeBlend2、OneShot 这三种混合方式都可以设置过滤器动画轨道，即可以
-单独控制哪些轨迹通过混合功能，这对于将动画层叠在一起非常有用。点击 Edit Filters，勾选激活选项，
-并设置需要作为过滤器的动画轨道，以混合使用这些轨道控制动画。
-
-叠加与混合两种方式的差别在于，叠加方式是加法器，Add Mount 为 1.0 时 add 端口的动画会完全叠加在
-in 端口输入的动画上，所以可以用来组织多个角色的动画，一个 Blend Tree 就可以安排多个角色的动画。
-而混合方式 Blend 表示 Mixture 的意思，搅拌在一起，Blend Amount 设置为 1.0 表示混合的结果只
-有 Blend 端口的动画，in 端口的动画完全没有。反之，0.0 表示只会播放 in 端口的动画，Blend 端口的
-动画完全不考虑。其它值则表示在输入动画之间的混合状态。Blend3 的混合比例在 [-1.0, 1.0]，-1 和 1
-分别表示只输出 -blend 和 +blend 端口输入的动画，设置为 0.0 表示只输出 in 端口的动画。
-
-以下是 Blend2 混合节点的效果演示：
-
-![Blend2](https://docs.godotengine.org/en/latest/_images/blending5.webp)
-
-所有混合节点都作为导出属性，属性访问路径通过动画树的属性探测器面板获取，Parameters 包含所有已添加节点。
-
-OneShot 混合根据动画是否启用 Loop 循环播放有不同表现，shot 端口输入的动画在不启动循环播放状态下，
-播放完成时就会返回到 in 端口的动画状态。通常用来给角色添加开火的动作，所以叫做单次射击。
-
-Transition 做简单的状态转换，可以添加多个状态，状态之间转换时间可以在 Xfade Time 属性中设置，
-设置 Input Count 确定好输入端口数量，即状态数量，然后将动画连接到输入端口。然后通过导出的 current
-属性设置当前状态，状态机就会从上一个状态转换到新的状态。此功能在 Godot 3.x 中还不完善，在属性面板中
-添加输入端口后，会提示状态端口没有连接，编辑界面也没有及时更新，可以在添加端口后将 Transition 连接
-到其它端口再断开试试，不行就可能需要重新加载动画树或场景。
-
-Transition 提供了一个自动推进选项 Auto Advance，激活它，当前状态转换完成后，即动画播放完成后，
-自动推进到下一个状态。如果所有状都激活了自动推进，就会像 Loop 模式一样循环播放各个状态的动画。
-
-TimeSeek 做动画回放时间定位时，在设置好 seek_position 时间点后，会自动在下一处理帧进入睡眠模式，
-通过设置 seek_position 值为 -1.0 使其不再有作用。
-
-```py
-# Play child animation from the start.
-animation_tree.set("parameters/Seek/seek_position", 0.0)
-# Alternative syntax (same result as above).
-animation_tree["parameters/Seek/seek_position"] = 0.0
-
-# Play child animation from 12 second timestamp.
-animation_tree.set("parameters/Seek/seek_position", 12.0)
-# Alternative syntax (same result as above).
-animation_tree["parameters/Seek/seek_position"] = 12.0
-```
-
-混合树的可视化节点编辑目前操作上还不流畅，而且所有连接到 Output 节点，所有输入端口必需有连接，否则
-不能正常播放动画。节点连接操作也不是很便利，必需先断开原有连接，才能连接新的节点。
 
 
 
@@ -5775,6 +6471,7 @@ Godot 可以使用 GIProbe, ReflectionProbe, Sky 或恒定的环境色来模拟�
 - Texturing and Modeling, Third Edition: A Procedural Approach. David S. Ebert, F. Kenton Musgrave, Darwyn Peachey, Ken Perlin, Steve Worley (2002)
 - The Science of Fractal Images, Heinz-Otto Peitgen (1988)
 - Matlab Documentation - Symbolic Math Toolbox - Mathematics: Equation solving, formula simplification, calculus, linear algebra, and more
+- [Random number generation](https://docs.godotengine.org/en/stable/tutorials/math/random_number_generation.html)
 
 计算机图形学其中一个问题是噪声，世界随处都可见的噪声看似杂乱无章，其实有迹可循。最简单的白噪声 White Noise
 是一些毫无关联的像素构成，这些像素都是一个独立随机的点，自然办大量存在。而一些有规律的噪声，如细胞结构、树皮
@@ -5943,7 +6640,65 @@ Ken Perlin 对 Simplex Noise 算法的一个优化是将三次 Hermite 函数即
 而 Inigo Quilez 展示在 Raymarching distance fields - 2008 上的数学作画能力绝对可以开拓
 你对于数学的原有认识，它就真的像上帝！
 
+计算机不能有产生真正的随机数，只能通过算法生成伪随机数序列来模拟随机性质，pseudorandom number generators (PRNGs)。
+Godot 提供全局的随机函数，以及 RandomNumberGenerator 类型，在使用 rand 或 randi 获取伪随机
+数值时，需要先在 ready 中调用 randomize() 初始化方法，以产生不同的伪随机数序列： 
 
+```py
+var _fruits = ["apple", "orange", "pear", "banana"]
+
+func _ready():
+    randomize()
+
+    for i in range(100):
+        # Pick 100 fruits randomly.
+        print(get_fruit())
+
+
+func get_fruit():
+    var random_fruit = _fruits[randi() % _fruits.size()]
+    # Returns "apple", "orange", "pear", or "banana" every time the code runs.
+    # We may get the same fruit multiple times in a row.
+    return random_fruit
+
+```
+
+
+Godot 3.x 提供 OpenSimplexNoise 类型作为噪声生成器，Godot 4.x 则使用 FastNoiseLite 类型
+生成 1D, 2D, 3D, 4D 的噪声：
+
+```py
+# Godot 3.x
+var _noise = OpenSimplexNoise.new()
+
+func _ready():
+    randomize()
+    # Configure the OpenSimplexNoise instance.
+    _noise.seed = randi()
+    _noise.octaves = 4
+    _noise.period = 20.0
+    _noise.persistence = 0.8
+
+    for i in 100:
+        # Prints a slowly-changing series of floating-point numbers
+        # between -1.0 and 1.0.
+        print(_noise.get_noise_1d(i))
+
+# Godot 4.x
+var _noise = FastNoiseLite.new()
+
+func _ready():
+    randomize()
+    # Configure the FastNoiseLite instance.
+    _noise.seed = randi()
+    _noise.fractal_octaves = 4
+    _noise.frequency = 1.0 / 20.0
+
+    for i in 100:
+        # Prints a slowly-changing series of floating-point numbers
+        # between -1.0 and 1.0.
+        print(_noise.get_noise_1d(i))
+```
 
 
 ## 🟡🟠 Shader Programming 着色器 - GPU 编程
@@ -6942,7 +7697,7 @@ mesh.material.set_shader_param("normalmap", sometexture)
 因为，vertex 着色器是为每个顶点设置属性使用的，会为每个顶点调用，而 fragment 着色器则为每个像素调用。
 
 
-以下着色器实现波浪特效，在场景中创建一个 MeshInstance3D 节点，再给它赋予一个 PlaneMesh 风格，
+以下着色器实现波浪特效，在场景中创建一个 MeshInstance3D 节点，再给它赋予一个 PlaneMesh 网格，
 这是 Godot 内置的一些最简单的模型，给 Plane 设置细分到 100 格左右的方阵即可。通过 3D 视图的菜单
 切换为 Display wireframe 显示线框，可以看到网格中包含了许多三角形，这些都 PrimitiveMeshes，
 也是 OpenGL 绘图中最基本的图元，就像点、线、多边形一样，都是最简单的图形结构。
@@ -7364,9 +8119,729 @@ void fragment()
 
 
 
+
+## 🟡🟠 2D Animation 平面动画
+- [Animation Retargeting in Godot 4.0](https://godotengine.org/article/animation-retargeting-in-godot-4-0)
+- [Movie Maker mode arrives in Godot 4.0](https://godotengine.org/article/movie-maker-mode-arrives-in-godot-4)
+- [Creating movies](https://docs.godotengine.org/en/latest/tutorials/animation/creating_movies.html)
+- [How to make your bullets look awesome in Godot - Advanced Trails](https://www.bilibili.com/video/BV1iA411A7gz/)
+
+
+### 🟢🔵 TileMap 瓦片地图
+- [Abstract Platformer](https://kenney.nl/assets/abstract-platformer)
+- [Godot Advanced Trails Examples](https://github.com/RPicster/Godot-Advanced-Trails-Examples)
+- [Using TileMaps](https://docs.godotengine.org/en/3.6/tutorials/2d/using_tilemaps.html)
+- [Using GridMaps](https://docs.godotengine.org/en/latest/tutorials/3d/using_gridmaps.html)
+
+官方文档推荐了一个动画资源 Abstract Platformer，这组资源可以用来做 TileMap、AnimatedSprite
+之类的动画演示。或者，使用官文展示的一组青蛙 Sprites：
+
+![Frog Spritesheet](https://docs.godotengine.org/en/3.5/_images/2d_animation_frog_spritesheet.png)
+
+TileMap 瓦片地图是 2D 游戏常见的技术，通过定义瓦片图集 TileSet，就是将图片按区域划分最小的区块，
+然后，再用类似绘画的方式一样，将瓦片图绘制到 TileMap 上，最后得到的一个游戏关卡地图。技术上来讲，
+TileMap 就是一个按格子分割的区域，用格子的形式来记录什么位置的格子要绘制什么图像。
+
+TileMap 中的图像常采用斜角地图的形式，即 Isometric View，即等距视角下的地图，和透视相对，是指
+视野内的物体，无论远近都用同一大小来表现，而绘画中常用的透视 Perspective 却是远小近大。
+
+使用多个 TileMap 可以在同一块位置添加多张图像，以得到合适的场景。
+
+![TileMap Tool](https://docs.godotengine.org/en/3.6/_images/tilemap_tool.png)
+
+点击打开编辑界面，为 TileMap 创建新的瓦片集，在 TileSet 中导致图像等资源，并将其分割成瓦片图。
+可以每次一张图像作为一个瓦片导入，也可以将一张图片分割成多个瓦片，方格化批量方式称为 Atlas tiles。
+
+先将源图片导入瓦片集中，然后点击 New Single Tile 创建第一个瓦片，通过拖动出一个矩形区 Region
+定义好这个瓦片所使用的图像区域。要编辑已有的瓦片，点击 Edit 进行编辑状态，点击需要编辑的瓦片，然后
+拖动鼠标重新定义瓦片区域。瓦片的其它属性，如名称等，可以在属性探测器面板中设置。
+
+有了第一块瓦片，就可以将它绘制到 TileMap 中的网格上了。
+
+对于代表玩家不能穿越的区域，可以给瓦片设置碰撞检测区，在瓦片编辑状态下，点击 Collision 定义一个
+矩形，或者多边形作为碰撞检测时的参考区。
+
+遮挡、导航形状区域定义用于 AI 寻路导航使用。
+
+
+除了以上 Single Tile 方式单个地创建瓦片，还可以使用以下两种方式定义瓦片：
+
+Atlas tiles：可以为图集一次定义一组瓦片，而不是一次添加一个，并且这种方式可以在绘画到 TileMap
+时打开 Enabled Priority 以随机生成瓦片。并且，可以为其中任意的瓦片定义碰撞检测区。这种模式下，
+可以在 Icon Mode 下选择一个图案作为在 TileMap 绘图列表的图标显示。而 Z-Index 模式则用来定义
+各个瓦片的绘图时的 Z 深度值。还有优先级模式 Priority Mode 用来设置瓦片出现的随机概率值。
+
+Autotiles 用于地形编辑，允许一次定义一组平铺，然后根据相邻单元格的内容添加规则来控制用于绘图的平铺，
+瓦片选择由位掩码控制。单击 Bitmask 设置位掩码，然后单击要添加或删除掩码的瓦片进行设置：
+
+- 左键单击瓦片的某个区域可添加 “on” 标记位，显示为红色；
+- 右键点击设置 “off” 标记位，正常状态；
+- Shift + 左键单击可设置 “ignore” 标记位，显示为蓝色；
+
+每个瓦片可设置的 Bitmask 数量通过属性面板 Autotile bitmask mode 设置，允许设置为：
+
+- “2x2” 模式包含 4 个标记位，对应瓦片的四个角；
+- “3x3 (minimal)” 模式包含 9 个标记位，四个角标记位功能同上；
+- “3x3”。
+
+必须满足所有 “open” 和 “off” 的标记位，才能匹配位掩码，但忽略 “ignore” 标记位。
+
+Godot 使用 Autotiles 更新单元格时，首先会根据已设置的相邻单元格创建图案。它在 Autotiles 中搜索
+具有与创建的图案匹配的位掩码的瓦片，如果找不到匹配的位掩码，将改用 “Icon” 瓦片。如果找到多个匹配，
+将根据优先级设置随机选择其中一个。
+
+以最简单的 2x2 模式为例，瓦片的四个角都有一个 bitmask：
+
+- "on"（图中红色）状态下的边角要与同相状态的瓦片相连接；
+- "off"（图中白色）状态下的边角要与至少有一个 "off" 状态设置的瓦片相连；
+
+![2x2 bistmask](https://docs.godotengine.org/en/3.6/_images/autotile_template_2x2.png)
+
+另外，通过编程，可以批量修改 TileMap 的内容，TileSet 提供了方法根据 tile 名称获取 ID，然后可以
+在 TileMap 中定位到全部使用了 ID 对应的图像的格子坐标，这个坐标是格子的行列坐标，和世界坐标之间
+可以相互转换。给 set_cell() 传递 -1 作为 tile ID 则可以清空格子内容。编辑 Tile 时，会自动设置
+ID，并显示在瓦片名称前。
+
+通过这些方法，可以使用 TileMap 绘制各种对象的占位符号，然后编程替换成需要的节点对象。Godot 4.x
+版本中，直接可以在 TileMap 中将场景当作 tile 使用。 
+
+```py
+# TileSet
+int find_tile_by_name(name: String) const
+
+# TileMap
+Array get_used_cells_by_id(id: int) const
+Vector2 world_to_map(world_position: Vector2) const
+Vector2 map_to_world(map_position: Vector2, ignore_half_ofs: bool = false) const
+
+# Node2D
+Vector2 to_global(local_point: Vector2) const
+Vector2 to_local(global_point: Vector2) const
+```
+
+通过 get_used_cells 返回的一系列坐标指示了，TileMap 哪个格子上已经绘制了瓦片图，坐标对应左上角
+为原点，右下角为正方向。
+
+Godot 4.x 使用了全新的 TileMap 界面，并且引入场景的支持，可以将场景作为瓦片图使用。并且，底部工具
+面板中相应显示为 TileSet、TileMap 两个面板。旧版本中，在 2D 场景面板工具栏中的功能移到了 TileMap
+面板中，并且新增了 Line、Rect 两种绘制工具。部分属性面板内容也移动到 TileSet 面板中，包括以下属性组：
+
+- Animation
+- Rendering
+- Terrains
+
+新增了 Atlas Merging Tool 用于合并瓦片图，在 TileSet 面板中的弹出菜找到。
+
+引入图层管理瓦片，在属性面板 Layers 添加图层，绘制时在 TileMap 面板右上角选择所在图层，绘制在同
+一图层上的瓦片图使用相同的层设置，如色彩调制。新旧版本的 API 上也有差别：
+
+    void set_cell ( int x, int y, int tile, ...)
+    void set_cellv ( Vector2 position, int tile, ... )
+
+    void set_cell ( int layer, Vector2i coords, int source_id=-1, Vector2i atlas_coords=Vector2i(-1, -1), int alternative_tile=0 )
+    void set_cells_terrain_connect ( int layer, Vector2i[] cells, int terrain_set, int terrain, bool ignore_empty_terrains=true )
+    void set_cells_terrain_path ( int layer, Vector2i[] path, int terrain_set, int terrain, bool ignore_empty_terrains=true )
+
+ 和旧版本的瓦片 ID 不同，新版本引入了 source_id 作为瓦片集来源，并且需要通过 atlas_coords 指定
+ 瓦片图的坐标所在。所以，官方示范工程 2d navigation_astar 需要按以下代码迁移升级：
+
+    #set_cell(point_start.x, point_start.y, 1)
+    #set_cell(point_end.x, point_end.y, 2)
+
+    set_cell(0, point_start, 1, Vector2i(0, 0))
+    set_cell(0, point_end, 2, Vector2i(0, 0))
+
+
+要将场景作为瓦片使用，则在 TileSet 中添加一个 Scenes Collection，并且将场景资源添加进来。
+
+将图像导入 TileSet 中，会自动提示是否需要使用自动创建瓦片集，可以激活 Eraser 工具，通过点击擦除瓦片区。
+如果手动创建瓦片定义，就需要取消 Eraser 工具，并点击图片进行定义，默认为 Tile Size 设置的格子像素大小。
+可以在 Select 面板中修改瓦片的大小，只需要周边保留有足够的空白区。创建瓦片时，按下 Shift 拖动创建任意
+格子大小的瓦片。
+
+要将瓦片绘制到场景时，就切换到 TileMap 面板，并选择已经定义好的瓦片进行绘制，有 4 种绘制工具：
+
+- Paint (D)
+- Line (L)
+- Rect (R)
+- Bucket (B)
+
+选择多个瓦片，还可以配合 Place Random Tile 进行随机绘制，投掷图标按键打开此功能。
+
+地形是瓦片图集需要提供的基本功能，比如，绘制一片草地，在未绘制的区域显示为水塘，这就是地形的基本表现。
+不同于旧版的 bitmask 设置方式，Godot 4.x 将面板拆分到属性探测器面板，以及 TileSet 面板两部分。
+TileMap 节点的属性页面板中，弹开 Tile Set 面板，可以在 Terain Set 中创建地形集定义，并设置模式
+和添加多个地形名称定义，每个地形可以一个名字和一个颜色进行标记，模式有对应有 3 种：
+
+- Match Corners and Sides (3x3)
+- Match Corners (2x2)
+- Match Sides
+
+然后，在主界面底部的 TileSet 面板中，激活 Paint 绘制属性，选择属性 Rendering - Terrains，
+然后，通过 Painting 列表中选择的项目进行 bitmask 数据绘制：
+
+- Terrain Set 设置瓦片归属于某个地形集，-1 表示不属于任何地形图集。
+- Terrain 设置瓦片归属于这个地形集的某个地形，比如，一个地形集可能定义有草地、森林两种地形。
+
+绘制地形时，就切换到 TileMap 面板，并选择 Terrains 栏目中列出的地形定义。
+
+
+### 🟢🔵 Tween & AnimationPlayer 缓动曲线动画
+- [SceneTreeTween](https://docs.godotengine.org/en/stable/classes/class_scenetreetween.html)
+- [Tween](https://docs.godotengine.org/en/stable/classes/class_tween.html)
+- [Canvas layers](https://docs.godotengine.org/en/3.6/tutorials/2d/canvas_layers.html)
+- [2D Sprite animation](https://docs.godotengine.org/en/3.5/tutorials/2d/2d_sprite_animation.html)
+
+缓动曲线是用数学公式计算一个时间段内某一个变量的平滑变化产生动画的技术，例如，在 1s 时间内将节点
+的 x 位置坐标从 0 慢慢增加到 100，这种平滑的变化有不同的公式产生不同的动画效果，曲线参考图如下：
+
+![Tween easing and transition types cheatsheet](https://raw.githubusercontent.com/godotengine/godot-docs/master/img/tween_cheatsheet.png)
+
+使用 SceneTreeTween 和旧式的 Tween 对象创建缓动曲线动画变换效果，这是最基本的 2D 动画技术。
+
+2D 动画涉及到的节点类型除了缓动程序，还包括但不仅限如下这些：
+
+|     Objects      |         Base Type          |
+|------------------|----------------------------|
+| SpriteFrames     | Resource                   |
+| AnimatedTexture  | Texture < Resource         |
+| Animation        | Resource                   |
+| Sprite           | Node2D < CanvasItem < Node |
+| AnimatedSprite   | Node2D < CanvasItem < Node |
+| AnimatedSprite3D | Spatial < Node             |
+| AnimationPlayer  | Node                       |
+| AnimationTree    | Node                       |
+
+前两个资源类型用于包装动画图像资源，而 Animation 动画资源则作为动画轨道记录动画帧属性。
+
+SpriteFrames 包装动画帧图像资源，可以包含多个动画配置。
+
+AnimatedTexture 是动态纹理资源，本身就具有动画播放能力。作为一个资源类型，类似使用图片纹理对象。
+但可以设置多个帧，而不是一张静态图片，然后可以提供给 AnimatedSprite、TileMap 等需要图像资源的
+节点使用。用户可以对帧率 FPS、每帧延时，或者暂停、单次播放 Oneshot 等进行设置。Godot 引擎架构中
+负责视觉处理的 VisualServer 以动态纹理规定的速率按顺序绘制区域。好消息是，这不涉及引擎的额外逻辑。
+坏消息是，用户几乎没有控制权。
+
+例如，AnimatedTexture + AnimatedSprite 组合，这就有了双重动画，一边 AnimatedTexture 按自己
+的动画节凑播放各帧图像，每一帧的图像输出又被 AnimatedSprite 重新制作的动画进行播放。也就是前者负责
+变换图片，后者负责制作动画，二者组合得到最终效果。用在大量的自动动画背景中，单个批处理绘制调用就可完成渲染。
+
+
+AnimatedSprite + SpriteFrames 组合制作图片帧动画，可以创建多个动画。对比单独使用 Sprite 节点，
+它加载一张 Spritesheet 图像，则只能创建一个动画，但如果用好 **AnimationPlayer** 来控制其属性，
+也可以创建多个动画资源。AnimatedSprite3D 则是在 3D 场景下创建的一个能展示帧动画的 2D 平面。
+
+动画资源类型 **Animation** 保存的是动画相关数据，在 AnimationPlayer 编辑界面中以轨道的形式展示，
+也可以通过编程方式设置动画轨道及关键帧数据：
+
+```py
+# This creates an animation that makes the node "Enemy" move to the right by
+# 100 pixels in 0.5 seconds.
+var animation = Animation.new()
+var track_index = animation.add_track(Animation.TYPE_VALUE)
+animation.track_set_path(track_index, "Enemy:position:x")
+animation.track_insert_key(track_index, 0.0, 0)
+animation.track_insert_key(track_index, 0.5, 100)
+```
+
+AnimationPlayer 节点作为关键帧动画，通过 Animation 资源类型记录场景内其它节点的属性变化来生产动画，
+可以创建多个动画，以对象属性轨道的方式编辑，它还可以用于各种动画 2D 动画：
+
+- Cut-Out animations: 剪影动画，如皮影戏的效果；
+- 2D Mesh animations: 绑定骨骼控制图像的变形；
+
+Animation 可以记录 6 种轨道数据，TrackType 定义的值如下：
+
+● **TYPE_VALUE** 属性轨道，只记录可以插值的属性。
+● **TYPE_TRANSFORM** 变换矩阵轨道，用于改变节点局部变换、骨骼姿态。
+● **TYPE_METHOD** 方法调用轨道，设置要在动画播放时触发的函数，可以带参数。
+● **TYPE_BEZIER** 贝塞尔曲线自定义插值轨道，可以对向量、颜色等属性的分量做动画。
+● **TYPE_AUDIO** 音频轨道，使用 AudioStreamPlayer 播放音频流，可以在动画中修剪和预览该流。
+● **TYPE_ANIMATION** 动画轨道，用于播放其它 AnimationPlayer 节点的动画。
+
+动画播放器可以配合 Path2D、Path3D 以及 PathFollw 可以制作运动路径跟随，内嵌 RemoteTransform
+作为子节点，它可以将自身的位置等状态，包含路径运动的产生的运动信息，发送给其它对象以实现路径跟随运动，
+例如用路径控制运动学刚体 KinematicBody。
+
+
+视差，即远慢近快的视觉现象，是常被 2D 采用的一种动画技术，游戏、动画片中非常多应用，使用视差背景图节点
+ParallaxBackground，就可以实现，继承自 CanvasLayer。将视差图层节点 ParallaxLayer 放置到视差
+背影节点内，设置视差图层的 Motion 属性以确定视差效果。
+
+最主要的 Scale 参数，决定了视差图层与相机运动的速度比例，0 表示固定不动，类似 CanvasLayer 图层
+下的节点一样固定位置。设置 [0, 1] 表示比相机运动速度慢，通常就是远景的设置，大于 1 就是近景的设置。
+
+场景中总是存在 Viewport，至少场景树的顶级有一个不可见的 Viewport，它设置了 canvas_transform，
+允许对它所包含的 CanvasItem 施加一个自定义的 Transform2D 变换. Camera2D 的主要工作方式就是
+改变这个 Transform2D 变换实现画布内容的变换控制。
+
+![CanvasLayers](https://docs.godotengine.org/en/3.6/_images/canvaslayers.png)
+
+在 3D 场景中也可以使用 **CanvasLayer** 来显示 2D 节点内容，避免受到画布因相机视角变换的影响，
+可以实现的功能不仅以下功能：
+
+- Parallax Backgrounds 视差效果，配合 ParallaxLayer 节点设置背景图片，可以设置镜像延伸。
+- UI: 游戏中的用户界面，或者 head-up display (HUD) ，它们应该固定在屏幕中，不随游戏世界变换。
+- Transitions: 视觉变换，如渐变、混合效果，这些内容也固定位置。
+
+类似的，CanvasItem 提供了一个方法，**set_as_toplevel()** 可以将 2D 节点添加顶级状态，以避免
+受到父级的变换影响，同时绘图时会覆盖在其它未标记为 Top Level 的基点。
+
+场景中可以使用一个 **WorldEnvironment** 节点，同时只能有一个，包括继承的场景在内。然后为环境节点
+创建一个 **Environment** 资源，用于配置环境，如设置背景属性：
+
+- Background Mode 设置为 Canvas 模式；
+- Canvas Max Layer 设置一个序数，层序小于这个值的 CanvasLayer 就会当作背景层；
+
+Layer 序号越大，绘图顺序越靠后，就可以覆盖其它 Layer 更小的节点。2D 场景默认图层绘画顺序为 0，如果
+CanvasLayer 序号设置为更小的值，如 -1 则会先行绘制，作为背景。CanvasLayers 拥有独立的绘图顺序，
+由 Layer 序号决定，它们独立于场景树的节点顺序，可以在需要时调整。
+
+
+场景中相机运动可以使用以下代码片段，使用鼠标移动来决定相机位置：
+
+```py
+exetends Node2D
+
+onready var camera_2d = $Camera2D
+
+func _input(event):
+    if event is InputEventMouseMotion:
+        #camera_2d.anchor_mode = Camera2D.ANCHOR_MODE_FIXED_TOP_LEFT
+        camera_2d.position = (event.position - get_viewport().size/2) / 2
+```
+
+
+动画的基本原理就是连续的相似图像在人眼的视觉暂留产生的运动感觉，2D Sprite animation 就是将一组
+相似的但又有关键区别的图像按指定时间间隔播放的动画效果，在场景中使用 **AnimatedSprite** 节点，
+在属性探测器中设置节点的 Frames 属性，它关联一个 **SpriteFrames** 动画帧资源，包含多个动画配置，
+可供 AnimatedSprite 或 AnimatedSprite3D 播放。
+
+
+打开动画帧资源，在动画帧编辑面板中有一个默认的 default 动画，根据需要创建更多的动画，如行走、跳动
+等等，然后为每个动画导入相关图片，可以是单张单个动作的图像，或者一张包含所有动作的 Sprites 图像，
+即 Sprites Sheet 图像，要求各个动作图像大小相等，导入后需要通过画网格来定位。
+
+然后，设置帧动画的播放速度 Speed，默认为 5 FPS，即每秒 5 帧，还可以勾选 Loop 表示循环播放不终止。
+AnimatedSprite 播放完每一个动画时，会发布一个 **animation_finished** 信号，可以利用它来做
+动画转换以完成动画组合。
+
+```py
+onready var animated_sprite = $ColorRect/AnimatedSprite
+
+
+func _on_AnimatedSprite_animation_finished():
+    print("AnimatedSprite finished ", animated_sprite.animation)
+
+
+func _on_ColorRect_gui_input(event):
+    if event is InputEventMouseButton and event.is_pressed():
+        var ans = animated_sprite.frames.get_animation_names()
+        var idx = ans.find(animated_sprite.animation)
+        idx = (idx + 1) % ans.size()
+        animated_sprite.play(ans[idx])
+```
+
+以下是定制 Sprite 实现的 MyAnimatedSprite 动画节点：
+
+```py
+extends Sprite
+class_name MyAnimatedSprite
+
+signal animation_finished
+
+var timer:Timer = Timer.new()
+
+export(int, 0, 120, 1) var FPS = 4
+export(bool) var pause = false setget set_pause
+export(bool) var loop = false
+export(bool) var TextureMovtion = true setget set_TextureMovtion
+
+func _enter_tree():
+    timer.connect("timeout", self, "_on_Timer_timeout")
+    add_child(timer)
+
+func _ready():
+    connect("animation_finished", self, "_on_animation_finished")
+    set_animation()
+    
+func _input(event):
+    if event.is_pressed() and event is InputEventMouseButton:
+        var mouse = event as InputEventMouseButton
+        var distance = position.distance_to(mouse.position)
+        if distance > 32:
+            return
+        if mouse.button_index == BUTTON_LEFT:
+            set_TextureMovtion(!TextureMovtion)
+        else:
+            set_pause(!pause)
+    
+    
+func _on_Timer_timeout():
+    var frames = hframes * vframes
+    frame = (frame + 1) % frames 
+    if frame == frames - 1:
+        yield(get_tree(), "idle_frame") # wait next idle frame
+        emit_signal("animation_finished")
+
+func _on_animation_finished():
+    if not loop:
+        timer.stop()
+    
+
+func set_pause(state):
+    pause = state
+    set_animation()
+
+func set_animation():
+    if not pause and texture:
+        timer.start(1.0 / FPS)
+    else:
+        timer.stop()
+
+func set_TextureMovtion(state):
+    TextureMovtion = state
+    var at = texture as AnimatedTexture
+    at.pause = !state
+    property_list_changed_notify()
+```
+
+
+使用 **Sprite** 和 **AnimationPlayer** 搭配也可以实现 AnimatedSprite 一样的帧动画，只不过
+AnimationPlayr 是记录节点的属性作为关键帧，一个动画包含多个关键帧。首先，给 Sprite 节点的纹理属性
+指定一张 Spritesheet 图像，然后通过 Hframes 和 Vframes 两个属性将图像拆分作多个帧。然后，打开
+底部 Animation 动画播放节点设置面板，创建一个动画，为 Sprite 节点的 Frames 属性添加一条轨道，
+并在轨道中添加关键帧。可以通过右键菜单，也可以通过 Sprite 的属性面板的 Key 图标设置。
+
+注意，AnimationPlayer 中的动画轨道是和属性的路径字符串关联的，如果对应的节点位置有变量，轨道中的
+属性路径可能也需要更新，否则可能因找不到节点而导致原有的动画设置不能生效。
+
+```py
+extends Sprite
+
+onready var player:AnimationPlayer = $AnimationPlayer
+onready var timer = $Timer
+onready var sprite = $"."
+
+enum Direction { Left = -1, Right = 1 }
+export(Direction) var direction = Direction.Left
+
+func _on_Timer_timeout():
+    player.current_animation = "fog jump"
+    #player.play("fog jump")
+
+
+func _on_AnimationPlayer_animation_started(anim_name):
+    var tween = get_tree().create_tween().set_trans(Tween.TRANS_QUART)
+    var up = Vector2(direction * 50.0, -30.0)
+    var dn = Vector2(direction * 40.0, 30.0)
+    tween.tween_property(sprite, "position", up, 0.3).as_relative().set_ease(Tween.EASE_OUT)
+    tween.tween_property(sprite, "position", dn, 0.15).as_relative().set_ease(Tween.EASE_IN)
+
+
+func _on_AnimationPlayer_animation_finished(anim_name):
+    var vs = get_viewport().size
+    if sprite.position.x > vs.x:
+        sprite.scale.x = direction
+        direction *= -1
+    elif sprite.position.x < 0:
+        sprite.scale.x = direction
+        direction *= -1
+```
+
+2D/3D 动画最重要的一个节点是 **AnimationTree**，旧的 AnimationTreePlayer 由于太复杂已经丢弃。
+动画树实现的功能是动画混合技术 Animation Blending，作为独立一小节讲解。
+
+
+## 🟡🟠 Animation Blending 动画混合
+- [Using AnimationTree](https://docs.godotengine.org/en/3.5/tutorials/animation/animation_tree.html)
+- [Adobe Mixamo](https://www.mixamo.com)
+- [Third Person Shooter demo](https://github.com/godotengine/tps-demo)
+- [Retargeting 3D Skeletons](https://docs.godotengine.org/en/latest/tutorials/assets_pipeline/retargeting_3d_skeletons.html)
+- [Animation Retargeting in Godot 4.0](https://godotengine.org/article/animation-retargeting-in-godot-4-0)
+- [Better collada plugin for Blender](https://github.com/HungryProton/collada-exporter-2.8)
+- [09.高级动画技术：动画树、IK和表情动画 | GAMES104-现代游戏引擎：从入门到实践](https://www.bilibili.com/video/BV1pY411F7pA)
+- https://threejs.org/examples/#webgl_animation_skinning_additive_blending
+- [spine-godot Runtime](http://esotericsoftware.com/spine-godot)
+- [Spine Runtimes - spine-godot](https://github.com/EsotericSoftware/spine-runtimes)
+
+官方文档提供的第三人称射击游戏示范项目 Third Person Shooter demo 是学习动画混合的好例子。
+
+Adobe Mixamo 是学习 3D 动画的一个资源网站，它用许多现成的模型和动画预设，可以实现自动化的骨骼
+绑定及动画制作，只要上传自己的角色模型稍作校正就可以完成动画制作，现有的动画素材也是很好的学习资源。
+
+动画混合是一种重要的计算机动画技术，基本的动画技术在使用上存在难以使用的的问题。例如，游戏中玩家角色
+同时可以不同的动作，也就是不同的动画融合在一起。比如，简单的动画可能有步行、跳跃、攻击行为等，在简单
+播放动画的技术中，它们都是独立的，一个播放完就进行下一个动画。
+
+典型的动画混合例子，就是将 3D 人物模型从走路动画过滤过渡到奔跑动画。但是，在游戏交互中要求远不止如此，
+可能玩家在做跳跃动作时还突然想做出攻击动作，那么传统的动画就无法很好适应这种中间转播其它动画的操作。
+
+
+游戏、动画工业对动画有大量的需求，动画制作完成后还有复用的需要，即将同一套动画应用于骨骼结构相似的
+模型上。这里就存在动画重定向的问题，Animation Retargeting。基于骨骼绑定制作的动画，有一个特点，
+就是模型不同的部分绑定不同的骨骼，通过调整骨骼姿态使用模型产生相应的姿态，记录到关键帧后就得到动画。
+所以，动画重定向就需要将动画来源的骨骼与目标模型的骨骼做校对，以使用原动画的数据适用于新的模型上。
+
+同样，2D 动画也有类似的动画复用问题，在 Godot 中使用 AnimationPlayer 节点制作的关键帧动画，其
+目标节点是通过节点路径表示的，就是一个字符串，通过改变这个节点路径，就可以将动画应用于不同的节点上。
+
+Godot 动画节点中最重要的一个节点是 **AnimationTree**，旧版本的 AnimationTreePlayer 由于太
+复杂已经丢弃。动画树实现的功能是动画混合技术 Animation Blending，它的功能涉及内容较多，也是比较
+复杂的一个节点。一般它和 AnimationPlayer 搭配使用，用于管理不同动画的切换播放。
+
+AnimationTree 动画混合使用到三大类型节点：
+
+- **Animation** 动画资源类型，动画树引用通过 anim_player 属性连接到 AnimationTree 上的动画。
+- **AnimationRootNode** 根节点用来混合子节点，最常用的是 Blend Tree 混合树。
+- **Blend Nodes** 混合节点用于 Blend Tree 混合树，多个输入端口接入的混合节点，最终混合成单个图。
+
+动画树需要指定一个动画播放节点的路径以调用其动画配置，还需要设置一个顶层资源动画节点，以下 5 个继承自
+AnimationRootNode < AnimationNode 的类型对应了 5 种不同的动画混合方法：
+
+- **AnimationNodeAnimation**: 动画节点，只是简单地从已经连接的动画中选择要播放的动画。
+- **AnimationNodeBlendTree**: 混合树可以混合不同的根节点，常常用它作为动画树的根节点使用。
+- **AnimationNodeStateMachine**: 状态机可以包含多个根节点，它们都是状态，使用转换方法切换状态。
+- **AnimationNodeBlendSpace2D**: 2D 混合空间，混合点可以在二维平面运动，可以混合多个动画。
+- **AnimationNodeBlendSpace1D**: 1D 混合空间，简化版本，混合点只能一维方向变化，混合两个动画。
+
+根运动技术 **Root Motion** 是指，即因角色动作导致需要移到模型位置，拼接两个动画，就需要处理前后
+两个动画中的模型位置，使其前后连接流畅。假设，现成的模型动画基于原点定位，当一个使用 Root Motion 
+的动画播放到结束时，模型已经偏移原点。所以，当下一个动画跟着播放时，又瞬时回到了原点，这里就有位移差
+要处理好才能将两个动画无缝拼接起来。3D 动画技术中，模型网格的骨架用于为角色提供推动力，动画师常用的
+技术是使用根骨骼为其余骨骼提供运动。这允许角色的步行可以稳贴地板，产生真实的角色动画，而不会出现摩擦
+地板的脚掌拖动现象。
+
+对于一个动画而言，只是角色运动中的一个周期而已，当动画播放完一个周期，它又需要让图像恢复原位，再从头
+来过，这样周而复始地播放。在实际使用中，动画循环播放应该产生连续的位移，而不是来回跳动。
+
+
+Godot 中播放动画时，亦可以使用根骨骼作为根运动轨迹 Root Motion Track，这样将在视觉上取消骨骼变换，
+动画将保持位置不变。根运动轨迹可以通过 get_root_motion_track() 获取再传递给 KinematicBody 的
+**move_and_slide()** 方法以控制角色运动。
+
+RootMotionView 是一个工具节点，放置在场景中当作地板，为角色动画提供参照，在游戏中时默认是禁用的。
+
+使用官文展示的一组青蛙 Sprites 为例，它可以制作为一个跳跃动画，这个跳跃动作会产生位移：
+
+![Frog Spritesheet](https://docs.godotengine.org/en/3.5/_images/2d_animation_frog_spritesheet.png)
+
+假定制作了 jump_left 和 jump_right 两个跳跃动画，因为图像的青蛙是向左的，如果在 Sprte 显示
+图像，可以通过设置 scale.x 为 -1 进行左右反转，从而得到向右的图像。使用 AnimationPlayer 制作
+动画时，是可以知道角色移动距离的，那么在动画播放完成时，通过接收 animation_finished 信号，并在
+信号触发时主动移动相应的距离，然后再开始下一轮的动画播放，这样移动就可以衔接起来。注意 Loop 方式开启
+AnimationPlayer 就不会发出 animation_finished 信号。另外，通过 AnimationTree 触发的动画
+播放行为也不会生产 AnimationPlayer 的这些动画播放的相关信号，因为它们属于不同的对象。
+
+
+以最简单的 1D 混合空间为例，给 AnimationTree 添加上 **AnimationNodeBlendSpace1D** 根节点，
+打开 Bottom Panel 中的动画树面板，可以看到混合编辑器中只是一维的时间坐标轴，可以往不同的位置添加
+动画节点，或者嵌套地添加其它 Animation Root 根节点用来混合更多的子节点。
+
+直接通过 Create Points -> Add Animation 将两个青蛙跳跃动画添加到轴线上，然后设置 Blending 
+Position，在两个动画定位点之间移动，即混合两个动画的数据。在正中中间时，因为动画使用的 scale.x
+分别为 1 和反转时的 -1，所以结果会将青蛙的图形的 scale.x 混合为 0，使用得图像不可见。将混合点
+移动到任意一侧，则结果就是完全输出最靠近的这个动画，另一个动画对结果完全没有影响。
+
+2D 混合空间则可以在二维空间中设置混合点，在二维空间中至少放置 3 个动画点，以形成一个 2D 图形区域，
+当混合点与动画点越接近时就得到这个动画点的更多混合量，直到完全输出这个动画点的动画：
+
+![BlendSpace2D](https://docs.godotengine.org/en/3.5/_images/animtree8.gif)
+
+2D 混合模式有三种选择，默认情况下，Blend Mode 为线性模式，通过在最近的三角形内插入点进行混合。
+处理 2D 动画（逐帧）时，可能需要切换到离散模式 Discrete mode，下拉菜单中显示为 3 个点。或者，
+如果希望在离散动画之间切换时保持当前播放位置，则使用有进位模式 Carry mode。
+
+同样使用青蛙的跳跃动画来演示状态机的使用，给动画树添加 StateMachine 根节点，然后在底面板的动画树
+编辑器中，点击状态机管理界面中的 + 号增加动画节点，分别添加 jump_left、jump_right，还有动画树
+默认提供的 RESET，即休息节点，没有动画的静止状态。然后，点击穿线箭头图标，看起来像飞机，给三个状态
+添加连接线，使用 RESET 与其它两个动画实现双向连接，而两个跳跃动画相互不连接。
+
+例如，当前处于 jump_left 状态中，播放的就是向左跳跃动画。然后，再点击 jump_right 状态的播放图标，
+如果 Play Mode 设置为遍历模式 Travel，表示状态不会直接从 jump_left 切换到 jump_rigth 状态，
+而是按连接线，先切换到 RESET 状态，再切换到 jump_right 动画状态。
+
+状态机中每个节点都是一个状态，对应的一个动画，点击状态节点上的播放图标就可以切换到这个状态。节点上
+显示的文字就是状态名称，调用 **start()** 等方法做状态转换时，需要使用这个名称，不因为有空格导致
+状态名称不匹配而不能播放动画。节点状态会一直保持播放状态，除非调用 **stop()** 方法停止。
+
+注意，默认的 **RESET** 动画用于最初加载对象时的姿态，只有一个帧，并且不期待被用于时间轴的回放。
+为了动画混合结果可以重播保持一致，要混合的属性需要设置初始值。所以，在状态机中执行了 RESET 动画
+状态时，它可能会影响到其它和 RESET 相关的动画。
+
+对于 Skeleton3D 骨骼使用位置/旋转/缩放 3D 轨迹时，初始值为复位骨骼 Bone Rest。对于其他属性，
+初始值是 0，如果轨迹出现在 **RESET** 动画中，则使用其第一个关键帧的值。
+
+2D 或者 3D 的旋转轨道设置的插值方式为线性角或者立方体角度时，Linear Angle or Cubic Angle，
+可以用来限制旋转角度保持在与初始角度到 180 度的范围，这可以用来避免角色肢体发生违反生理现象的旋转。
+可以在混合动画时防止骨骼穿透身体，因此，Skeleton3D 的 Bone Rest 值应尽可能接近可移动范围的中点。
+这意味着，对于人形模型，最好以 T 形姿势导入。像上面的角色演示动画这样，可以看到动画按 Bone Rests
+位置优化最短的旋转路径，而不是两个动画之间的最短旋转路径。
+
+需要通过混合动画旋转 Skeleton3D 超过 180 度的情况，可以考虑使用 Root Motion 功能。通过动画树
+获取到的 Root Motion 是一个变换矩阵对象，它包含了根骨骼的实时运动，可以将这个变换信息传递给角色
+控制类型的运动处理方法就可以让动画前后流畅地拼接起来：
+
+```py
+func _process(delta):
+    var motion:Transform = animation_tree.get_root_motion_transform()
+    # This can be fed to functions to control the character movement, such as 
+    # KinematicBody.move_and_slide (Godot 3.x)
+    # CharacterBody3D.move_and_slide (Godot 4.x) 
+```
+
+状态转换模式设置决定了状态机如何切换动画，有 3 个切换模式：
+
+- Immediate：立即模式，将立即切换到下一状态，当前状态将结束并融入新状态的开始。
+- Sync：同步模式，将立即切换到下一个状态，但会 seek 寻找到新状态到与旧状态一致的回放位置。
+- At End：结束时模式，将等待当前状态播放结束，然后切换到下一个状态动画的开始。
+
+
+A* 算法实现的遍历功能是 Godot 的 StateMachine 实现中的一个很好的特性，可以指示从当前状态转到
+另一个状态图，同时访问所有中间状态。要使用状态遍历功能或进行状态转换，首先，从动画树节点检索出状态机
+回放对象 **AnimationNodeStateMachinePlayback**。注意，它通过导出的属性引用，属性导出路径可以
+在动画树的属性面板中找 Parameters -> Playback，拖动属性到脚本编辑器中即可，然后使用 Object 
+**get()** 方法获取。调用 **get_travel_path()** 可以获取遍历的路径：
+
+```py
+# AnimationNodeStateMachinePlayback
+var playback_path = "parameters/playback" # or parameters/StateMachine/playback
+var state_machine = $AnimationTree.get(playback_path)
+state_machine.travel("jump_left")
+state_machine.start("jump_right")
+```
+
+对于已对配置好的动画树根节点，可以在动画树的属性探测器面板中点击 Tree Root 属性右侧的下拉菜单保存
+到动画树资源文件中，以便后续再使用。Blend Tree 编辑器也可以保存节点资源配置，操作麻烦点：
+
+- 点击 Blend Tree 属性探测器面板上下拉菜单，竖直的三个点图标，执行 Make Resource Built-in；
+- 点击磁盘图标弹出菜单的 Save 执行关联式保存，这种方式会将节点关联到一个资源文件，保存项目时也会写入；
+- 或者，直接点击 Save As... 另存资源文件，这种方式不会执行关联操作，保存项目时也不会主动写入这个文件；
+- 对于已经关联保存的节点资源文件，可以再次执行 Make Resource Built-in 将资源数据内置，不再使用文件；
+
+为了方便复用已经配置好的动画节点资源，根据需要选择这两种资源保存方式，关联式保存可以在修改节点后自动在
+保存项目时更新资源文件，非关联式保存则可以避免这种自动更新，对于不需要或很少更新资源，就不需要关联。
+
+
+**Blend Tree** 混合树可以混合不同的根节点，它总是有一个默认输出节点，AnimationNodeOutput，
+可以将各种混合节点连接到输出节点，也可添加不同类型的混合节点，以混合多个动画：
+
+- **AnimationNodeAdd2** 2 端口叠加混合，Add Amount 指定叠加比例，0.0 表示不叠加 add 端口。
+- **AnimationNodeAdd3** 3 端口叠加混合，Add Amount 指定叠加比例，0.0 表示不叠加 ±add 端口。
+- **AnimationNodeBlend2** 2 端口混合，Blend Amount 指定混合比例，0.0 表示不混合 bledn 端口。
+- **AnimationNodeBlend3** 3 端口混合，Blend Amount 指定混合比例，0.0 表示不混合 ±bledn 端口。
+- **AnimationNodeOneShot** 单次触发，Active 打开时，表示触发 shot 输入端口的动画。
+- **AnimationNodeTimeScale** 时间缩放，对输入端的动画进行速度缩放，0 表示动画停止。
+- **AnimationNodeTimeSeek** 动画时间定位，用于改变动画回放时间点。
+- **AnimationNodeTransition** 是一个简单状态机，适用于不需要更高级的状态机的情况。
+
+其中 NodeAdd2、NodeAdd3、NodeBlend2、OneShot 这三种混合方式都可以设置过滤器动画轨道，即可以
+单独控制哪些轨迹通过混合功能，这对于将动画层叠在一起非常有用。点击 Edit Filters，勾选激活选项，
+并设置需要作为过滤器的动画轨道，以混合使用这些轨道控制动画。
+
+叠加与混合两种方式的差别在于，叠加方式是加法器，Add Mount 为 1.0 时 add 端口的动画会完全叠加在
+in 端口输入的动画上，所以可以用来组织多个角色的动画，一个 Blend Tree 就可以安排多个角色的动画。
+而混合方式 Blend 表示 Mixture 的意思，搅拌在一起，Blend Amount 设置为 1.0 表示混合的结果只
+有 Blend 端口的动画，in 端口的动画完全没有。反之，0.0 表示只会播放 in 端口的动画，Blend 端口的
+动画完全不考虑。其它值则表示在输入动画之间的混合状态。Blend3 的混合比例在 [-1.0, 1.0]，-1 和 1
+分别表示只输出 -blend 和 +blend 端口输入的动画，设置为 0.0 表示只输出 in 端口的动画。
+
+以下是 Blend2 混合节点的效果演示：
+
+![Blend2](https://docs.godotengine.org/en/latest/_images/blending5.webp)
+
+所有混合节点都作为导出属性，属性访问路径通过动画树的属性探测器面板获取，Parameters 包含所有已添加节点。
+
+OneShot 混合根据动画是否启用 Loop 循环播放有不同表现，shot 端口输入的动画在不启动循环播放状态下，
+播放完成时就会返回到 in 端口的动画状态。通常用来给角色添加开火的动作，所以叫做单次射击。
+
+Transition 做简单的状态转换，可以添加多个状态，状态之间转换时间可以在 Xfade Time 属性中设置，
+设置 Input Count 确定好输入端口数量，即状态数量，然后将动画连接到输入端口。然后通过导出的 current
+属性设置当前状态，状态机就会从上一个状态转换到新的状态。此功能在 Godot 3.x 中还不完善，在属性面板中
+添加输入端口后，会提示状态端口没有连接，编辑界面也没有及时更新，可以在添加端口后将 Transition 连接
+到其它端口再断开试试，不行就可能需要重新加载动画树或场景。
+
+Transition 提供了一个自动推进选项 Auto Advance，激活它，当前状态转换完成后，即动画播放完成后，
+自动推进到下一个状态。如果所有状都激活了自动推进，就会像 Loop 模式一样循环播放各个状态的动画。
+
+TimeSeek 做动画回放时间定位时，在设置好 seek_position 时间点后，会自动在下一处理帧进入睡眠模式，
+通过设置 seek_position 值为 -1.0 使其不再有作用。
+
+```py
+# Play child animation from the start.
+animation_tree.set("parameters/Seek/seek_position", 0.0)
+# Alternative syntax (same result as above).
+animation_tree["parameters/Seek/seek_position"] = 0.0
+
+# Play child animation from 12 second timestamp.
+animation_tree.set("parameters/Seek/seek_position", 12.0)
+# Alternative syntax (same result as above).
+animation_tree["parameters/Seek/seek_position"] = 12.0
+```
+
+混合树的可视化节点编辑目前操作上还不流畅，而且所有连接到 Output 节点，所有输入端口必需有连接，否则
+不能正常播放动画。节点连接操作也不是很便利，必需先断开原有连接，才能连接新的节点。
+
+
+
 ## 🟡🟠 Physics 物理系统
-- [Physics](https://docs.godotengine.org/en/3.5/tutorials/physics/index.html)
+- https://docs.godotengine.org/en/latest/tutorials/physics/physics_introduction.html
+- [GAMES201-高级物理引擎实战指南 - 胡渊鸣](https://www.bilibili.com/video/BV1ZK411H7Hc)
 - [Godot 平台跳跃游戏教程 - 如何实现攻击判定](https://www.bilibili.com/video/BV1Nt4y1e7yd?p=9)
+- [2D Physics Tests](https://github.com/godotengine/godot-demo-projects/tree/master/2d/physics_tests)
+- [3D Physics Tests](https://github.com/godotengine/godot-demo-projects/tree/master/3d/physics_tests)
+
+物理系统是游戏引擎中的一个大系统，图形学专门开设有物理引擎课程来讲解它。物理系统实现真实世界的物理原理，
+会涉及以下基本物理对象概念，主要内容是 4 种碰撞体的碰撞检测与响应处理：
+
+- Area2D/3D 物理探测区，可以检测进入、离开等行为，也可用于覆盖定义区域中的物理属性，例如重力或阻尼。
+- RigidBody2D/3D 刚体，不会变形的物体，用户不直接控制，而是应用力（gravity, impulses）改变其行为。
+- StaticBody2D/3D 静态物理体，具有物理性质，参与碰撞，但物理引擎不会移动它们；
+- CharacterBody2D/3D 角色运动学形体，旧版为 KinematicBody。只提供碰撞检测，但用户要实现碰撞响应，包含重力、阻力等等。
+
+除了物理探测区，其它三种物理对象都继承自 PhysicsBody2D/3D，而物理体又继承自 CollisionObject。
+
+此外，还有其它一些物理模型：
+
+- SoftBody 软体
+- Ray-casting 射线投射
+- Ragdoll system 碎布玩偶系统
+
+Godot 4.x 添加了新功能，与旧版本有差别。
+
+注意，不要改变缩放属性，Scale 必需保持为 (1, 1)，物理引擎并不使用缩放尺寸。另外，物理引擎为了提供
+运算效率，会使用多线程，物体位置或者线性速度等属性在当前帧中可能不精确，为了使用精确值，就需要使用
+`Node._physics_process()` 回调。
+
+Godot 使用的物理引擎可在项目配置中修改，默认集成了 Bullet 和内置的物理引擎：
+
+```py
+enum PhysicsEngine {
+    BULLET,
+    GODOT_PHYSICS,
+    OTHER,
+}
+
+var _engine = PhysicsEngine.OTHER
+
+
+func _enter_tree():
+    pause_mode = Node.PAUSE_MODE_PROCESS
+
+    get_tree().debug_collisions_hint = true
+
+    var engine_string = ProjectSettings.get_setting("physics/3d/physics_engine")
+    match engine_string:
+        "DEFAULT":
+            _engine = PhysicsEngine.BULLET
+        "Bullet":
+            _engine = PhysicsEngine.BULLET
+        "GodotPhysics":
+            _engine = PhysicsEngine.GODOT_PHYSICS
+        _:
+            _engine = PhysicsEngine.OTHER
+```
+
 
 在游戏中，NPC 或敌人之类的运动可以通过 VisibilityEnabler 来控制，它会在进入玩家视野后才会运动，
 通过控制 RigidBody 或 AnimationPlayer 等父节点的 disabled 状态来实现这一效果，或者冻结状态，
@@ -7375,25 +8850,950 @@ void fragment()
 **VisibilityEnabler** 只能在场景初始化之前添加才会生效，并且保对同一个场景下的节点有影响。如果，只
 需要处理相关通知，可以使用父类型 **VisibilityNotifier** 替代。
 
-Godot 4.x 添加了新功能，与旧版本有差别。
 
+
+### 🟢🔵 Collision & Shape
+- https://docs.godotengine.org/en/latest/tutorials/physics/collision_shapes_2d.html
+- https://docs.godotengine.org/en/latest/tutorials/physics/collision_shapes_3d.html
+- godot-docs\classes\class_collisionshape2d.rst
+- godot-docs\classes\class_collisionpolygon2d.rst
+- godot-docs\classes\class_shape2d.rst
+
+
+碰撞对象可以分层管理，它与被遮罩的层中的对象才相互发生碰撞，碰撞对象可以扫描多达 32 个碰撞层，通过
+遮罩属性设置遮罩层，以下两个是分层碰撞系统中使用属性：
+
+- collision_layer 设置物理对象所在层，默认为 layer 1。
+- collision_mask  设置物体需要扫描哪些层以进行碰撞检测，如果对象不在其中遮罩层中，将忽略它。
+
+层的名称可以通过 Project Settings -> Layer Names 修改。
+
+PhysicsBody2D/3D 碰撞对象本身只提供碰撞检测逻辑，需要在子级节点中给出一个碰撞检测边界范围定义。
+有两种方式定义碰撞形状：
+
+- CollisionPolygon 此直接在编辑器绘画多边形，提供图形用于确定碰撞检测的边界范围。
+- CollisionShape 碰撞图形方式可以使用以下基础碰撞形状，也可以通过 Mesh 来生成 Shape。
+
+碰撞形状的具体定义保存在 Shape2D/3D 资源中，碰撞形状可以设置多个，在碰撞检测时逐个进行比较。例如，
+在 Area2D/3D 信号事件中可以获取到相应的 Shape 节点序号。
+
+以下是 Godot 4 提供的各种基本碰撞形状类型，所有物理碰撞中都可用，Debug - Visible Collision Shapes
+选项打开后，可以在调用运行过程中显示碰撞形状：
+
+|        Shape2D        |        Shape3D        |
+|-----------------------|-----------------------|
+| CapsuleShape2D        | BoxShape3D            |
+| CircleShape2D         | CapsuleShape3D        |
+| ConcavePolygonShape2D | ConcavePolygonShape3D |
+| ConvexPolygonShape2D  | ConvexPolygonShape3D  |
+| RectangleShape2D      | CylinderShape3D       |
+| SegmentShape2D        | HeightMapShape3D      |
+| SeparationRayShape2D  | SeparationRayShape3D  |
+| WorldBoundaryShape2D  | SphereShape3D         |
+|                       | WorldBoundaryShape3D  |
+
+不同 Godot 版本之间的碰撞形状对象关系：
+
+|  Godot 3.x  |      Godot 4.x       |
+|-------------|----------------------|
+| LineShape2D | SegmentShape2D       |
+| RayShape2D  | SeparationRayShape2D |
+|             | CylinderShape3D      |
+|             | HeightMapShape3D     |
+|             | WorldBoundaryShape3D |
+
+其中，Concave 凹面的和 Convex 凸面的两种多边形需要设置 2 的整数倍的顶点来定义多边形。
+凸碰撞形状是基本碰撞形状和凹碰撞形状之间的折衷，如名字所提示，它无法表达有凹陷的形状的碰撞。
+
+虽然可以通过设置基点数据来定义形状，但可以通过 Sprite 或 MeshInstance3D 网格自动生成。
+
+选择 Sprite 节点，可以在主视图的 Sprite - Create CollisionPolygon2D Sibling 菜单执行
+碰撞形状的生成，执行它会弹出一个对话框，包含以下设置：
+
+- Simplification: 简化级别，值越大忽略越多细节；
+- Shrink (Pixels): 收缩级别，值越大相对于精灵的边收缩生成的碰撞多边形。
+- Grow (Pixels): 生长级别，值越大值生成的碰撞多边形相对于精灵的边增长。
+
+请注意，将“增长”和“收缩”设置为相等的值可能会产生不同的结果，而不是将两者都设置为 0。还可以将 Sprite
+转换为 Polygon2D 节点，这个功能相当于简化的位图转矢量图功能，它可以检测图像的透明区。还不能用它来
+生成导航风格中使用的 NavigationPolygon，只能生成外轮廓图形用于碰撞检测。
+
+
+选择 MeshInstance3D 节点后，在主视图的 Mesh 菜单中提供多种生成模式：
+
+- Create Single Convex Collision Sibling - 使用 Quickhull 算法生成单个凸形；
+- Create Multiple Convex Collision Siblings - 使用 V-HACD 算法生成多个凸形，比凹面速度更快；
+
+对于特别复杂的碰撞体，就需要使用凹面或三角面构造的碰撞体，Mesh 菜单对应有：
+
+- Create Trimesh Static Body
+- Create Trimesh Collision Sibling
+
+其它形状介绍，这些都是简单形状，非常方便于碰撞算法处理：
+
+- RectangleShape 矩形碰撞检测；
+- CircleShape 圆形碰撞检测；
+- CapsuleShape 胶囊形碰撞检测；
+- SegmentShape 线段形碰撞检测；
+- SeparationRayShape (designed for characters)
+- WorldBoundaryShape (infinite plane)
+
+WorldBoundaryShape 是一个无尽的平面，可以阻挡物理体进入负向空间，其法向的反方向部分为负向空间。
+在 PhysicsBody 中使用它，会导致放置在它“下方”的碰撞物体传送到“上方”平面。
+
+分离射线并不是一个真正的碰撞形状，它是尝试用射线来分离射线碰撞到的端点位置，用在角色控制中。
+
+碰撞检测只是碰撞处理的一部分，碰撞算是有三个主要部分：
+
+- 碰撞检测 (collision detection)
+- 碰撞判定 (collision determination)
+- 碰撞响应 (collision response)
+
+而算法消耗主要在前两个部分，所以设置碰撞形状时应该尽量简单，尽管 PhysicsBody 没限制碰撞形状的数量，
+但尽量不多用碰撞形状，避免出现性能问题。同时，避免对碰撞形状做线程变换操作，translating, rotating, 
+或者 scaling 都应该避免，以尽可能利用物理引擎的优化。
+
+碰撞检测算法一般分 2 个阶段，需要使用空间分割算法来加速物体的检测过程：
+
+- broad phase 粗筛阶段快速找出潜在的碰撞物体对列表，不在这个列表里的是绝对没可能碰撞的。
+- narrow phase 细筛阶段准确找出发生碰撞的物体对列表，并进行碰撞判定。
+
+对于只有单个碰撞形状的 StaticBody，碰撞算法的 broad phase 就可以忽略非活动的 PhysicsBody 对象。
+但是使用多个碰撞形状的情况下，则不能这样优化。碰撞算法 narrow phase 需要对每个碰撞形状逐个进行检测。
+
+
+
+### 🟢🔵 Area2D/3D
+- https://docs.godotengine.org/en/latest/tutorials/physics/using_area_2d.html
+- [2D Dodge The Creeps Demo](https://godotengine.org/asset-library/asset/515)
+- [2D Pong Demo](https://godotengine.org/asset-library/asset/121)
+- [2D Platformer Demo](https://godotengine.org/asset-library/asset/120)
+- [3D Platformer Demo](https://godotengine.org/asset-library/asset/125)
+- [GUI in 3D Demo](https://godotengine.org/asset-library/asset/127)
+- [2D Pong Demo](https://godotengine.org/asset-library/asset/121)
+- [2D Kinematic Character Demo](https://godotengine.org/asset-library/asset/113)
+- godot-docs\tutorials\physics\using_area_2d.rst
+- godot-docs\classes\class_area2d.rst
+- godot-docs\classes\class_area3d.rst
+
+There are three main uses for Area2D/3D:
+
+- Overriding physics parameters (such as gravity) in a given region.
+- Detecting when other bodies enter or exit a region or what bodies are currently in a region.
+- Checking other areas for overlap.
+
+Area2D/3D 继承自 CollisionObject2D/3D，和 PhysicsBody2D/3D 是同级的具有碰撞功能的对象。
+
+Area2D/3D 的一大功能是监视其它 Area，物理体 Body 或碰撞 Shape 进入与离开当前区域，通过
+信号返回相关参数：
+
+- area_entered (`Area2D` area )
+- area_exited (`Area2D` area )
+- area_sape_entered (`RID` area_rid, `Area2D` area, `int` area_shape_index, `int` local_shape_index )
+- area_sape_exited (`RID` area_rid, `Area2D` area, `int` area_shape_index, `int` local_shape_index )
+- body_entered (`Node2D` body )
+- body_exited (`Node2D` body )
+- body_sape_entered (`RID` body_rid, `Node2D` body, `int` body_shape_index, `int` local_shape_index )
+- body_sape_exited (`RID` body_rid, `Node2D` body, `int` body_shape_index, `int` local_shape_index )
+
+Shape 碰撞触发的信号要在 Area 的信号后面，即先发生 Area 交叠行为，其它碰撞对象也一样：
+
+- 先触发 area_entered 再 area_shape_entered。
+- 先触发 area_exited 再 area_shape_exited。
+
+设置以下两个属性控制 Area 是否处理监控、或可以被监控状态：
+
+- Monitoring 启用即监控其它形状的碰撞事件，才会触发以上各个信号；
+- Monitorable 启用可以被监控；
+
+Area 本身只提供碰撞检测逻辑，需要在子级节点中给出一个碰撞检测边界范围定义，有两种方式：
+
+- CollisionPolygon 此直接在编辑器绘画多边形，提供图形用于确定碰撞检测的边界范围。
+- CollisionShape 碰撞图形方式可以使用以下基础碰撞形状，也可以通过 Mesh 来生成 Shape。
+
+碰撞形状可以设置多个，在碰撞检测时逐个进行比较，在信号事件中可以获取到相应的 Shape 节点序号。
+
+Area2D/3D 的第二个主要功能是通过参数覆盖修改物理引擎的默认行为，需要开启 Space Override：
+
+- Combine - The area adds its values to what has been calculated so far.
+- Replace - The area replaces physics properties, and lower priority areas are ignored.
+- Combine-Replace - The area adds its gravity/damping values to whatever has been calculated so far (in priority order), ignoring any lower priority areas.
+- Replace-Combine - The area replaces any gravity/damping calculated so far, but keeps calculating the rest of the areas.
+
+覆盖将根据 Priority 指定的优先级、覆盖模式来决定哪些值被覆盖，高优先级的会先处理。
+
+可以覆盖的物理属性包括：
+
+- Gravity - Gravity's strength inside the area.
+- Gravity Vec - Gravity's direction. This vector does not need to be normalized.
+- Linear Damp - How quickly objects stop moving - linear velocity lost per second.
+- Angular Damp - How quickly objects stop spinning - angular velocity lost per second.
+- Point gravity - The Gravity Point property allows you to create an "attractor".
+
+Point gravity 点重力场允许创建“吸附器”，启用后 Area 区域的重力将根据重力矢量属性计算出一个点，
+值是相对于 Area2D 的，例如，使用（0，0）会将对象吸引到区域的中心。
+
+![Area2D Override](https://docs.godotengine.org/en/latest/_images/area2d_override.gif)
+
+
+
+### 🟢🔵 RigidBody
+
+对于刚体，提供了 `_integrate_forces()` 回调，这里可以通过 PhysicsDirectBodyState 安全地
+修改物理相关的属性，它会处理好物理引擎的多线程计算同步问题：
+
+```py
+extends RigidBody2D
+
+var thrust = Vector2(0, -250)
+var torque = 20000
+
+func _integrate_forces(state):
+    if Input.is_action_pressed("ui_up"):
+        state.apply_force(thrust.rotated(rotation))
+    else:
+        state.apply_force(Vector2())
+    var rotation_direction = 0
+    if Input.is_action_pressed("ui_right"):
+        rotation_direction += 1
+    if Input.is_action_pressed("ui_left"):
+        rotation_direction -= 1
+    state.apply_torque(rotation_direction * torque)
+```
+
+
+### 🟢🔵 StaticBody
+
+Example uses for StaticBody2D/3D:
+
+- Platforms (including moving platforms)
+- Conveyor belts
+- Walls and other obstacles
+
+
+
+### 🟢🔵 CharacterBody
+- [Physics Platformer](https://github.com/godotengine/godot-demo-projects/tree/master/2d/physics_platformer)
+- [Platformer 3D](https://github.com/godotengine/godot-demo-projects/tree/master/2d/kinematic_character)
+- [Kinematic Character 3D](https://github.com/godotengine/godot-demo-projects/tree/master/3d/kinematic_character)
+- [RigidBody Character 3D](https://github.com/godotengine/godot-demo-projects/tree/master/3d/rigidbody_character)
+
+
+CharacterBody 有两个方法用于执行移动和碰撞的响应：
+
+- move_and_collide() 移动并在碰撞时停止，返回一个包含碰撞信息的 KinematicCollision 对象；
+- move_and_slide() 移动并以滑动方式响应碰撞，返回滑动速度，通过 get_slide_collision() 获取碰撞信息。
+
+```py
+extends PhysicsBody2D
+
+var velocity = Vector2(250, 250)
+
+func _physics_process(delta):
+
+    velocity = move_and_slide(velocity, Vector2(0, -1))
+    
+    var collision_info = move_and_collide(velocity * delta)
+    if collision_info:
+        var collision_point = collision_info.position
+        velocity = velocity.bounce(collision_info.normal)
+```
 
 
 
 ## 🟡🟠 Godot AI 有思想的精灵
-- [Real Time Navigation (3D)](https://docs.godotengine.org/en/3.6/tutorials/navigation/real_time_navigation_3d.html)
-- [3D Navigation](https://github.com/godotengine/godot-demo-projects/tree/master/3d/navigation)
-- [Navigation Polygon 2D](https://github.com/godotengine/godot-demo-projects/tree/master/2d/navigation)
-- [Grid-based Navigation with Astar](https://github.com/godotengine/godot-demo-projects/tree/master/2d/navigation-astar)
-- [Godot导航系统详解:导航基础](https://www.bilibili.com/video/BV1CG411g7P9/)
 - [17.游戏引擎Gameplay玩法系统：高级AI | GAMES104-现代游戏引擎：从入门到实践](https://www.bilibili.com/video/BV1iG4y1i78Q/)
+
+
+
+### 🟢🔵 GridMap 网格关卡地图
+- [Using GridMaps](https://docs.godotengine.org/en/latest/tutorials/3d/using_gridmaps.html)
+- [3D Platformer Demo](https://godotengine.org/asset-library/asset/125)
+- [3D Kinematic Character Demo](https://godotengine.org/asset-library/asset/126)
+- https://docs.godotengine.org/en/latest/classes/class_gridmap.html
+- https://docs.godotengine.org/en/latest/tutorials/physics/collision_shapes_3d.html
+- https://docs.godotengine.org/en/latest/tutorials/navigation/navigation_using_navigationmeshes.html
+
+Gridmaps 是用于创建 3D 关卡的节点，相当于 2D 关卡中使用 TileMap，先用定义好一组 3D 网格，用于
+生成 MeshLibrary，后续用于关卡地图的绘制。
+
+执行菜单 Scene - Convert To - MeshLibrary... 将当前场景转换为 MeshLibrary 资源。
+
+用于生成 MeshLibrary 的场景可以按这样的节点结构组织：
+
+- 顶点使用一个 Node3D 节点；
+- 子节点可以添加多个 MeshInstance3D 作为模型网格，这些子节点相当于 3D 地图的瓦片；
+
+如果需要使用物理系统，还可以添加碰撞体，手动给风格添加 `StaticBody3D` 和 `CollisionShape3D`。
+可以通过网格生成碰撞体，使用菜单 Mesh 生成单个 "Convex" 凸壳包围需要碰撞检测物体即可。应付复杂形状
+的碰撞可以使用 "Trimesh Static Body"，它会生成紧贴模型各个部分的碰撞体。
+
+生成 MeshLibrary 后，就可以在场景中通过 GridMap 使用它来绘制 3D 关卡地图。使用主视图中 GridMap
+菜单，还可以旋转瓦片的模型，或者绘制平面所在的轴向或楼层。按下 `Shift` 拖动选区，使用菜单进行区域
+操作，复制、清除等等。
+
+
+
+### 🟢🔵 Navigation 多边形导航寻路算法
+- https://docs.godotengine.org/en/latest/tutorials/migrating/upgrading_to_godot_4.html
+- https://docs.godotengine.org/en/latest/tutorials/navigation/navigation_introduction_2d.html
+- https://docs.godotengine.org/en/latest/tutorials/navigation/navigation_using_navigationservers.html
+- https://docs.godotengine.org/en/latest/tutorials/navigation/navigation_using_navigationagents.htm
+- https://docs.godotengine.org/en/latest/tutorials/navigation/navigation_using_agent_avoidance.html
+- https://docs.godotengine.org/en/stable/tutorials/physics/ray-casting.html
+- [Real Time Navigation (3D)](https://docs.godotengine.org/en/3.6/tutorials/navigation/real_time_navigation_3d.html)
+- [Navigation Polygon 2D](https://github.com/godotengine/godot-demo-projects/tree/master/2d/navigation)
+- [3D Navigation Mesh](https://github.com/godotengine/godot-demo-projects/tree/master/3d/navmesh/)
+- [Real Time Navigation (3D)](https://docs.godotengine.org/en/3.6/tutorials/navigation/real_time_navigation_3d.html)
+- [Godot导航系统详解:导航基础](https://www.bilibili.com/video/BV1CG411g7P9/)
 
 Godot 中的 AI 寻路方案大概有以下几种：
 
-- AStar 寻路类，对于自动生成的网格地图非常有用，结合多线程效率也高；
-- Navigation2D 导航类，比较方便且实用，但是有较大的局限；
+- AStar 寻路算法，对于自动生成的网格地图非常有用，结合多线程效率也高；
+- Navigation2D 导航类，基于多边形，比较方便且实用，但是有较大的局限；
 - RayCast2D 射线检测，对路径进行判断，有比较好的解决方案，但是算法复杂；
 - 使用大量的 Area2D 对地图可行路径进行判断；
+
+|           2D           |           3D           |   Type   |
+|------------------------|------------------------|----------|
+| Astar2D                | Astar3D                | Object   |
+| NavigationServer2D     | NavigationServer3D     | Node     |
+| NavigationRegion2D     | NavigationRegion3D     | Node     |
+| - NavigationAgent2D    | - NavigationAgent3D    | Node     |
+| - NavigationObstacle2D | - NavigationObstacle3D | Node     |
+| NavigationPolygon      | NavigationMesh         | Resource |
+
+Godot 4.x 版本后节点及对象名称的版本变化：
+
++------------------------------+-----------------------------+
+| Old name (Godot 3.x)         | New name (Godot 4)          |
++==============================+=============================+
+| NavigationMeshInstance       | NavigationRegion3D          |
+| NavigationPolygonInstance    | NavigationRegion2D          |
+| Navigation2DServer           | NavigationServer2D          |
+| Navigation2D                 | Node2D                      |
+| Navigation3D                 | Node3D                      |
+
+新版本下的各种导航相关对象用途介绍：
+
+- NavigationServer 导航服务实现寻路算法，用于计算导航路径；
+- NavigationMap 为导航服务提供数据，将导航网格信息转换为用于路径查找的组合导航地图；
+- NavigationRegion2D 二维导航网格，通过 NavigationPolygon 绘制多边形为地图提供 2D 可通行区域定义；
+- NavigationRegion3D 三维导航网格，通过 NavigationMesh 为 3D 导航中使用的多边形区域定义；
+- NavigationPathQueryObject 导航路径查询对象可以配合 NavigationPathQueryParameters 来定制导航；  
+- NavigationAgent 导航代理使用导航服务计算出来的路径，为用户提供服务，例如按导航路径移动、避障；
+- NavigationObstacle 由于障碍物不断移动而无法有效烘焙到导航网格，此节点用于给运动障碍物设置回避半径。
+- NavigationLink 用于在导航不连通的两点之间创建路径链接，而不仅仅是沿着导航网格的表面行进，比如跨越间隙，zip-lines, teleporters。
+
+
+在 Godot 3.x 中，Navigation2D 节点下需要设置一个 NavigationPolygonInstance 节点作为导航
+网格的数据来源，其属性 navpoly 保存的是 **NavigationPolygon** 资源，即导航用的网格数据，这些数据
+会被导航节点读取。新版本直接使用 map_get_path() 即可以计算出网格两点之间的路径，返回的是坐标数量由路径
+的曲折度决定。两点之间没有障碍物，就只有一个点坐标。
+
+Navigation2D 节点的 get_simple_path() 方法替代为 Navigation2DServer.map_get_path()。
+
+```py
+# Navigation2D node
+PoolVector2Array get_simple_path(start: Vector2, end: Vector2, optimize: bool = true) const
+# Navigation2DServer.map_get_path()
+PoolVector2Array map_get_path(map: RID, origin: Vector2, destination: Vector2, optimize: bool, navigation_layers: int = 1) const
+
+# NavigationServer2D.map_get_path()
+PackedVector2Array map_get_path(map: RID, origin: Vector2, destination: Vector2, optimize: bool, navigation_layers: int = 1) const
+```
+
+在 3D 环境下也类似，Navigation3D 节点下需要设置一个 NavigationMeshInstance 节点作为导航
+网格的数据来源，保存在 navmesh 属性中的 **NavigationMesh** 资源中。导航网格节点下可以设置
+MeshInstance 作为道路模型的网格，这与导航无关，但可以用它来烘焙出导航网格数据。
+
+
+2D 多边导航网格不像 NavigationMesh 可以烘焙生成，需要手动绘制多边形将通道包含在多边形内部。先绘制
+最外部的多边形以包含所有路径区域，然后再绘制内部的多边形，将障碍区域包裹起来。并且目前 Godot 4 Beta
+版本中图形操作界面还有不少问题：
+
+- NavigationRegion2D 节点绘制多边形操作命令不能完全正确执行。
+- 绘制好多边形后，导航网格地图数据没有相应更新，并且可能在同一点位置绘制重叠的多个顶点。
+- 点击导航网格节点时，属性面板可能会隐藏不显示，需要将父节点隐藏后才能显示属性面板。
+- 目前还不能对多边形进行更丰富的操作，例如多个基点的选择、复制、粘贴等。
+
+为了利用多边形数据，可以将多边形顶点数据保存到独立的 NavigationPolygon 资源文件中。这个文件是文本
+格式，所有顶点坐标会无序地记录到 vertices = PackedVector2Array() 列表中。定义在 polygons 属性
+中的多边形由这些坐标序号表示，但这部分的多边形是计算出来的，并不是绘制的多边形。
+
+用户绘制的最外层的多边形则保存在 outlines 属性中第一个 PackedVector2Array，它包含外层多边形的
+顶点坐标，数据可能存在重复，并且也没有引用 vertices 定义的坐标序号。后续的 PackedVector2Array 顶点
+表示其它内部的多边形。
+
+用户绘制的多边形轮廓后续会转换成 NavigationMesh 资源，即和 3D 导航网格一样的处理流程，作为定义
+NavigationServer 地图的区域使用。绘制轮廓多边形不能有交叠，否则不能正确计算出导航网格。推荐使用
+3D 导航网格，Godot 提供了 NavigationMeshGenerator 可以直接将模型网格烘焙得到导航网格。
+
+在绘制多边形时，顶点会显示相应的序号，如果序号不连续则可能有顶点重合，序号从 0 开始。多个顶点重叠，
+结果看起来像一个顶点，这也可能是导致顶点移动等绘制命令不正常、地图数据不更新、NavigationPolygon
+资源文件数据重复的原因。
+
+为了搞清楚这些问题，可以使用标尺绘制一个多边形，并分析保存到资源文件中顶点数据。判断顶点是否重叠，
+可以直接检查 polygons 中同一个 PackedInt32Array 引用的顶点序号是否有重复即可。如果顶点重叠，
+那么同一个多边形就会有多人顶点引用相同坐标。
+
+
+选择导航节点后，在 3D 视图中会出现 Bake NavMesh 按钮，它可以将子级的网格烘焙成导航网格。也可以
+调用 bake_navigation_mesh 方法进行动态烘焙。注意，NavigationMesh 要设置 Source Geometry Mode：
+
+- NaviMesh Children 此模式可以将子级 MeshInstance 网格烘焙成导航网格。
+- Group with Children
+- Group Explicit
+
+后两种模式配合 Node - Groups 面板使用，需要显式指定一个节点组名称，不同的是后者直接将节点组名称关联
+的节点作为几何网格数据来源，而 Group with Children 则将节点组的子级作为几何网格来源。
+
+NavigationMesh 的一些属性说明：
+
+- Cell size/height 设置导航网格的占用空间大小、偏移高度；
+- Agents 代理设置：
+    - agent_height 代理对象可以通过的的地板到天花板的高度，烘焙时按 cell_height 倍数取值；
+    - agent_radius 代理使用的碰撞检测半径，值越大导航区被占用空间越多，烘焙时按 cell_size 倍数取值；
+    - agent_max_climb 代理对象可以爬的最大台阶高度，烘焙时按 cell_height 倍数取值；
+    - agent_max_slope 代理对象可以爬坡的最大角度，角度单位；
+
+NavigationAgent 节点可以替代导航节点使用，它用于导航以避免碰撞。用于导航以到达某个位置，同时避免
+静态、动态障物。使用往复速度障碍物 Reciprocal Velocity Obstacles (RVO) 来避免动态障碍物。
+代理需要导航数据才能正常工作，默认情况下，此节点将注册到默认的世界导航地图。如果此节点是导航节点的
+子节点，它将注册到导航节点的导航地图，可以使用 set_navigation() 设置导航节点。
+
+通过 get_world() 方法取得 World2D/3D 对象，其 navigation_map 属性就是当前世界的默认导航地图。
+
+注意：默认情况下，用于避免碰撞的昂贵计算是在线程中完成的。在没有线程支持的 HTML5 导出中，它们将在
+主线程上完成，这可能会导致性能问题。
+
+NavigationAgent 节点的属性说明：
+
+- path_desired_distance 物体到目标位的距离小于这个值就认为已经到达路径中的位置，可以继承到导航路径的下一个位置；
+- agent_height_offset 用于修正 NavigationMesh 中 agent_height 设置产生的地板高度偏移；
+- path_max_distance 允许代理离开理想导航路径的最大距离，因为要试图避免碰撞，超过这个值将重新计算理想路径；
+- target_desired_distance 导航到达此距离值就可以认为已经到达最终目标区域，而不必精确到达位置；
+- navigation_layers 导航层设置，和导航节点的 Navigation Layers 设置配合使用；
+
+NavigationAgent 方法简要说明：
+
+- set_navigation_map(navigation_map: RID) 手动指定导航网格地图；
+- set_velocity(velocity: Vector3) 给导航运动避障算法传入一个速度；
+- set_target_location(location: Vector3) 设置导航目标位置；
+- is_navigation_finished() 判断导航是否已经到达位置；
+- get_next_location() 获取导航路径中的下一个位置，新版本中使用 get_next_path_position()；
+
+设置避障速度后，在启用避障功能后会相应产生 velocity_computed(safe_velocity: Vector3) 信号，
+由避障算法计算合适的运动速度，并通过信号的方式传递给用户。
+
+
+在 Godot 4.x 中，使用 NavigationServer 对象来计算网格路径，这是抽象类，不能实例化，使用其提供
+的静态方法来获取导航路径数据。
+
+2D 与 3D 网格导航原理是相同的，NavigationServer2D 是一个前端，用于帮助将 Vector2(x，y) 转换
+Vector3(x，0.0，z)，然后返回 NavigationServer3D API。
+
+```py
+func _unhandled_input(event: InputEvent):
+    if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+        var map := get_world_3d().navigation_map
+        var from := camera.project_ray_origin(event.position)
+        var to := from + camera.project_ray_normal(event.position) * 1000
+        var target_point := NavigationServer3D.map_get_closest_point_to_segment(map, from, to)
+
+        # Set the path between the robot's current location and our target.
+        path = NavigationServer3D.map_get_path(map, robot.position, target_point, true)
+```
+
+导航服务器中可以使用多个导航地图，通过 map_set_active() 方法激活并使用其中一个。地图对象可以关联
+多个导航网格 NavigationRegion，导航网格又可以设置图层，图层是一个 32-bit bitmask。例如，设置
+为图层 1 遮罩值就为 1，设置为图层 4，第四个比特的值对应为 8。图层可以模拟一把钥匙，拥有钥匙的玩家
+可以通过一扇门，只需要在 map_get_path 查询导航路径时传入一个可以通过的网格图层。
+
+注意，同时存在多个交叠的导航网格可能导致寻路出现“穿透”障碍的现象，并且导航网络是否显示都有效：
+
+```py
+    var map := get_world_2d().navigation_map
+    var regions := NavigationServer2D.map_get_regions(map)
+    var layer := NavigationServer2D.region_get_navigation_layers(regions[0])
+    print("Navigation region layer: ", layer, regions)
+```
+
+摄像机对象提供几个光线投射方法，Ray-casting，可以获取射线方向上的目标位置坐标，游戏开发者可以用
+光线投射来做瞄准、确定视线、测量距离之类的功能。这些方法都需要提供一个屏幕像素坐标作为射线的投射起点：
+
+```py
+Vector3 project_local_ray_normal(screen_point: Vector2) const
+# Returns a normal vector from the screen point location directed along the camera.
+# Orthogonal cameras are normalized. Perspective cameras account for perspective, 
+# screen width/height, etc.
+Vector3 project_position(screen_point: Vector2, z_depth: float) const
+# Returns the 3D point in world space that maps to the given 2D coordinate in the 
+# Viewport rectangle on a plane that is the given z_depth distance into the scene 
+# away from the camera.
+Vector3 project_ray_normal(screen_point: Vector2) const
+# Returns a normal vector in world space, that is the result of projecting a point 
+# on the Viewport rectangle by the inverse camera projection. This is useful for 
+# casting rays in the form of (origin, normal) for object intersection or picking.
+Vector3 project_ray_origin(screen_point: Vector2) const
+# Returns a 3D position in world space, that is the result of projecting a point 
+# on the Viewport rectangle by the inverse camera projection. This is useful for 
+# casting rays in the form of (origin, normal) for object intersection or picking.
+```
+
+例如，在输入事件中，将鼠标点击的二维坐标位置映射为三维的投射起点 from，然后给定一个投射距离作为射线
+的有效范围，以摄像机朝向即法向为投射方向，在射线的有效范围 from - to 两个坐标连线之内检测导航地图中
+的最近点。project_ray_normal 返回世界空间中的法向量，是通过摄影机反向投影在视口矩形上投影点的结果，
+这对于以（原点、法线）形式投射光线以进行对象相交或拾取非常有用。亦可直接使用世界空间 intersect_ray
+方法来探测物理刚体碰撞点：
+
+```py
+extends Spatial
+
+onready var camera = $"../CameraBase/Camera"
+onready var navigation_agent = $NavigationAgent
+onready var robot = $"../RobotBase2"
+
+var SPEED = 10
+
+func _physics_process(delta):
+    if not navigation_agent.is_navigation_finished():
+        var step_size = delta * SPEED
+        var nextpoint = navigation_agent.get_next_location()
+        var direction = nextpoint - robot.translation
+        robot.translation += direction.normalized() * step_size
+
+func _unhandled_input(event):
+    if event is InputEventMouseButton and event.button_index == BUTTON_LEFT and event.pressed:
+        var from = camera.project_ray_origin(event.position)
+        var to = from + camera.project_ray_normal(event.position) * 100
+        #var target_point = get_closest_point_to_segment(from, to)
+        var collision = get_world().direct_space_state.intersect_ray(from, to)
+        print({"from":from, "to":to, "collision":collision, "robot":robot.translation})
+        if collision:
+            navigation_agent.set_target_location(collision.position)
+            print("next ", navigation_agent.get_nav_path(), navigation_agent.get_next_location(), collision.position)
+```
+
+可以使用 ImmediateGeometry 节点将导航路径绘制出来，Godot 4.x 使用 ImmediateMesh 替代，
+PRIMITIVE_LINE_STRIP 绘图方式表示点与点之间进行连线，和 OpenGL 的图元定义一致：
+
+```py
+func draw_path(path_array):
+    var im = get_node("ImmediateGeometry")
+    # im.set_material_override(spatialmaterial)
+    im.clear()
+
+    im.begin(Mesh.PRIMITIVE_POINTS, null)
+    im.add_vertex(path_array[0])
+    im.add_vertex(path_array[path_array.size() - 1])
+    im.end()
+    
+    im.begin(Mesh.PRIMITIVE_LINE_STRIP, null)
+    for x in path:
+        im.add_vertex(x)
+    im.end()
+```
+
+### 🟢🔵 Astart 导航寻路算法
+- https://docs.godotengine.org/en/latest/classes/class_astar3d.html
+- [Grid-based Navigation with Astar](https://github.com/godotengine/godot-demo-projects/tree/master/2d/navigation_astar)
+- [Amit 讲 A* 寻路算法](https://blog.csdn.net/denghecsdn/article/details/78778769)
+- [Amit’s A* Pages](http://theory.stanford.edu/~amitp/GameProgramming/)
+- godot-docs\tutorials\navigation\navigation_introduction_2d.rst
+- godot-docs\tutorials\navigation\navigation_introduction_3d.rst
+
+寻路是基础的游戏算法，是 AI 模拟人类导航探索能力的方式。
+
+提到游戏 AI 就不得不说 Pacman 经典吃豆人游戏，作为经典游戏，其最有特色的部分就是带有 AI 原型的四个幽灵对手：
+
+- 红色的幽灵 Blinky 代表执着，它会一直跟着玩家走，并且随着玩家吃的豆越多移动速度会变的越快。
+- 粉色的幽灵 Clyde 代表预知，它会以玩家路径的前方为目的地，经常会围堵玩家，官方的名称叫做“埋伏者”。
+- 青色的幽灵 Linky 代表变化，它有时候会追着玩家走，有时候又会提前堵在玩家必经的路上，善于变化。
+- 黄色的幽灵 Pinky 代表随意，它的行动路线完全随机，甚至大多数时间它会完全不理会玩家，一个人自己在地图上漫游。
+
+- [Play Pacman Online](https://jimboyeah.github.io/pacman/)
+
+经典寻路算法是 `Dijkstra` 算法，是算法名称也是作者名称。算法基于格子 Grid，格子有八个移动方向，
+但是效率低下，真正在项目中实用的是经过优化的 `A*` 寻路算法。相对于迪杰斯特拉的算法，不同点在于，
+加了一个启发系数，极大降低了搜索空间，提高算法效率，没有这个算法估计很多游戏的 NPC 寻路都跑不动。
+
+戴克斯特拉算法 Dijkstra’s algorithm 是由荷兰计算机科学家艾兹赫尔·戴克斯特拉提出的最短寻路算法，
+使用了广度优先搜索解决非负权有向图的单源最短路径问题，算法最终得到一个最短路径树。
+
+在一些情况下，如果可以预先计算出每个节点到终点的直线距离，则可以利用这个信息更快的到达终点。虽然，
+给定一张带有阻碍物的格子地图，人脑可以瞬间就通过眼睛观察到的图像得到起点到目标点的最佳路径。但是
+程序需要数据，要得到这个最佳数据，就需要对全部输入的格子进行处理，优化算法来提高工作效率。
+
+与 Dijkstra 算法类似，也使用一个优先队列，但此时以每个节点到达终点的距离作为优先级，每次始终选取
+到终点移动代价最小（离终点最近）的节点作为下一个遍历的节点，这种算法称之为 `Best First` BFS 
+最佳优先算法，也可以看作是一种深度优先或贪心策略的寻路算法。
+
+Dijkstra 算法是一种广度优先遍历的算法，在没有障碍的情况下就像波浪扩散一样去搜索目标。而改良的 
+Best First 的速度很快，以最靠近目标点的优先去找到达目标点的路径。
+
+但是，当遇到障碍时，最佳优先算法不一定可以获取最佳结果，它大体趋势会沿着起点到终点的直线为对称轴，
+左右来回寻点。就如知道前面有一条桥可以过河，结果直到桥头发现当...当...当...在施工，封桥不给过了，
+最后还得回到码头搭船过渡。
+
+假设，在起点和目标点之间有一个巨大的凹口形阻碍物，且开口向着起点，那么以上两种寻路算法的结果可能是：
+
+-  `Dijkstra` 算法摸索了大面积区域，即经过大量运算，并最终找到一个避开了凹口内部的最佳路径；
+-  `Best First` 则快速找到一条直接往凹口内部走，并且遇到阻碍后再折回的一条比较长的路径；
+
+所以，这里就有一个算法性能和路径最优的平衡性问题，找到一种既有效率，又能找到捷径的算法是最佳答案。
+
+在 `Dijkstra` 算法和 `Best First` 算法的基础上，`A*` 算法提供的解决方法是根据起点到参考点的
+距离 + 参考点到目标点的距离之和来寻路。
+
+可以用 f(n)=g(n)+h(n) 表达，其中：
+
+- f(n) 是节点 n 的综合优先级。选择下一个要遍历的节点时，总会选取综合优先级最高（值最小）的节点。
+- g(n) 是节点 n 距离起点的代价。
+- h(n) 是节点 n 距离终点的预计代价，这也就是 `A*` 算法的启发函数 Heuristic Function。
+
+这是迪杰斯特拉算法和最佳优先算法的结合体，可以加个权重参数 K 来调节这两种算法的影响程度
+
+    f(n)= k * g(n) + (1-k) * h(n) ； k 取值 为 [0,1]
+
+- 当 k=0 时，f(n)= h(n) ，就变成了最佳优先算法；
+- 当 k=1 时，f(n)= g(n) ，就变成了迪杰斯特拉算法；
+- 当 k=0.5 时，f(n)=g(n)+h(n) ，就变成 `A*` 算法；
+
+AI 系统的引入，可以解决 Steering Behaviors 行为控制需求，这是使用动力学的数据结构，加速度和
+角速度参数等模拟真实有生命的活动，如：
+
+- 敌人的游走行为 wandering behavior；
+- Seeking 地图探索；
+- Arriving 到达指定点；
+- Pursuit 包抄对手；
+- Evade 规避对手；
+- Flee 跳跑；
+- Separate 分散行为；
+- Align 队列行为； F
+- Patrol 巡逻行为，可以适当设置巡逻点 PatrolPoint。
+
+AStar2D 或 AStar3D 实现了 A* 寻路，需要为它添加具有连接属性的空间点，算法会计算出两个指定点的
+最近路径所包含的点：
+
+    PackedInt64Array   get_id_path(from_id: int, to_id: int)
+    PackedVector2Array get_point_path(from_id: int, to_id: int)
+
+    void add_point(id: int, position: Vector3, weight_scale: float = 1.0)
+    bool are_points_connected(id: int, to_id: int, bidirectional: bool = true) 
+    void connect_points(id: int, to_id: int, bidirectional: bool = true)
+    bool has_point(id: int) const
+    void set_point_disabled(id: int, disabled: bool = true)
+
+方法介绍：
+
+- add_point() 添加数据点，将一个 ID 与坐标数据关联；
+- are_points_connected() 查询两点是否有通路；
+- connect_points() 两点之间添加连接属性；
+- has_point() 判断指定 ID 是否有对应的点；
+- set_point_disabled() 禁用某个点，相当于设置一个障碍点；
+
+```py
+    var astar = AStar2D.new()
+    astar.add_point(1, Vector2(0, 0))
+    astar.add_point(2, Vector2(0, 1))
+    astar.add_point(3, Vector2(1, 1))
+    astar.add_point(4, Vector2(2, 0))
+
+    astar.connect_points(1, 2, true)
+    astar.connect_points(1, 3, true)
+
+    var neighbors = astar.get_point_connections(1) # Returns [2, 3]
+
+
+    var astar = AStar3D.new()
+    astar.add_point(1, Vector3(0, 0, 0))
+    astar.add_point(2, Vector3(0, 1, 0), 1) # Default weight is 1
+    astar.add_point(3, Vector3(1, 1, 0))
+    astar.add_point(4, Vector3(2, 0, 0))
+
+    astar.connect_points(1, 2, false)
+    astar.connect_points(2, 3, false)
+    astar.connect_points(4, 3, false)
+    astar.connect_points(1, 4, false)
+
+    var res = astar.get_id_path(1, 3) # Returns [1, 2, 3]
+```
+
+Godot 中的 TileMap 节点可以为 AStart 提供网格数据，注意 TileMap API 获取的网格坐标数据类型
+有变化，在做判断时可能会误用导致逻辑问题，不能正确判断障碍物所在的网格位置。
+
+Godot 4.x 返回的是整形坐标值，而 AStart 添加数据点时使用的浮点坐标值：
+
+```py
+# Godot 3.x
+Array[Vector2] get_used_cells() const
+
+# Godot 4.x
+Array[Vector2i] get_used_cells(layer: int) const
+```
+
+以下是根据官方 2d/navigation_astar 示范工程更新到 Godot 4.x 的代码：
+
+```py
+extends TileMap
+
+const BASE_LINE_WIDTH = 3.0
+const DRAW_COLOR = Color.WHITE
+
+# The Tilemap node doesn't have clear bounds so we're defining the map's limits here.
+@export var map_size: Vector2 = Vector2.ONE * 16
+
+# The path start and end variables use setter methods.
+# You can find them at the bottom of the script.
+var path_start_position = Vector2():
+    set = _set_path_start_position
+#   set(value):
+#       # TODO: Manually copy the code from this method.
+#       _set_path_start_position(value)
+
+var path_end_position = Vector2():
+    set = _set_path_end_position
+#   set(value):
+#       # TODO: Manually copy the code from this method.
+#       _set_path_end_position(value)
+
+
+var _point_path = []
+
+# You can only create an AStar3D node from code, not from the Scene tab.
+@onready var astar_node = AStar3D.new()
+# get_used_cells is a method from the TileMap node.
+# Here the id 0 corresponds to the grey tile, the obstacles.
+@onready var obstacles = get_used_cells(0)
+#@onready var _half_cell_size = cell_size / 2
+#@onready var _half_cell_size = Vector2(tile_set.tile_size / 2)
+
+func _ready():
+    var walkable_cells_list = astar_add_walkable_cells(obstacles)
+    astar_connect_walkable_cells(walkable_cells_list)
+
+func _draw():
+    #if not _point_path:
+    if _point_path.size() == 0:
+        return
+    var point_start = _point_path[0]
+    var point_end = _point_path[len(_point_path) - 1]
+
+    #set_cell(point_start.x, point_start.y, 1)
+    #set_cell(point_end.x, point_end.y, 2)
+    set_cell(0, Vector2(point_start.x, point_start.y), 1, Vector2i(0, 0))
+    set_cell(0, Vector2(point_end.x, point_end.y), 2, Vector2i(0, 0))
+    
+    var last_point = map_to_local(Vector2(point_start.x, point_start.y)) # + _half_cell_size
+    for index in range(1, len(_point_path)):
+        var current_point = map_to_local(Vector2(_point_path[index].x, _point_path[index].y)) # + _half_cell_size
+        draw_line(last_point,current_point,DRAW_COLOR,BASE_LINE_WIDTH)
+        draw_circle(current_point, BASE_LINE_WIDTH * 2.0, DRAW_COLOR)
+        last_point = current_point
+
+
+# Loops through all cells within the map's bounds and
+# adds all points to the astar_node, except the obstacles.
+func astar_add_walkable_cells(obstacle_list = []):
+    var points_array = []
+    for y in range(map_size.y):
+        for x in range(map_size.x):
+            var point = Vector2i(x, y)
+            if point in obstacle_list:
+                continue
+
+            points_array.append(point)
+            # The AStar3D class references points with indices.
+            # Using a function to calculate the index from a point's coordinates
+            # ensures we always get the same index with the same input point.
+            var point_index = calculate_point_index(point)
+            # AStar3D works for both 2d and 3d, so we have to convert the point
+            # coordinates from and to Vector3s.
+            astar_node.add_point(point_index, Vector3(point.x, point.y, 0.0))
+    return points_array
+
+
+# Once you added all points to the AStar3D node, you've got to connect them.
+# The points don't have to be checked a grid: you can use this class
+# to create walkable graphs however you'd like.
+# It's a little harder to code at first, but works for 2d, 3d,
+# orthogonal grids, hex grids, tower defense games...
+func astar_connect_walkable_cells(points_array):
+    for point in points_array:
+        var point_index = calculate_point_index(point)
+        # For every cell in the map, we check the one to the top, right.
+        # left and bottom of it. If it's in the map and not an obstalce.
+        # We connect the current point with it.
+        var points_relative = PackedVector2Array([
+            point + Vector2i.RIGHT,
+            point + Vector2i.LEFT,
+            point + Vector2i.DOWN,
+            point + Vector2i.UP,
+        ])
+        for point_relative in points_relative:
+            var point_relative_index = calculate_point_index(point_relative)
+            if is_outside_map_bounds(point_relative):
+                continue
+            if not astar_node.has_point(point_relative_index):
+                continue
+            # Note the 3rd argument. It tells the astar_node that we want the
+            # connection to be bilateral: from point A to B and B to A.
+            # If you set this value to false, it becomes a one-way path.
+            # As we loop through all points we can set it to false.
+            astar_node.connect_points(point_index, point_relative_index, false)
+
+
+# This is a variation of the method above.
+# It connects cells horizontally, vertically AND diagonally.
+func astar_connect_walkable_cells_diagonal(points_array):
+    for point in points_array:
+        var point_index = calculate_point_index(point)
+        for local_y in range(3):
+            for local_x in range(3):
+                var point_relative = Vector2(point.x + local_x - 1, point.y + local_y - 1)
+                var point_relative_index = calculate_point_index(point_relative)
+                if point_relative == point or is_outside_map_bounds(point_relative):
+                    continue
+                if not astar_node.has_point(point_relative_index):
+                    continue
+                astar_node.connect_points(point_index, point_relative_index, true)
+
+
+func calculate_point_index(point):
+    return point.x + map_size.x * point.y
+
+
+func clear_previous_path_drawing():
+    #if not _point_path:
+    if _point_path.size() == 0:
+        return
+    var point_start = _point_path[0]
+    var point_end = _point_path[len(_point_path) - 1]
+    #set_cell(point_start.x, point_start.y, -1)
+    #set_cell(point_end.x, point_end.y, -1)
+    set_cell(0, Vector2(point_start.x, point_start.y), -1)
+    set_cell(0, Vector2(point_end.x, point_end.y), -1)
+
+
+func is_outside_map_bounds(point):
+    return point.x < 0 or point.y < 0 or point.x >= map_size.x or point.y >= map_size.y
+
+
+func get_astar_path(world_start, world_end):
+    self.path_start_position = local_to_map(world_start)
+    self.path_end_position = local_to_map(world_end)
+    _recalculate_path()
+    var path_world = []
+    for point in _point_path:
+        var point_world = map_to_local(Vector2(point.x, point.y)) # + _half_cell_size
+        path_world.append(point_world)
+    return path_world
+
+
+func _recalculate_path():
+    clear_previous_path_drawing()
+    var start_point_index = calculate_point_index(path_start_position)
+    var end_point_index = calculate_point_index(path_end_position)
+    # This method gives us an array of points. Note you need the start and
+    # end points' indices as input.
+    _point_path = astar_node.get_point_path(start_point_index, end_point_index)
+    # Redraw the lines and circles from the start to the end point.
+    queue_redraw()  # update()
+
+
+# Setters for the start and end path values.
+func _set_path_start_position(value):
+    if value in obstacles:
+        return
+    if is_outside_map_bounds(value):
+        return
+
+    #set_cell(path_start_position.x, path_start_position.y, -1)
+    #set_cell(value.x, value.y, 1)
+    set_cell(0, path_start_position, -1)
+    set_cell(0, value, 1)
+    path_start_position = value
+    if path_end_position and path_end_position != path_start_position:
+        _recalculate_path()
+
+
+func _set_path_end_position(value):
+    if value in obstacles:
+        return
+    if is_outside_map_bounds(value):
+        return
+
+    #set_cell(path_start_position.x, path_start_position.y, -1)
+    #set_cell(value.x, value.y, 2)
+    set_cell(0, path_start_position, -1)
+    set_cell(0, value, 2)
+    path_end_position = value
+    if path_start_position != value:
+        _recalculate_path()
+```
+
+### 🟢🔵 Behavior Tree 行为树
+- [Godot Behavior Tree](https://gdscript.com/solutions/godot-behaviour-tree/)
+- https://docs.unrealengine.com/4.26/zh-CN/InteractiveExperiences/ArtificialIntelligence/BehaviorTrees/
+- https://github.com/libgdx/gdx-ai/wiki/Behavior-Trees
+- https://www.behaviortree.dev/docs/Intro
+
+行为树 Behaviour Tree 如其名，是一个树状数据结构，是一种流行的 AI (Artificial Intelligence)
+编码方法，常用于游戏中的 NPC (Non Player Controlled) 角色执行不同的动作。
+
+行为树是一种用来表示逻辑决策的方法，主要 Decision Making 方法有以下两种：
+
+- State Machine
+- Behavior Trees
+
+行为树与有限状态机（FSM，Finite State Machine）、决策树（Decision Tree）等常被对比，绝大多数
+情况下他们可以发挥同样的作用，并且可以相互转换。
+
+当需要做决策时，先从行为树的根节点树开始查询，以树状方式向下层传播，直到叶节点，它包含最终要执行或者
+实现的游戏功能。行为树的遍历操作在游戏中的每个 tick 中都会发生，游戏中的每一帧都可能有行为决策。
+
+![Behavior Trees](https://docs.unrealengine.com/4.26/Images/InteractiveExperiences/ArtificialIntelligence/BehaviorTrees/BehaviorTreesOverview/BT_Overview_Intro.png)
+
+假设，为一个角色定义的一颗行为树，大体上为这个角色设计了三套行为，分别是：
+
+- 巡逻（Patrol）
+- 攻击（Attack）
+- 逃跑（Retreat）
+
+而这些行为又可以细化，比如狼狈地跑，狠狠地攻击，优哉游哉地巡逻，新增加的这些细化的行为又可以挂到行为树
+的子层，具体节点数据可以根据需要来决定。当游戏中需要决策当前这个角色要执行什么行为时，就需要自顶向下，
+并结合一些条件来搜索这颗树，最终匹配到叶节点，即确定下来要执行的行为，并且执行它，这就是行为树的基本原理。
+叶节点上一般包含行为，称之为行为节点（Action Node），其余节点一般称之为控制节点（Control Node）。
+控制节点其实是行为树的精髓所在，决策过程受控制节点约束。
+
+组织起这些行为可以使用不同的方式，有些行为可以组合，比如出拳与扭腰，有些行为是单一的，这就要为行为树
+设计不同类型的节点来表达相应的行为性质，并且又可以按不同的方式执行，这就需要合成节点（Composite）
+来组织它们：
+
+1. Sequenece：各种行为一个接着一个进行。
+2. Parallel：多个行为同时进行。
+3. Selector：从多个候选行为中选择一个执行。
+
+行为节点可能有多种运行状态：
+
+- Executing 运行中：该行为还在处理中。
+- Completed 已完成：该行为处理完成，成功或者失败。
+
+运行结果可以包含以下几种情况：
+
+- Succeeded 成功结束运行。
+- Failed 运行失败。
+- Aborted 终止运行。
+- In Progress 正在运行进程中。
+
+
+根据 Behavior Trees in Robotics and AI 一书描述，行为树一般有：
+
+- 4 种控制节点 Sequence, Fallback, Parallel, Decorator。
+- 2 种执行节点，Action 和 Condition，只有执行节点才能成为叶子节点。
+
+装饰节点在行为树系统中起条件设置作用，其功能相当于条件语句。
 
 
 
@@ -7713,6 +10113,7 @@ func _init(arg):
 - godot-docs/tutorials/editor/upgrading_to_godot_4.rst
 - [GDScript documentation comments](https://docs.godotengine.org/en/latest/tutorials/scripting/gdscript/gdscript_documentation_comments.html)
 - [Add a Godot 3 to Godot 4 upgrade guide #6393](https://github.com/godotengine/godot-docs/pull/6393/files)
+- https://docs.godotengine.org/en/latest/tutorials/migrating/upgrading_to_godot_4.html
 
 新版本引入了两种新的字面量表达，StringName 和 % ^ 节点路径表达
 
@@ -7793,17 +10194,30 @@ func _init(arg):
 ```
 
 属性（Properties）的定义语法糖变更，旧版本属性使用 setget 指定属性读写器，新版本借鉴了更简洁的
-C# 语法格式，直接在属性定义后使用 ``set`` 和 ``get`` 定义访问器，并且在 setter 或 getter 
-中直接访问属性而不会引起循环引用问题。需要设置默认值，可以在默认值后面添加冒号再定义属性访问器。
+C# 语法格式，直接在属性定义后使用 ``set`` 和 ``get`` 定义访问器。注意，旧版 setter 或 getter 
+中直接访问属性而不会引起循环引用问题，在新版本 getter、setter 调用其它函数时读写了属性值时，则会
+导致循环访问问题。
+
+需要设置默认值，可以在默认值后面添加冒号再定义属性访问器。
 
 ```py
-    var milliseconds: int = 0
-    var seconds: int = 123:
+    signal changed(new_value)
+    var warns_when_changed = "some value":
         get:
-            return milliseconds / 1000
+            return warns_when_changed
         set(value):
-            milliseconds = value * 1000
+            changed.emit(value)
+            warns_when_changed = value
+
+    var my_prop:
+        get = get_my_prop, set = set_my_prop
 ```
+
+Unlike ``setget`` in previous Godot versions, the properties setter and getter 
+are **always** called, even when accessed inside the same class (with or without 
+prefixing with ``self.``). This makes the behavior consistent. If you need direct 
+access to the value, use another variable for direct access and make the property
+code use that name.
 
 新增加 Lambda functions，定义匿名函数更方便，不必实例化 Callable 类就只可以通过函数创建一个
 可调用对象。为了调试目的，可以给匿名函数指定一个名称。匿名函数会捕捉当前局部环境，变量会按值传递，所以
@@ -7837,6 +10251,7 @@ C# 语法格式，直接在属性定义后使用 ``set`` 和 ``get`` 定义访�
 Error connect(signal: StringName, callable: Callable, flags: int = 0)
 void disconnect(signal: StringName, callable: Callable)
 bool is_connected(signal: StringName, callable: Callable) const
+# node.connect(some_method.bind("arg", 100))
 ```
 
 新版本引入 `await` 关键字取代 yield 用于协程的异步编程，Awaiting for signals。例如，以下代码
@@ -7977,9 +10392,57 @@ GDScriptFunctionStateyield(object: Object = null, signal: String = "")
 | SceneTreeTween                          | Tween                                     |
 +-----------------------------------------+-------------------------------------------+
 
+**Removed or replaced nodes/resources**
+
++---------------------+-----------------------+----------------------------------------------------------------------------+
+| Removed node        | Closest approximation | Comment                                                                    |
++=====================+=======================+============================================================================+
+| AnimationTreePlayer | AnimationTree         | AnimationTreePlayer was deprecated since Godot 3.1.                        |
++---------------------+-----------------------+----------------------------------------------------------------------------+
+| BakedLightmap       | LightmapGI            | See :ref:`doc_baked_lightmaps`.                                            |
++---------------------+-----------------------+                                                                            |
+| BakedLightmapData   | LightmapGIData        |                                                                            |
++---------------------+-----------------------+----------------------------------------------------------------------------+
+| BitmapFont          | FontFile              | See :ref:`doc_gui_using_fonts`.                                            |
++---------------------+-----------------------+                                                                            |
+| DynamicFont         | FontFile              |                                                                            |
++---------------------+-----------------------+                                                                            |
+| DynamicFontData     | FontFile              |                                                                            |
++---------------------+-----------------------+----------------------------------------------------------------------------+
+| Navigation2D        | Node2D                | Replaced by :ref:`other 2D Navigation nodes <doc_navigation_overview_2d>`. |
++---------------------+-----------------------+----------------------------------------------------------------------------+
+| Navigation3D        | Node3D                | Replaced by :ref:`other 3D Navigation nodes <doc_navigation_overview_3d>`. |
++---------------------+-----------------------+----------------------------------------------------------------------------+
+| OpenSimplexNoise    | FastNoiseLite         | Has different parameters and more noise types such as cellular. No         |
+|                     |                       | support for 4D noise as it's absent from the FastNoiseLite library.        |
++---------------------+-----------------------+----------------------------------------------------------------------------+
+| ToolButton          | Button                | ToolButton was Button with the **Flat** property enabled by default.       |
++---------------------+-----------------------+----------------------------------------------------------------------------+
+| YSort               | Node2D                | Node2D has a new **Y Sort** property in 4.0.                               |
++---------------------+-----------------------+----------------------------------------------------------------------------+
+| ProximityGroup      | Node3D                | :ref:`class_VisibleOnScreenNotifier3D` can act as a replacement.           |
++---------------------+-----------------------+----------------------------------------------------------------------------+
+| Portal              | Node3D                | Portal and room occlusion culling was replaced by raster                   |
+|                     |                       | :ref:`occlusion culling <doc_occlusion_culling>`                           |
+|                     |                       | (OccluderInstance3D node), which requires a different setup process.       |
++---------------------+-----------------------+                                                                            |
+| Room                | Node3D                |                                                                            |
++---------------------+-----------------------+                                                                            |
+| RoomManager         | Node3D                |                                                                            |
++---------------------+-----------------------+                                                                            |
+| RoomGroup           | Node3D                |                                                                            |
++---------------------+-----------------------+----------------------------------------------------------------------------+
+| Occluder            | Node3D                | Geometry occlusion culling was replaced by raster                          |
+|                     |                       | :ref:`occlusion culling <doc_occlusion_culling>`                           |
+|                     |                       | (OccluderInstance3D node), which requires a different setup process.       |
++---------------------+-----------------------+                                                                            |
+| OccluderShapeSphere | Resource              |                                                                            |
++---------------------+-----------------------+----------------------------------------------------------------------------+
 
 |-----------------|-------------------------------------|------------------------------------------|
 |      Object     |              Godot 3.x              |                Godot 4.x                 |
+|-----------------|-------------------------------------|------------------------------------------|
+| @GDScript       | deg2rad()                           | @GlobalScope.deg_to_rad()                |
 |-----------------|-------------------------------------|------------------------------------------|
 | CanvasItem      | update()                            | queue_redraw()                           |
 | ClassDB         | instance()                          | instantiate()                            |
@@ -7992,6 +10455,11 @@ GDScriptFunctionStateyield(object: Object = null, signal: String = "")
 | Engine          | editor_hint                         | is_editor_hint()                         |
 | Sprite          | Sprite.rotation_degrees             | Sprite2D.rotation                        |
 |-----------------|-------------------------------------|------------------------------------------|
+| Node            | find_node()                         | find_child                               |   
+|-----------------|-------------------------------------|------------------------------------------|
+| TileMap         | cell_size                           | tile_set.tile_size                       |   
+|                 | local_to_map/map_to_local           | world_to_map/map_to_world                |   
+|-----------------|-------------------------------------|------------------------------------------|
 | Theme Overrides | custom_colors/font_color            | theme_override_colors/font_color         |
 |                 | custom_colors/font_color_shadow     | theme_override_colors/font_shadow_color  |
 |                 | custom_colors/font_outline_modulate | theme_override_colors/font_outline_color |
@@ -8003,11 +10471,12 @@ GDScriptFunctionStateyield(object: Object = null, signal: String = "")
 | SceneTree       | idle_frame                          | process_frame                            |
 | EditorInterface | get_editor_viewport()               | get_base_control()                       |
 | OS              | get_scancode_string                 | get_keycode_string()                     |
-|                 |                                     |                                          |
 |-----------------|-------------------------------------|------------------------------------------|
 | InputEventKey   | scancode                            | keycode                                  |
 |                 | physical_scancode                   | physical_keycode                         |
 |                 |                                     |                                          |
+
+
 
 ## 🟡🟠 GDScript Plugins 插件扩展
 - [Editor plugins](https://docs.godotengine.org/en/stable/tutorials/plugins/editor/index.html)
@@ -8375,6 +10844,7 @@ func _on_Button3_pressed():
 ## 🟡🟠 GDScript grammar 语法规范文档
 - [GDScript grammar](https://docs.godotengine.org/en/stable/development/file_formats/gdscript_grammar.html)
 - [GDScript exports](https://docs.godotengine.org/en/3.5/tutorials/scripting/gdscript/gdscript_exports.html)
+- [GDScript format strings](https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/gdscript_format_string.html)
 - [GDScript 2.0](https://docs.godotengine.org/en/latest/tutorials/scripting/gdscript/gdscript_basics.html)
 - [GDScript 2.0 exports](https://docs.godotengine.org/en/latest/tutorials/scripting/gdscript/gdscript_exports.html)
 

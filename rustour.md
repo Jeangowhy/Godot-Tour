@@ -4041,6 +4041,11 @@ Rust 编译器简要工作流程如下：
 - 经过以上前端工作后，代码会转译为 LLVM IR，文件后缀一般是 .ll，是文本格式，字节码文件后缀是 .bc；
 - 得到中间代码表达，下一步就是生成相应的机器码，这就是 LLVM 要做的工作。
 
+可以在 Rust Playground 上生成 HIR 中间代码，或者使用命令生成 LLVM-IR (.ll) 或者 MIR (.mir)：
+
+    cargo rustc -- -Z unpretty=hir-tree
+    cargo rustc -- --emit llvm-ir
+    cargo rustc -- --emit mir
 
 Rust 并不关心代码的存放位置，不过建议在工作目录中，使用 cargo 工具创建工程目录，存放所有项目。
 
@@ -4317,8 +4322,14 @@ Rust 的类型系统基于组合思维，不像 C++/Java 通过类以及继承�
 
 println! 宏只借用所有权，不会转移参数的所有权。
 
-Rust 提供了 unsafe 特性，通过智能指针，Smart Pointers，简化了对 Heap 内存的使用。内存装箱使用
-std::boxed::Box 或者 alloc::boxed::Box 智能指针：
+Rust 的指针大致可以分为三种：
+
+- 原生指针（裸指针），`*const T` 和 `*mut T`；
+- 引用，只读引用 `&T` 和可变引用 `&mut T`；
+- 智能指针，如 Box、Rc、Arc 等等；
+
+Rust 不仅提供 unsafe 特性，还通过智能指针，Smart Pointers，简化了对 Heap 内存的使用。内存装箱
+使用 std::boxed::Box 或者 alloc::boxed::Box 智能指针：
 
 ```rust
     let five = 5;           // 5 in Stack memory
@@ -4330,6 +4341,28 @@ std::boxed::Box 或者 alloc::boxed::Box 智能指针：
 Graphs 数据结构中，多个边可能指向相同的终点，节点从概念上讲为指向它的各条边所拥有。而引用计数器即可以
 类型来满足多所有权的需要，引用计数 Reference counting (RC) 也是传统的内存回收技术，如 Python 就
 使用引用计数器来管理内存的回收。
+
+Rust 通过所有权机制及借用安全检查，完全规避了以下常见的内存安全（Memory Safety）问题:
+
+- 使用未定义内存：编译器安全检查禁止此种行为。
+- 空指针：没有空指针，使用 Option 枚举值 None 表达。
+- 悬垂指针：通过所有权及生命周期管理规避。
+- 缓冲区溢出：编译器提供数组越界检查，防止缓冲区举出产生的问题。
+- 非法释放未分配的指针或重复释放同一指针：编译器禁止此种行为，所有权提供机制提供保障。
+
+尽管 Rust 已经足够安全可靠，但是还是可能因为开发者引入内存泄漏（Memory Leak）问题，大概情况有：
+
+- 线程崩溃，析构函数无法调用。
+- 使用引用计数时造成了循环引用。
+- 调用标准库的 forget 函数主动泄漏。
+
+对于线程崩溃，没有什么好的办法来阻止它，只能通过提升程序稳定性来避免。
+
+析构函数可以除了释放内存，还可以释放其他资源。相比内存安全问题，资源泄漏其实并没有那么严重。一次内存
+泄漏不会有多大影响，不会耗光内存资源。但是一次内存不安全操作可能会导致灾难性的后果。
+
+内存泄漏是指没有释放本来应该释放的内存，但有时候还需要进行主动泄漏，例如在通过 FFI 与外部函数打交道，
+需要把值交由 C 代码去处理时，就需要 Rust 这边要使用 forget 函数来主动放弃对指定内存的所有权。
 
 
 变量的生命周期还可以进行显式标注，Explicit annotation，通过标注可以改变默认的生存周期，使得被
@@ -7071,31 +7104,31 @@ fn main() {
 
 
 
-## ⚡ Functional OOP 函数式面向对象编程
+## ⚡ OOP 面向对象编程
 - Functors, Applicatives, And Monads In Pictures https://adit.io/posts/2013-04-17-functors,_applicatives,_and_monads_in_pictures.html
 - 函数式编程别烦恼 https://juejin.cn/post/6844903621507678216
 - 为什么Lisp语言如此先进？ http://www.ruanyifeng.com/blog/2010/10/why_lisp_is_superior.html
 - Object Oriented Programming Features of Rust https://doc.rust-lang.org/book/ch17-00-oop.html
 
-编程范式 Programming paradigm 一词最早来自 Robert Floyd 在 1979 年图灵奖的颁奖演说，是指计算机中编程的典范模式或方法。是程序员看待程序应该具有的观点，代表了程序设计者认为程序应该如何被构建和执行的看法，与软件建模方式和架构风格有紧密关系。
+编程范式 Programming paradigm 一词最早来自 Robert Floyd 在 1979 年图灵奖的颁奖演说，是指
+计算机中编程的典范模式或方法。是程序员看待程序应该具有的观点，代表了程序设计者认为程序应该如何被构建
+和执行的看法，与软件建模方式和架构风格有紧密关系。
 
 现在主流的编程范式：
 
 - `结构化编程` Structured programming
 - `面向对象编程` Object-oriented programming 典型的 Java 就是面向对象编程。
-- `函数式编程` Functional programming 典型的 C 语言就是函数式编程。
+- `函数式编程` Functional programming 典型的 Lisp 语言就是函数式编程。
 - `命令式编程` Imperative 主要思想是关注计算机执行的步骤，即一步一步告诉计算机先做什么再做什么。
 - `声明式编程` Declarative 它的主要思想是告诉计算机应该做什么，但不指定具体要怎么做。经典的 SQL 编程就是例子，以数据结构的形式来表达程序执行的逻辑。
 
-C++ 或 Rust 则是多范式的系统编程语言，既是 OOP 也是 FP。
-
-而 Golang 和 Rust 既 FP 又是 FOOP，基于函数式和抽象接口组合的面向对象编程，通过 interface 或 traits 关键字定义接口。
+Rust 是多范式的系统编程语言，既可以是 OOP 也可以是 FP。Rust 基于函数式和抽象接口组合的面向对象编程，
+通过 traits 定义接口。
 
 面对对象（OOP）可以理解为是对数据的抽象，比如把一个人抽象成一个 Object，关注的是数据与行为。
 
-函数式编程是一种过程抽象的思维，就是对当前的动作去进行抽象，关注的是动作。
-
-Lisp 是所有函数式语言的始祖，但 Lisp 并不单纯是函数式编程语言，而是多范型编程语言。使用它可以进行函数式编程，也可以进行过程式编程、面向对象编程。
+函数式编程是一种过程抽象的思维，就是对当前的动作去进行抽象，关注的是动作。Lisp 是所有函数式语言的始祖，
+但 Lisp 并不单纯是函数式编程语言，而是多范型编程语言。它可以进行函数式编程、过程式编程、面向对象编程。
 
 Lisp 语言诞生带来 9 种新思想：
 
@@ -7392,14 +7425,16 @@ fn main() {
 
 ### 🟢🔵 FOOP 函数式面向对象编程
 - https://cheats.rs/#functions-behavior
-- Object Oriented Programming Features of Rust https://doc.rust-lang.org/book/ch17-00-oop.html
 - Design Patterns: Elements of Reusable Object-Oriented Software by Erich Gamma, Richard Helm, Ralph Johnson, and John Vlissides
-- What Was the Gang of Four in China? https://www.thoughtco.com/the-gang-of-four-195613
-- Rust by Example - Traits https://doc.rust-lang.org/rust-by-example/trait.html
-- Abstraction without overhead: traits in Rust https://blog.rust-lang.org/2015/05/11/traits.html
-- Dynamically Sized Types and the Sized Trait https://doc.rust-lang.org/book/ch19-04-advanced-types.html
+- [Object Oriented Programming Features of Rust](https://doc.rust-lang.org/book/ch17-00-oop.html)
+- [What Was the Gang of Four in China?](https://www.thoughtco.com/the-gang-of-four-195613)
+- [Rust by Example - Traits](https://doc.rust-lang.org/rust-by-example/trait.html)
+- [Abstraction without overhead: traits in Rust](https://blog.rust-lang.org/2015/05/11/traits.html)
+- [Dynamically Sized Types and the Sized Trait](https://doc.rust-lang.org/book/ch19-04-advanced-types.html)
 
-Design Patterns: Elements of Reusable Object-Oriented Software 即《设计模式》一书由 Erich Gamma、Richard Helm、Ralph Johnson 和 John Vlissides 合著（Addison-Wesley，1995）。这几位作者常被称为四人组，而这本书也就被称为 the Gang of Four Book 或 GoF。
+Design Patterns: Elements of Reusable Object-Oriented Software 一书由 Erich Gamma、
+Richard Helm、Ralph Johnson 和 John Vlissides 合著（Addison-Wesley，1995）。这几位作者
+常被称为四人组，而设计模式这本书也就被称为 the Gang of Four Book 或 GoF。
 
 示范将函数附加到对象上作为方法使用：
 
@@ -7513,7 +7548,8 @@ Rust 为成员方法定义 self 提供了简写表达：
 
 ### 🟢🔵 Traits & Polymorphism
 
-Rust 的类型系统基于组合思维，不像 C++/Java 通过类来包装，组合方式是函数式编程中实现面向对象编程的一种有效手段。并且，组合方式比类封装继承方式更能表达真实世界。
+Rust 的类型系统基于组合思维，不像 C++/Java 通过类来包装，组合方式是函数式编程中实现面向对象编程
+的一种有效手段。并且，组合方式比类封装继承方式更能表达真实世界。
 
 比如，真实世界中的鸟类，它会飞，那么定义类：
 
@@ -7620,38 +7656,357 @@ fb.foobar();
 这里所指的继承不是很恰当，应该是一种行为共享或者约束，即实现了某个 trait 也某种共同的行为。
 
 
-### 🟢🔵 Dynamic vs Static Dispatch
-- https://doc.rust-lang.org/stable/std/keyword.dyn.html
-- https://doc.rust-lang.org/stable/book/ch17-02-trait-objects.html
-- https://wiki.jikexueyuan.com/project/rust-1.7/trait-objects.html
-- https://doc.rust-lang.org/book/ch19-04-advanced-types.html#dynamically-sized-types-and-the-sized-trait
-- https://doc.rust-lang.org/reference/types/trait-object.html
-- trait object https://zhuanlan.zhihu.com/p/23791817
+### 🟢🔵 Generic Types
+- https://doc.rust-lang.org/book/ch10-00-generics.html
+- https://doc.rust-lang.org/book/ch10-02-traits.html
+- https://rustc-dev-guide.rust-lang.org/backend/monomorph.html
+- https://doc.rust-lang.org/rust-by-example/generics.html
 
-注意，这里讨论的 Trait 对象不是用 `trait` 关键字定义的对象，而类似以下这样结构的对象：
+所以高级语言都有用来解决重复代码的工具，泛型是常用的工具。
+
+总结一下泛型的使用方式：
+
+- 泛型接口 `trait GenericeTrait<T>{...}`
+- 泛型函数 `fn genericFun<T>(arg: SomeType<T>) {}`
+- 泛型方法 `impl<T>` 按泛型实现对象的方法扩展。
+- 泛型结构 In Struct Definitions
+- 泛型枚举 In Enum Definitions
+
+例如，定义一个泛型的结构体：
 
 ```rust,ignore
-pub struct TraitObject {
-    pub data: *mut (),
-    pub vtable: *mut (),
+struct Point<T> {
+    x: T,
+    y: T,
+}
+
+fn main() {
+    let integer = Point { x: 5, y: 10 };
+    let float = Point { x: 1.0, y: 4.0 };
 }
 ```
 
-所谓 trait 对象，可以理解为其它面向对象语言中指向接口或基类的指针或引用，指向基类的指针在运行时确定其实际类型。Rust 没有类继承，通过 trait 对象保存的指针或引用起到类似的效果，运行时被确定具体类型。
-
-应用中，可以这样理解，指向 trait 的指针就是 Trait Object，假如 Bird 是一个 trait 的名称，那么智能指针 `Box<Bird>` 和 `&dyn Bird`，旧语法表达为 `&Bird`，它们都是一种 Trait Object。
-
-因为 Trait 是 DST - dynamically sized types，它的指针就需要用胖指针来记录地址和长度信息，可以通过以下代码查看与普通指针的区别：
+如果，需要多个泛型参数，在尖括号中添加即可，如下：
 
 ```rust,ignore
-use std::mem::size_of;
-dbg!(size_of::<&Duck>());       // 8
-dbg!(size_of::<&dyn Bird>());   // 16
+struct Point<T, U> {
+    x: T,
+    y: U,
+}
+
+let also_work = Point { x: 5, y: 4.0 };
 ```
 
-当使用 Trait Object，Rust 就必需使用 `dynamic dispatch`，因为编译器无法在编译期得知究竟为多少类型使用了 Trait Object。这样，Rust 在 Trait Object 内保存一个指针，在运行时用它来指向要调用的方法。在动态派发方式中，编译器生成的代码会在运行时解决应该调用哪个方法，这就比静态派发多了一个运行时的计算消耗。
+泛型的枚举类型定义，也可以多个泛型参数：
 
-和动态派发对立的就是 `static dispatch`，在泛型章节内容中，解析了 Rust 编译器会在编译期进行 monomorphization 处理。即那些绑定泛型的 Traits 方法会在编译期单体化为具体类型，和泛型相反方向的处理过程。编译结果就是调用方法是静态派发的，在编译期就决定了。而动态派发还会阻止那此静态派发的优化工作，如静态派发中会将一些函数进行内联 inline 而省略函数调用的消耗。
+```rust,ignore
+enum Option<T> {
+    Some(T),
+    None,
+}
+
+enum Result<T, E> {
+    Ok(T),
+    Err(E),
+}
+```
+
+现在，假设要实现一个函数，它可以返回一组数的最大那个，只需要实现一个函数就可以解决这个问题。
+
+当需要变了，需要对整数列表、浮点数列表还有字符串列表进行处理，返回其中最大的一个。如果按传统方式，可能需要定义三个逻辑基本一致的函数，这就出现了大量的代码重复。
+
+通过泛型工具可以有效地解决这样的功能重复代码，只需要实现一个泛型函数，接收一个泛型列表，再用相同的功能逻辑代码进行处理返回结果。
+
+泛型工具的语法上只是在原有的名称后面增加箭括号，用于传入泛型工具所需要的参数，在这里可以将泛型函数看作是一个函数工厂，它会根据调用的参数类型生产出相应的函数。
+
+```rust,ignore
+fn largest<T>(list: &[T]) -> &T {
+    let mut largest = &list[0];
+    for elem in list {
+        // error[E0369]: binary operation `>` cannot be applied to type `&T`
+        if elem > largest {
+            largest = elem;
+        }
+    }
+    largest
+}
+
+fn main() {
+    let number_list = vec![34, 50, 25, 100, 65];
+    let result = largest(&number_list);
+    println!("The largest number is {}", result);
+
+    let char_list = vec!['y', 'm', 'a', 'q'];
+    let result = largest(&char_list);
+    println!("The largest char is {}", result);
+}
+```
+
+可是，以上的函数中，比较大小的符号不能通过编译。
+
+泛型接收了多种类型，那么就需要对原有代码作适当调整，毕竟不是所有类型都可以做同样的操作。对于这个例子而言，
+涉及了两个值的比较，就可能需要进行一些扩展，PartialOrd 偏序比较接口就是做这个工作的。
+
+到这里，需要先学习 10. Generic Types, Traits, and Lifetimes 章节的内容，因此修复以上错误只需要一点点 Traits 的基础。
+
+那就是为泛型函数参数提供 std::cmp::PartialOrd 和 Copy
+
+```rust,ignore
+fn largest<T: PartialOrd + Copy>(list: &[T]) -> T {
+    let mut largest = list[0];
+
+    for &item in list {
+        if item > largest {
+            largest = item;
+        }
+    }
+
+    largest
+}
+```
+
+Rust 泛型并不会使程序运行变慢，通过编译期的单体化，Monomorphization，将泛型转变为具体类型，也是泛型化的逆向操作。这种在编译期就可以确定的调用，称为 static dispatch。与之相对的是 dynamic dispatch，即不能在编译期确定的调用，需要在运行时确定。
+
+以下示范 `impl<T>` 泛型实现：
+
+```rust,ignore
+struct GenVal<T> {
+    gen_val: T,
+}
+
+impl<T> GenVal<T> {
+    fn value(&self) -> &T {
+        &self.gen_val
+    }
+}
+
+fn main() {
+    let x = GenVal { gen_val: 3i32 };
+    let y = GenVal { gen_val: "3i32" };
+
+    println!("{}, {}", x.value(), y.value());
+}
+```
+
+当然，也可以指定参数实现以上的结构体，只实现单体化版本，如 `impl GenVal<&str> {}`。
+
+
+示范实现一个具有清理功能的 `Empty`：
+
+```rust,ignore
+struct Empty;
+struct Null;
+
+// A trait generic over `T`.
+trait DoubleDrop<T> {
+    fn drop(self, _: T);
+}
+
+// Implement `DoubleDrop<T>` for any generic parameter `T` and caller `U`.
+impl<T, U> DoubleDrop<T> for U {
+    // This method takes ownership of both passed arguments,
+    // deallocating both.
+    fn drop(self, _: T) {}
+}
+
+fn main() {
+    let empty = Empty;
+    let null  = Null;
+
+    // Deallocate `empty` and `null`.
+    empty.drop(null);
+
+    //empty;
+    //null;
+    // ^ TODO: Try uncommenting these lines.
+}
+```
+
+注意，`drop()` 方法，参数没有使用引用，它们会在调用时发生所有权转移到函数内部，并随着函数线束而被清理。
+
+
+使用 Trait Bounds 语法可以有条件地实现泛型方法：在以下 `impl` 块中，Pair<T> 只有在其内部类型
+T 实现 PartialOrd 和 Display 接口特性时才实现 cmp_display 方法。
+
+```rust,ignore
+// listings/ch10-generic-types-traits-and-lifetimes/listing-10-15/src/lib.rs
+use std::fmt::Display;
+
+struct Pair<T> {
+    x: T,
+    y: T,
+}
+
+impl<T> Pair<T> {
+    fn new(x: T, y: T) -> Self {
+        Self { x, y }
+    }
+}
+
+impl<T: Display + PartialOrd> Pair<T> {
+    fn cmp_display(&self) {
+        if self.x >= self.y {
+            println!("The largest member is x = {}", self.x);
+        } else {
+            println!("The largest member is y = {}", self.y);
+        }
+    }
+}
+```
+
+
+### 🟢🔵 Dynamic sized type (DST) 动态大小类型
+- https://doc.rust-lang.org/book/ch17-02-trait-objects.html
+- https://doc.rust-lang.org/book/ch19-04-advanced-types.html#dynamically-sized-types-and-the-sized-trait
+
+Rust 类型系统，需要明确一个类型所占用的存储空间等细节，但又存在复杂的情况，无法在运行时确定数据大小，
+这种类型称为 dynamically sized types (DST) 或无大小类型，这些类型允许我们使用只能在运行时知道
+大小的值来编写代码。
+
+例如，字符串类型 `str` 就是一种 DST 类型，无法直接在代码中声明 str 这种类型，而应该使用 &str：
+
+    let s1: str = "Hello there!";
+    let s2: str = "How's it going?";
+
+Rust 需要知道其大小以分配内存空间，所以字符串会被打包到二进制程序文件中存放，运行程序时再装入内存，
+并通过 &str 引用它，这个引用包含了两个值：字符切片地址及字符串长度。
+
+可以将一个接口当作 trait objects 来使用，但需要使用指针包装接口，例如以下这些形式都可以：
+
+- &dyn Trait 
+- Box<dyn Trait> 
+- Rc<dyn Trait>
+
+Rust 提供了一个 `Sized` 接口配合 DST，用于确定一个类型是否可以在编译期确定大小，所有非 DST 都自动
+实现了这个接口。
+
+此外，Rust 隐式地为每个泛型函数添加了一个 `Sized` 绑定，也就是说，以下是等价的泛型函数定义：
+
+```rust,ignore
+fn generic<T>(t: T) {
+    // --snip--
+}
+
+fn generic<T: Sized>(t: T) {
+    // --snip--
+}
+```
+
+默认情况下，泛型函数只能在编译时对具有已知大小的类型起作用，但是，可以使用以下特殊语法来放宽此限制：
+
+```rust,ignore
+fn generic<T: ?Sized>(t: &T) {
+    // --snip--
+}
+```
+
+绑定的 `?Sized` 表示 T 或许是 Sized 的，这种绑定会覆盖默认的 `Sized` 绑定，`?Trait` 这个语法
+仅适用于 Sized，而不适用于任何其他接口。
+
+还要注意将 `t` 参数的类型从 `T` 切换为 `&T`。因为类型可能没有大小，需要在某种指针后面使用它。
+
+
+假设一个 GUI 应用场景需要实现 draw 行为，如果是基于继承的编程语言中，可能会先定义一个具有同样行为
+的组件接口，再通过实现这个接口扩展出各种具体的组件，比如 Button, Image, SelectBox 等等。
+
+Rust 中则是定义一个名为 Draw 的接口，该特性将具有一个名为 draw 的方法。然后，定义一个向量来获取
+*trait object*，它指向一个实现了 Draw 接口的实例，和用于在运行时查找该类型上的接口方法的查询表。
+我们通过指定某种指针来创建一个 trait 对象，例如 `&` 引用或者一个 `Box<T>` 智能指针，并指定 dyn
+关键字和相关的接口。
+
+使用接口对象可以代替泛型或具体类型，无论在哪里使用 trait 对象，Rust 的类型系统都会在编译时确保在
+该上下文中使用的任何值都会实现相应的接口。因此，我们不需要在编译时知道所有可能的类型。
+
+Rust 语言中避免将结构和枚举称为“对象”，以将它们与其他语言的对象区分开来。结构或枚举类型中，结构字段
+中的数据和 impl 块中的行为是分开的，而在其他语言中，组合成一个概念的数据和行为通常被标记为对象。然而，
+Trait 对象更像其他语言中的对象，因为它们结合了数据和行为，但与传统对象又有区别，我们不能向接口对象
+添加数据。接口对象不像其他语言中的对象那样普遍有用：它们的特定目的是允许跨公共行为进行抽象。
+
+```rust,ignore
+// Define a Trait Object
+pub trait Draw {
+    fn draw(&self);
+}
+
+#[derive(Debug)]
+pub struct Button {
+    pub width: u32,
+    pub height: u32,
+    pub label: String,
+}
+
+// Implementing the Trait
+impl Draw for Button {
+    fn draw(&self) {
+        // code to actually draw a button
+        println!("{:?}", btn);
+    }
+}
+
+struct SelectBox {
+    width: u32,
+    height: u32,
+    options: Vec<String>,
+}
+
+impl Draw for SelectBox {
+    fn draw(&self) {
+        // code to actually draw a select box
+        println!("{:?}", btn);
+    }
+}
+
+fn main() {
+    // use trait methods
+    let btn = Button{ 
+        width: 10, 
+        height:8, 
+        label: String::from("Go") 
+    };
+    btn.draw();
+}
+```
+
+
+### 🟢🔵 Dynamic vs Static Dispatch
+- https://doc.rust-lang.org/stable/book/ch10-01-syntax.html#performance-of-code-using-generics
+- https://doc.rust-lang.org/stable/book/ch17-02-trait-objects.html#trait-objects-perform-dynamic-dispatch
+- https://doc.rust-lang.org/stable/std/keyword.dyn.html
+- https://wiki.jikexueyuan.com/project/rust-1.7/trait-objects.html
+- https://doc.rust-lang.org/reference/types/trait-object.html
+- [trait object](https://zhuanlan.zhihu.com/p/23791817)
+
+在泛型上使用 trait bound 参数时，编译器会执行单形化处理，monomorphization：编译器为每个具体类型
+生成函数和方法的非泛型实现，以代替泛型类型参数。单形化产生的代码是进行静态分派的，即编译器知道在编译时
+调用的是什么方法。这与动态分派相反，动态分派是指编译器在编译时无法判断在调用哪个方法，编译器发出的代码
+将在运行时确定要调用哪个方法。
+
+当我们使用 trait 接口对象时，Rust 必须使用动态分派。编译器不知道使用 trait 对象的代码可能使用的
+所有类型，因此它不知道在哪个类型上实现了哪个方法。相反，在运行时，Rust 使用 trait 对象内的指针来
+知道要调用哪个方法。相比静态调度，这种动态查找会产生额外的运行时成本，并且动态分派还阻止编译器选择
+内联方法的代码，这反过来又阻止了一些优化。优点就是编写的代码中可以获得了额外的灵活性，需要考虑权衡。
+
+所谓 trait 对象，可以理解为其它面向对象语言中指向接口或基类的指针或引用，基指针在运行时可以确定其
+实际类型。Rust 没有类继承，通过 trait 对象保存的指针或引用起到类似的效果，运行时被确定具体类型。
+
+应用中，可以这样理解，指向 trait 的指针就是 Trait Object，假如 Bird 是一个 trait 的名称，
+那么智能指针 `Box<Bird>` 和 `&dyn Bird`，旧语法表达为 `&Bird`，它们都是一种 Trait Object。
+
+因为 Trait 对象是 DST 类型，需要用胖指针来记录地址和长度信息，可以通过以下代码查看与普通指针的区别：
+
+```rust ,ignore
+    use std::mem::size_of;
+    dbg!(size_of::<&Duck>());       // 8
+    dbg!(size_of::<&dyn Bird>());   // 16
+```
+
+当使用 Trait Object，Rust 就必需使用 `dynamic dispatch`，因为编译器无法在编译期得知究竟为
+哪个类型使用了接口。这样，Rust 在 Trait Object 内保存一个指针，在运行时用它来指向要调用的方法。
+在动态派发方式中，编译器生成的代码会在运行时解决应该调用哪个方法，比静态派发多了一个运行时的查表消耗。
+
+和动态派发对立的就是 `static dispatch`，在泛型章节内容中，解析了编译器会在编译期进行单态化处理。
+即那些绑定 Traits 泛型参数的方法会在编译期单体化为具体类型，和泛型相反方向的处理过程。编译结果就是
+调用方法是静态派发的，在编译期就决定了。如静态派发中会将一些函数进行内联 inline 而省略函数调用的消耗。
 
 Rust 最新规范中，impl Trait 和 dyn Trait 分别对应静态分发和动态分发机制的实现语法。
 
@@ -7660,9 +8015,12 @@ Rust 最新规范中，impl Trait 和 dyn Trait 分别对应静态分发和动�
 - `impl` 用于为类型实现功能函数，也可以用于声明参数、返回值为实现某 Trait 的类型；
 - `dyn` 用于突出声明对于关联的 Trait 的方法调用是 Dynamic Dispatch，要使用 `dyn some_trait` 这种方式，要求 some_trait 必需是对象安全的；
 
-与泛型参数或 `impl some_trait` 不同，编译器不知道 `dyn some_trait` 要传递的具体类型，也就是说，类型已被清除。因此，`dyn some_trait`引用包含两个指针，一个指向数据（例如，结构的实例），另一个指向一个保存方法调用名的映射，即称为虚拟方法表或 vtable 的对象。
+与泛型参数或 `impl some_trait` 不同，编译器不知道 `dyn some_trait` 要传递的具体类型，也就是说，
+类型已被清除。因此，`dyn some_trait`引用包含两个指针，一个指向数据（例如，结构的实例），另一个指向
+一个保存方法调用名的映射，即称为虚拟方法表或 vtable 的对象。
 
-在运行时，当需要对 `dyn some_trait` 调用一个方法时，查询 vtable 以获取函数指针，然后调用该函数指针。这也就是说 `dyn some_trait` 方式需要消耗运行时的资源来完成一些动态调用工作。相比 `impl some_trait` 与泛型参数方式，可以在编译期确定，生成对应的各种调用版本，并可以作为内联形式编译，因此具有更好的性能。
+在运行时，当需要对 `dyn some_trait` 调用一个方法时，查询 vtable 以获取函数指针再调用该函数。
+这也就是说 `dyn some_trait` 方式需要消耗运行时的资源来完成一些动态调用工作。相比 `impl some_trait` 与泛型参数方式，可以在编译期确定，生成对应的各种调用版本，并可以作为内联形式编译，因此具有更好的性能。
 
 但是，`dyn some_trait` 因为不在编译期生成各种调用的静态代码，所以它产生更少的编译代码。 
 
@@ -7750,53 +8108,10 @@ test(Duck{});
     fn test_Swan(arg: Swan) { arg.fly(); }
 
 
-```rust,ignore
-// Define a Trait Object
-pub trait Draw {
-    fn draw(&self);
-}
 
-#[derive(Debug)]
-pub struct Button {
-    pub width: u32,
-    pub height: u32,
-    pub label: String,
-}
-
-// Implementing the Trait
-impl Draw for Button {
-    fn draw(&self) {
-        // code to actually draw a button
-        println!("{:?}", btn);
-    }
-}
-
-struct SelectBox {
-    width: u32,
-    height: u32,
-    options: Vec<String>,
-}
-
-impl Draw for SelectBox {
-    fn draw(&self) {
-        // code to actually draw a select box
-        println!("{:?}", btn);
-    }
-}
-
-fn main() {
-    // use trait methods
-    let btn = Button{ 
-        width: 10, 
-        height:8, 
-        label: String::from("Go") 
-    };
-    btn.draw();
-}
-```
 
 ### 🟢🔵 Blog Demo
-- The Rust Programming Language - 17.3 Implementing an Object-Oriented Design Pattern https://doc.rust-lang.org/book/ch17-03-oo-design-patterns.html
+- https://doc.rust-lang.org/book/ch17-03-oo-design-patterns.html
 
 在官方文档 Implementing an Object-Oriented Design Pattern 中，分别只用结构体、结构体结合 Trait 两种方式实现 State Pattern 编程模式，很好演示了 Rust 的类型系统工作原理。
 
@@ -7991,12 +8306,14 @@ impl State for Published {
 - https://doc.rust-lang.org/stable/std/keyword.trait.html
 - https://doc.rust-lang.org/stable/reference/types/trait-object.html
 - https://doc.rust-lang.org/stable/reference/types/impl-trait.html
-- Rust by Example - Traits https://doc.rust-lang.org/rust-by-example/trait.html
-- Traits: Defining Shared Behavior https://doc.rust-lang.org/book/ch10-02-traits.html
+- [Rust by Example - Traits](https://doc.rust-lang.org/rust-by-example/trait.html)
+- [Traits: Defining Shared Behavior](https://doc.rust-lang.org/book/ch10-02-traits.html)
 
-官方文档中用一个标题作了明示 Traits: Defining Shared Behavior。
+官方文档中用一个标题作了明示 Traits: Defining Shared Behavior，即接口扩展。
 
-Traits 这个概念在 PHP 中也有，它被用来对各种类型进行功能扩展。Rust 中的 trait 也是做这种工作的，和泛型一样是非常重要的概念，trait 可以翻译为特性、特质等，trait 这个概念承担了多种职责。
+Traits 这个概念在 PHP 中也有，它被用来对各种类型进行功能扩展。Rust 中的 trait 也是做这种工作的，
+这是编程接口的一种形式，和泛型一样是非常重要的概念，trait 可以翻译为特性、特质等，和其它语言中的
+interface 概念是一致的。
 
 和其它语言中的 Interface 抽象类型相比，trait 这个概念有很大不同，更接近 Golang interface 采用的组合方式。
 
@@ -8156,6 +8473,9 @@ pub fn notify(item: &impl Summary) {
 pub fn notify<T: Summary>(item: &T) {
     println!("Breaking news! {}", item.summarize());
 }
+
+// Specifying Multiple Trait Bounds with the + Syntax
+pub fn notify(item: &(impl Summary + Display)) { ... }
 ```
 
 Bound 这个称谓可以翻译作为捆绑或绑定都可以，这很贴合语法的含义，翻译机器直接解析为约束，这个实在不恰当。
@@ -8629,174 +8949,6 @@ for number in five_numbers {
     println!("{}", number);
 }
 ```
-
-### 🟢🔵 Generic Types
-- https://doc.rust-lang.org/book/ch10-00-generics.html
-- https://rustc-dev-guide.rust-lang.org/backend/monomorph.html
-- https://doc.rust-lang.org/rust-by-example/generics.html
-
-所以高级语言都有用来解决重复代码的工具，泛型是常用的工具，Rust 也用它。
-
-总结一下泛型的使用方式：
-
-- 泛型函数 `fn genericFun<T>(arg: SomeType<T>) {}`
-- 泛型实现 `impl<T>` 按泛型实现对象的方法扩展。
-- 泛型 Traits `trait GenericeTrait<T>{...}`
-
-例如，定义一个泛型的结构体：
-
-```rust,ignore
-struct Point<T> {
-    x: T,
-    y: T,
-}
-
-fn main() {
-    let integer = Point { x: 5, y: 10 };
-    let float = Point { x: 1.0, y: 4.0 };
-}
-```
-
-如果，需要多个泛型参数，在尖括号中添加即可，如下：
-
-```rust,ignore
-struct Point<T, U> {
-    x: T,
-    y: U,
-}
-
-let also_work = Point { x: 5, y: 4.0 };
-```
-
-泛型的枚举类型定义，也可以多个泛型参数：
-
-```rust,ignore
-enum Option<T> {
-    Some(T),
-    None,
-}
-
-enum Result<T, E> {
-    Ok(T),
-    Err(E),
-}
-```
-
-现在，假设要实现一个函数，它可以返回一组数的最大那个，只需要实现一个函数就可以解决这个问题。
-
-当需要变了，需要对整数列表、浮点数列表还有字符串列表进行处理，返回其中最大的一个。如果按传统方式，可能需要定义三个逻辑基本一致的函数，这就出现了大量的代码重复。
-
-通过泛型工具可以有效地解决这样的功能重复代码，只需要实现一个泛型函数，接收一个泛型列表，再用相同的功能逻辑代码进行处理返回结果。
-
-泛型工具的语法上只是在原有的名称后面增加箭括号，用于传入泛型工具所需要的参数，在这里可以将泛型函数看作是一个函数工厂，它会根据调用的参数类型生产出相应的函数。
-
-```rust,ignore
-fn largest<T>(list: &[T]) -> &T {
-    let mut largest = &list[0];
-    for elem in list {
-        // error[E0369]: binary operation `>` cannot be applied to type `&T`
-        if elem > largest {
-            largest = elem;
-        }
-    }
-    largest
-}
-
-fn main() {
-    let number_list = vec![34, 50, 25, 100, 65];
-    let result = largest(&number_list);
-    println!("The largest number is {}", result);
-
-    let char_list = vec!['y', 'm', 'a', 'q'];
-    let result = largest(&char_list);
-    println!("The largest char is {}", result);
-}
-```
-
-可是，以上的函数中，比较大小的符号不能通过编译。
-
-泛型接收了多种类型，那么就需要对原有代码作适当调整，毕竟不是所有类型都可以做同样的操作。对于这个例子而言，涉及了两个值的比较，就可能需要进行一些扩展，Trait 就是做这个工作的。
-
-到这里，需要先学习 10. Generic Types, Traits, and Lifetimes 章节的内容，因此修复以上错误只需要一点点 Traits 的基础。
-
-那就是为泛型函数参数提供 std::cmp::PartialOrd 和 Copy
-
-```rust,ignore
-fn largest<T: PartialOrd + Copy>(list: &[T]) -> T {
-    let mut largest = list[0];
-
-    for &item in list {
-        if item > largest {
-            largest = item;
-        }
-    }
-
-    largest
-}
-```
-
-Rust 泛型并不会使程序运行变慢，通过编译期的单体化，Monomorphization，将泛型转变为具体类型，也是泛型化的逆向操作。这种在编译期就可以确定的调用，称为 static dispatch。与之相对的是 dynamic dispatch，即不能在编译期确定的调用，需要在运行时确定。
-
-以下示范 `impl<T>` 泛型实现：
-
-```rust,ignore
-struct GenVal<T> {
-    gen_val: T,
-}
-
-impl<T> GenVal<T> {
-    fn value(&self) -> &T {
-        &self.gen_val
-    }
-}
-
-fn main() {
-    let x = GenVal { gen_val: 3i32 };
-    let y = GenVal { gen_val: "3i32" };
-
-    println!("{}, {}", x.value(), y.value());
-}
-```
-
-当然，也可以指定参数实现以上的结构体，只实现单体化版本，如 `impl GenVal<&str> {}`。
-
-
-示范实现一个具有清理功能的 `Empty`：
-
-```rust,ignore
-struct Empty;
-struct Null;
-
-// A trait generic over `T`.
-trait DoubleDrop<T> {
-    fn drop(self, _: T);
-}
-
-// Implement `DoubleDrop<T>` for any generic parameter `T` and caller `U`.
-impl<T, U> DoubleDrop<T> for U {
-    // This method takes ownership of both passed arguments,
-    // deallocating both.
-    fn drop(self, _: T) {}
-}
-
-fn main() {
-    let empty = Empty;
-    let null  = Null;
-
-    // Deallocate `empty` and `null`.
-    empty.drop(null);
-
-    //empty;
-    //null;
-    // ^ TODO: Try uncommenting these lines.
-}
-```
-
-注意，`drop()` 方法，参数没有使用引用，它们会在调用时发生所有权转移到函数内部，并随着函数线束而被清理。
-
-
-
-
 
 ## ⚡ Patterns & Match 模式匹配
 - https://doc.rust-lang.org/book/ch06-02-match.html
@@ -9565,6 +9717,7 @@ assert_eq!(x.ok(), None);
 ```
 
 ### 🟢🔵 Unpacking & Propagating Errors with ?
+- https://brson.github.io/2016/11/30/starting-with-error-chain
 
 如果你的代码有大量的函数调用会返回 Result，那么错误处理将会是非常冗余枯燥的。
 
@@ -9700,6 +9853,7 @@ if let Err(err) = result {
 
 ### 🟢🔵 Error Message
 - http://stevedonovan.github.io/rust-gentle-intro/6-error-handling.html
+- [Rust Cookbook - Making Requests](https://rust-lang-nursery.github.io/rust-cookbook/web/clients/requests.html)
 
 错误发生时，通常可以记录的是一个错误码，而将错误码与相关的信息关联起来，才能给用户友好的提示。
 
@@ -9799,7 +9953,73 @@ fn main(){
 
     type BoxResult<T> = Result<T,Box<Error>>;
 
-Here we also ask for From to be implemented so that std::io::Error will convert into our error type using foreign_links:
+社区上有一个 error-chain 用于处理自定义错误类型，但目前已经不更新，它可以自动处理错误相关接口，
+Display, Debug 和 Error 结构等，以及 `From` 接口，以实现归一化的错误类型的转换。
+
+```rust,ignore
+error_chain! {
+    // Types generated by the macro. If empty or absent, it defaults to
+    //     Error, ErrorKind, Result;
+    types {
+        // With custom names:
+        MyError, MyErrorKind, MyResult;
+        // Without the `Result` wrapper:
+        //     Error, ErrorKind;
+    }
+
+    // Automatic bindings to other error types generated by `error_chain!`.
+    links {
+        Inner(inner::Error, inner::ErrorKind);
+        // Attributes can be added at the end of the declaration.
+        Feature(feature::Error, feature::ErrorKind) #[cfg(feature = "a_feature")];
+    }
+
+    // Bindings to types implementing std::error::Error.
+    foreign_links {
+        Io(::std::io::Error);
+    }
+}
+```
+
+`foreign_links` 中定义了 ErrorKind 错误枚举可能的取值，具体代码可以。可以在 Rust Playground
+上生成 HIR 中间代码，也可以使用命令生成 LLVM-IR (.ll) 或者 MIR (.mir)：
+
+    cargo rustc -- -Z unpretty=hir-tree
+    cargo rustc -- --emit llvm-ir
+    cargo rustc -- --emit mir
+
+参考如下代码，`error_chain` 简化了错误处理代码，自动实现的错误类型 errors::Error 可以自动由
+std::io::Error 转换得到，自动代码包含 From<std::io::Error> 接口的实现，所以 ? 符号可以处理
+自定义的错误类型。
+
+```rust ,ignore
+use std::io::Read;
+
+mod errors {
+    use error_chain::error_chain;
+    error_chain! {
+        foreign_links {
+            Io(std::io::Error);
+            HttpRequest(reqwest::Error);
+        }
+    }
+}
+use errors::*;
+
+fn main() -> Result<()> {
+    let mut res = reqwest::blocking::get("http://httpbin.org/get")?;
+    let mut body = String::new();
+    res.read_to_string(&mut body)?;
+
+    println!("Status: {}", res.status());
+    println!("Headers:\n{:#?}", res.headers());
+    println!("Body:\n{}", body);
+
+    Ok(())
+}
+```
+
+
 
 
 ## ⚡ Collections 集合
@@ -12267,16 +12487,15 @@ Trait 绑定 `?Sized` 后，就表示一个 DST 类型，即泛型参数 T 可�
 
 
 ## ⚡ Closures 闭包
-- https://doc.rust-lang.org/book/ch19-05-advanced-functions-and-closures.html
 - https://doc.rust-lang.org/rust-by-example/fn/closures.html
 - https://doc.rust-lang.org/stable/std/ops/trait.Fn.html
 - https://doc.rust-lang.org/stable/reference/types/closure.html
-- Finding Closure in Rust https://huonw.github.io/blog/2015/05/finding-closure-in-rust/
-- Functional Language Features: Iterators & Closures https://doc.rust-lang.org/book/ch13-00-functional-features.html
-- Closures: Anonymous Functions that Can Capture Their Environment https://doc.rust-lang.org/book/ch13-01-closures.html
-- Why Rust Closures are Hard https://stevedonovan.github.io/rustifications/2018/08/18/rust-closures-are-hard.html
-- Higher-Rank Trait Bounds (HRTBs) https://doc.rust-lang.org/nomicon/hrtb.html
-- 理解 Rust 中的 Closure https://zhuanlan.zhihu.com/p/64417628
+- [Finding Closure in Rust](https://huonw.github.io/blog/2015/05/finding-closure-in-rust/)
+- [Functional Language Features: Iterators & Closures](https://doc.rust-lang.org/book/ch13-00-functional-features.html)
+- [Closures: Anonymous Functions that Can Capture Their Environment](https://doc.rust-lang.org/book/ch13-01-closures.html)
+- [Advanced Functions and Closures](https://doc.rust-lang.org/book/ch19-05-advanced-functions-and-closures.html)
+- [Why Rust Closures are Hard](https://stevedonovan.github.io/rustifications/2018/08/18/rust-closures-are-hard.html)
+- [Higher-Rank Trait Bounds (HRTBs)](https://doc.rust-lang.org/nomicon/hrtb.html)
 
 函数可以用指针调用，即函数可以像普通变量一样传递：
 
@@ -12295,9 +12514,10 @@ fn main() {
 }
 ```
 
-与闭包不同，关键字 `fn` 是定义一个类型而不是 Fn Trait，用 fn 指定参数类型，而不是声明一个泛型参数去绑定 Trait。
-
+与闭包不同，关键字 `fn` 是定义一个函数类型而不是 Fn 接口，用 fn 指定参数类型，而不是声明一个泛型参数去绑定接口。
 闭包就是一个结构记录，它保存一个函数与当前环境关联。语法上相当是一个匿名函数，有时候也称作 lambda 表达式。
+从功能性上说 lambda 和 closure 是一个匿名函数，若匿名函数捕获了一个外部变量，那么它就是一个闭包。
+
 
 语法格式 `|val| exps`，典型标志是两条竖线，其特征如下：
 
@@ -12307,6 +12527,9 @@ fn main() {
     - `Fn`: 闭包捕捉引用 `&T`；
     - `FnMut`: 闭包捕捉可变引用 `&mut T`；
     - `FnOnce`: 闭包捕捉所有权 `T`，对应简写形式 `move ||`；
+
+FnOnce 适用于可以调用一次的闭包，所有闭包都至少实现了这个特性，因为所有闭包都可以被调用。将捕获的值
+移出其主体的闭包只会实现 FnOnce，而不会实现其他 Fn，因为它只能调用一次。
 
 而默认的捕获选择顺序：
 
@@ -12319,7 +12542,11 @@ fn main() {
 - 闭包共享引用形式 `& ||`；
 - 闭包可变引用形式 `&mut ||`；
 
-Rust 内存模型中的数据有三处存储类型：栈上、托管堆上、以及交换堆上。所以，对应有三种闭包：stack closure、managed closure、owned closure。
+Rust 内存模型中的数据有三处存储类型，对应有三种闭包：
+
+- 栈上 stack closure
+- 托管堆上 managed closure
+- 以及交换堆上 owned closure
 
 前面示范代码中 `do_twice()` 方法可以等价实现为 Fn 方式：
 
@@ -12331,7 +12558,7 @@ where F: Fn(i32) -> i32
 }
 ```
 
-函数指针类型实现了 `Fn` `FnMut` `FnOnce` 这三个 Traits 类型，所以哪里需要传入闭包，就可以传入函数指针，如向量列表对象的 map() 方法。
+函数指针类型实现了 `Fn` `FnMut` `FnOnce` 这三个接口，所以哪里需要传入闭包，就可以传入函数指针，如向量列表对象的 map() 方法。
 
 ```rust,ignore
 let nums = vec![1, 2, 3];
@@ -12433,64 +12660,68 @@ where F: FnOnce()
 call(consume);
 ```
 
+如果要将闭包作为函数返回值，那么就需要考虑到一个问题：闭包的大小不能确定，所以不能直接返回一个闭包，
+而是需要用指针包装后再返回这个指针：
+
+```rust,ignore
+fn returns_closure() -> Box<dyn Fn(i32) -> i32> {
+    Box::new(|x| x + 1)
+}
+```
+
+
+
 ### 🟢🔵 Closures Lifetime
 
 关于闭包生命周期，请看 Stackoverflow 上的一个问题：
 
 ```rust,ignore
-// https://stackoverflow.com/questions/65985081
-// temporary value dropped while borrowed
+// The Rust Programming Language - Thinking in Rust
+// - [Functional Language Features: Iterators and Closures](ch13-00-functional-features.md)
+// - [temporary value dropped while borrowed](https://stackoverflow.com/questions/65985081)
 
 struct Animal<'a> {
-    format: &'a dyn Fn() -> (),
+  print: &'a dyn Fn() -> (),
 }
 impl<'a> Animal<'a> {
-    // Getting rid of 'a here satisfies the compiler, why?
-    pub fn set_formatter(&mut self, _fmt: &'a dyn Fn() -> ()) -> () {}
-    pub fn bark(&self) {}
+  pub fn set_print(&mut self, _fun: &'a dyn Fn() -> ()) -> () {
+    self.print = _fun;
+  }
+  pub fn bark(&self) { 
+    (self.print)();
+  }
 }
 
 fn main() {
-    let mut dog: Animal = Animal { format: &|| {()} };
-    let x = 0;
-    dog.set_formatter(&|| {
-        // Commenting this out gets rid of the error. Why?
-        println!("{}", x);
-    });
-    // Commenting this out gets rid of the error. Why?
-    dog.bark();
-    dbg!(x);
+  let x = 999;
+  let mut dog: Animal = Animal { print: &|| { 
+      println!("dog print {}", x) 
+      } };
+
+  let bind = || { println!("dog barking: {}", x)};
+  dog.set_print(&bind);
+  dog.bark();
+  dbg!(x);
+
+  // dog.set_print(&|| {
+  //     println!("{}", x)
+  //     //             ^ borrowed value does not live long enough
+  // });
+  // temporary value (lambda) is freed at the end of this statement, at } symbol.
+  // dog.bark();
+  // ---------- borrow later used here
 }
 ```
 
-从编译器提示的错误信息可以得知，闭包引用传入时产生了一个临时变量：
-
-    22 |       dog.set_formatter(&|| {
-       |  ________________________^
-    23 | |         // Commenting this out gets rid of the error. Why?
-    24 | |         println!("{}", x);
-    25 | |     });
-       | |     ^ - temporary value is freed at the end of this statement
-       | |_____|
-       |       creates a temporary which is freed while still in use
-    26 |       // Commenting this out gets rid of the error. Why?
-    27 |       dog.bark();
-       |       --- borrow later used here
-       |
-       = note: consider using a `let` binding to create a longer lived value
+从编译器提示的错误信息可以得知，set 方法执行这一行产生了一个临时变量。
 
 要点分析：
 
-- `&||()` 这里定义了一个无返回值的闭包，同时取引用传入了函数作为回调。
-- `&||()` 这个闭包引用是 `'static` 生命周期。
-- 需要保证闭包捕捉的变量生命周期不短于闭包生命周期。
-- ``
+- `&||()` 定义了一个无返回值的闭包，同时取引用传入了函数作为回调。
+- `&||()` 定义的这个闭包引用是 `'static` 生命周期。
+- 但是，在 set 方法执行后，这个闭包就 free 掉了，因此后续不能再访问到它。
 
-The first thing to understand is that &|| () has a 'static lifetime:
-
-fn main() {
-    let closure: &'static dyn Fn() = &|| (); // compiles
-}
+需要保证闭包捕捉的变量生命周期不短于闭包生命周期，并且定义闭包本身时也需要保证它的有效期。
 
 
 
@@ -15075,7 +15306,8 @@ Rust 项目旨在解决这两个棘手的问题：
 - 如何进行安全的系统编程？
 - 如何使得并发更容易？
 
-意外的是它们解决方案是一致的：内存安全漏洞和并发漏洞通常都可以归结于访问了不应该访问的数据。Rust 的秘密武器是所有权机制，这是系统程序员试图遵循的一种访问控制原则，而 Rust 编译器将为你静态检查。
+意外的是它们解决方案是一致的：内存安全漏洞和并发漏洞通常都可以归结于访问了不应该访问的数据。Rust 的
+秘密武器是所有权机制，这是系统程序员试图遵循的一种访问控制原则，而 Rust 编译器将为你静态检查。
 
 对于内存安全性，这意味着你可以在没有垃圾收集器的情况下编程，而且不需要害怕段错误，因为 Rust 将会捕捉你的错误。
 
@@ -15096,15 +15328,20 @@ Rust 项目旨在解决这两个棘手的问题：
 
 并发、并行，与异步是容易混淆的概念。
 
-异步 Asynchronous 与同步 Synchronous 是对立概念，是描述代码执行的方式。异步可以让需要等待的代码进入暂停状态，等待中断信号来唤醒。同时继续执行后续的代码，而同步则不会这样，同步会一起等待时间消耗大的任务完成返回后才继续执行。
+异步 Asynchronous 与同步 Synchronous 是对立概念，是描述代码执行的方式。异步可以让需要等待的代码
+进入暂停状态，等待中断信号来唤醒。同时继续执行后续的代码，而同步则不会这样，同步会一起等待时间消耗大
+的任务完成返回后才继续执行。
 
-异步，在单线程上就可以实现，而并行 Parallel 则需要多线程，即在多核芯 CPU 上才有效力。进程是操作系统进行内存或硬件资源分配的基本单位，线程则是操作系统的调度程序执行的基本单位。
+异步，在单线程上就可以实现，而并行 Parallel 则需要多线程，即在多核芯 CPU 上才有效力。进程是操作
+系统进行内存或硬件资源分配的基本单位，线程则是操作系统的调度程序执行的基本单位。
 
-并行是同时运行代码 Run Code Simultaneously，并发类似并行，关键是你有处理多个任务的能力，不一定要同时。并行的关键是你有同时处理多个任务的能力。所以我认为它们最关键的点就是：是否是『同时』。
+并行是同时运行代码 Run Code Simultaneously，并发类似并行，并发关键是你有处理多个任务的能力，
+不一定要同时。并行的关键是你有同时处理多个任务的能力。所以我认为它们最关键的点就是：是否是『同时』。
 
-线程同步 Thread Synchronization 这一概念将同步扩展到多线程程序中来，实现线程同步的代码就具有对同一数据访问的同步访问，具有多线程安全性。
+线程同步 Thread Synchronization 这一概念将同步扩展到多线程程序中来，实现线程同步的代码就具有
+对同一数据访问的同步访问，具有多线程安全性。
 
-一个抽象的比喻：
+一个形象的比喻：
 
 - 你吃饭吃到一半，电话来了，你一直到吃完了以后才去接，这就说明你不支持并发也不支持并行。
 - 你吃饭吃到一半，电话来了，你停了下来接了电话，接完后继续吃饭，这说明你支持并发。
@@ -15178,6 +15415,7 @@ fn main() {
         thread::sleep(Duration::from_millis(10));
     }
     
+    // wait thread to finishe
     // handle.join().unwrap();
 }
 ```
@@ -15666,8 +15904,9 @@ Rust 正是通过所有权和生命周期 + Send 和 Sync（本质上为类型�
 
 
 
-# 🟡🟠 Multithreaded Web Server
+## ⚡ Multithreaded Web Server
 - https://doc.rust-lang.org/book/ch20-00-final-project-a-web-server.html
+- https://doc.rust-lang.org/book/ch20-02-multithreaded.html
 - https://doc.rust-lang.org/stable/std/net/struct.TcpStream.html
 - The I/O Prelude https://doc.rust-lang.org/stable/std/io/prelude/index.html
 - Filesystem manipulation operations https://doc.rust-lang.org/stable/std/fs/index.html
@@ -15798,7 +16037,10 @@ fn handle(mut ts: TcpStream){
 
 这个单线程实现的 Web 服务器的响应效率并不高，因为每个客户端连接都需要等待前一个连接处理完成后再跟进处理，需要使用多线程对其进行改造。
 
-通常，使用线程池 thread pool 是一个不错的方案，设置一定数量的线程来处理客户端连接，每个线程在处理完一个连接后就进入空闲状态，等待新的连接进入。这种方案比单独一个线程对应一个连接的方案更节省资源，结合 single-threaded async I/O 可以实现性能非常高的服务器。并且，由于线程数量可控，这种方案更容易应付 DoS - Denial of Service 攻击，不会因为大量涌入的攻击请求而导致服务器宕机。
+通常，使用线程池 thread pool 是一个不错的方案，设置一定数量的线程来处理客户端连接，每个线程在处理完
+一个连接后就进入空闲状态，等待新的连接进入。这种方案比单独一个线程对应一个连接的方案更节省资源，结合 
+single-threaded async I/O 可以实现性能非常高的服务器。并且，由于线程数量可控，这种方案更容易应付
+DoS - Denial of Service 攻击，不会因为大量涌入的攻击请求而导致服务器宕机。
 
 使用`unwrap`方法的原因是我们知道失败情形不会发生，但是编译器不知道这一点。
 
@@ -15815,56 +16057,161 @@ if let Ok(size) = ts.read(&mut buf) {
 }
 ```
 
+要并发处理请求，可以有多种并发编程模型：
 
-## ⚡ Thread Pool 线程池实现
-- https://crates.io/crates/scheduled-thread-pool
+- fork/join model
+- single-threaded async I/O model
+- multi-threaded async I/O model
 
-可以在 crates.io 上找到现有的线程池实现，学习他人的实现与这里的实现差异，比较一下哪种实现更强壮。
-
-现在来设计线程池接口，只需要 ThreadPool 可以配置线程数量即可，提供一个 `execute()` 方法来处理客户端请求：
+最简单直接的并发编程模型就是 fork/join 模型，它为每个请求生成一个专用线程去处理连接。因为这种模型
+的线程切换频繁，它要求的系统的资源更多：
 
 ```rust,ignore
+use std::{
+    fs,
+    io::{prelude::*, BufReader},
+    net::{TcpListener, TcpStream},
+    thread,
+    time::Duration,
+};
+
 fn main() {
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
-    let pool = ThreadPool::new(4);
 
     for stream in listener.incoming() {
         let stream = stream.unwrap();
 
-        pool.execute(|| {
-            handle(stream);
+        thread::spawn(|| {
+            handle_connection(stream);
         });
     }
 }
+
+fn handle_connection(mut stream: TcpStream) {
+    let buf_reader = BufReader::new(&mut stream);
+    let request_line = buf_reader.lines().next().unwrap().unwrap();
+
+    let (status_line, filename) = match &request_line[..] {
+        "GET / HTTP/1.1" => ("HTTP/1.1 200 OK", "hello.html"),
+        "GET /sleep HTTP/1.1" => {
+            thread::sleep(Duration::from_secs(5));
+            ("HTTP/1.1 200 OK", "hello.html")
+        }
+        _ => ("HTTP/1.1 404 NOT FOUND", "404.html"),
+    };
+
+    let contents = fs::read_to_string(filename).unwrap();
+    let length = contents.len();
+
+    let response =
+        format!("{status_line}\r\nContent-Length: {length}\r\n\r\n{contents}");
+
+    stream.write_all(response.as_bytes()).unwrap();
+}
 ```
 
-尝试编译以上代码，编译器会给出错误提示，`ThreadPool` 没有实现，也没有 `execute()` 方法，需要去实现它们。Rust 将这种根据编译器提示来跟进代码实现的开发流程称为 Compiler Driven Development。
 
-另外，还需要抽象一个工作线程 `Worker` 对象来管理线程的运行，并保存在线程池保内的队列中，每个工作线程在执行代码时就创建新的线程，完成后就进入空闲状态。
+## ⚡ Thread Pool 线程池实现
+- https://crates.io/crates/scheduled-thread-pool
+- https://doc.rust-lang.org/book/ch20-02-multithreaded.html
+- https://doc.rust-lang.org/book/ch20-03-graceful-shutdown-and-cleanup.html
 
-工作线程使用管道进行通信，只需接收从线程池传递过来的将客户连接任务，以及结束消息的处理即可。所以，需要在线程池对象中创建管道，并将接收端交给 Worker 以接收线程池中通过发送端传递来过的消息。
+池化技术 (Pool) 是一种很常见的编程技巧及编程模式，常见的池化技术的应用有：线程池、内存池、数据库连接池等。
+在多线程编程中，使用线程池技术，可以在任务切换量大时明显优化应用性能，降低因操作系统频繁切换线程引起的开销。
+线程池可以使用线程容器将已经创建好的线程管理起来，线程执行完成任务后进入空闲状态，并不会被销毁，而是
+管理起来，在下次需要执行任务时重复使用，减少了与操作系统层面上的操作，提升了效率。
 
-线程池在实例化时就创建工作线程，并由工作线程执行线程的孵化函数，借助管道的 `recv()` 方法的阻塞功能，可以结合 `loop` 循环结构来持续不断地执行：连接处理 -> 完成处理 -> 进入空闲 -> 处理新连接。
+现在来设计线程池接口，需要 ThreadPool 可以配置线程数量即可，提供一个 `execute()` 方法来处理客户端请求：
+
+```rust,ignore
+use hello::ThreadPool;
+use std::fs;
+use std::io::prelude::*;
+use std::net::TcpListener;
+use std::net::TcpStream;
+use std::thread;
+use std::time::Duration;
+
+fn main() {
+    let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
+    let pool = ThreadPool::new(4);
+
+    for stream in listener.incoming().take(2) {
+        let stream = stream.unwrap();
+
+        pool.execute(|| {
+            handle_connection(stream);
+        });
+    }
+
+    println!("Shutting down.");
+}
+
+fn handle_connection(mut stream: TcpStream) {
+    let mut buffer = [0; 1024];
+    stream.read(&mut buffer).unwrap();
+
+    let get = b"GET / HTTP/1.1\r\n";
+    let sleep = b"GET /sleep HTTP/1.1\r\n";
+
+    let (status_line, filename) = if buffer.starts_with(get) {
+        ("HTTP/1.1 200 OK", "hello.html")
+    } else if buffer.starts_with(sleep) {
+        thread::sleep(Duration::from_secs(5));
+        ("HTTP/1.1 200 OK", "hello.html")
+    } else {
+        ("HTTP/1.1 404 NOT FOUND", "404.html")
+    };
+
+    let contents = fs::read_to_string(filename).unwrap();
+
+    let response = format!(
+        "{}\r\nContent-Length: {}\r\n\r\n{}",
+        status_line,
+        contents.len(),
+        contents
+    );
+
+    stream.write_all(response.as_bytes()).unwrap();
+    stream.flush().unwrap();
+}
+```
+
+目前 `ThreadPool` 还没有实现，也没有实现 `execute()` 方法，下一步就需要去实现它们。如果尝试编译它，
+编译器会提示没有相应方法的实现，这种根据编译器提示进行的开发流程称为 Compiler Driven Development。
+
+另外，还需要抽象一个工作线程 `Worker` 对象来管理线程的运行，并保存在线程池保内的队列中，每个工作线程
+在执行代码时就创建新的线程，完成后就进入空闲状态。
+
+工作线程使用管道进行通信，只需接收从线程池传递过来的将客户连接任务，以及结束消息的处理即可。所以，需要
+在线程池对象中创建管道，并将接收端交给 Worker 以接收线程池中通过发送端传递来过的消息。
+
+线程池在实例化时就创建工作线程，并由工作线程执行线程的孵化函数，借助管道的 `recv()` 方法的阻塞功能，
+可以结合 `loop` 循环结构来持续不断地执行：连接处理 -> 完成处理 -> 进入空闲 -> 处理新连接。
 
 线程池需要在 `execute()` 方法将客户连接的处理函数通过管道消息转发给工作线程，由工作线程执行处理函数：
 
+```rust,ignore
     pub fn spawn<F, T>(f: F) -> JoinHandle<T> 
     where
         // F: FnOnce() -> T + Send + 'static,
         F: FnOnce() -> T,
         F: Send + 'static,
         T: Send + 'static, 
+```
 
-根据 Traits 扩展的内部可知，闭包有 Fn, FnMut, FnOnce 等基本方式，而 `spawn` 方法要求了 FnOnce 即需要移动引用的外部数据所有权。因此实现线程池的 `execute()` 方法也需要接收一个 F 类型的参数，注意，传入的 Fn 还实现了 Send 表示在线程间移动所有权具有线程安全特性，还有 `'static` 生命周期，以。
+根据 Traits 扩展的内部可知，闭包有 Fn, FnMut, FnOnce 等基本方式，而 `spawn` 方法要求 FnOnce，
+即需要移动引用的外部数据所有权。因此实现线程池的 `execute()` 方法也需要接收一个 F 类型的参数，
+注意，传入的 Fn 还实现了 Send 表示在线程间移动所有权具有线程安全特性，还有 `'static` 生命周期。
 
 为了更好地组织代码文件，将线程池部分代码写到 lib.rs 文件，作为库文件。
 
-主程序 server.rs 和 client.rs 分别作用服务器，和客户端程序，可以放入 bin 目录中，结构如下：
+主程序 server.rs 和 client.rs 分别作用服务器和客户端程序，可以放入 bin 目录中，结构如下：
 
     src
      +-- bin
-     |    +-- main.rs
-     |    +-- main.rs
+     |    +-- server.rs
+     |    +-- client.rs
      +-- lib.rs
 
 注意，创建工程时使用的是 webserver 作为名称，引用库需要指定当前工程命名空间：
@@ -15913,9 +16260,14 @@ fn main() {
 }
 ```
 
-以下是需要的服务器端基本类型定义：
+以下是服务器端需要的基本类型定义：
 
 ```rust,ignore
+use std::{
+    sync::{mpsc, Arc, Mutex},
+    thread,
+};
+
 pub struct ThreadPool {
     workers: Vec<Worker>,
     sender: mpsc::Sender<Message>,
@@ -15937,21 +16289,20 @@ enum Message {
 除了基本的线程池、工作线程对象，还定义了：
 
 - `Job` 类型，使用智能指针包装连接处理函数封装后的闭包，并通过消息在管道中传递，由线程池发送给工作线程。
-- `Message` 消息枚举类型，主要有 `NewJob(Job)` 和 `Terminate` 两种取值。
+- `Message` 消息枚举类型，主要有 `NewJob(Job)` 和 `Terminate` 两种取值，后者用于关闭线程任务循环。
 
-接下来就需要实现线程池和工作线程：
+
+接下来就需要实现线程池和工作线程，参考代码：
+
+- ch20-web-server/no-listing-07-final-code/src/main.rs
+- ch20-web-server/no-listing-07-final-code/src/lib.rs
 
 ```rust,ignore
 impl ThreadPool {
-    /// Create a new ThreadPool.
-    ///
-    /// The size is the number of threads in the pool.
-    ///
-    /// # Panics
-    ///
-    /// The `new` function will panic if the size is zero.
     pub fn new(size: usize) -> ThreadPool {
+        
         assert!(size > 0);
+
         let (sender, receiver) = mpsc::channel();
         let receiver = Arc::new(Mutex::new(receiver));
         let mut workers = Vec::with_capacity(size);
@@ -16007,7 +16358,8 @@ impl Worker {
                     break;
                 }
             }
-        });
+        }).unwrap();
+
         Worker { id, thread: Some(thread), }
     }
 }
@@ -16024,11 +16376,16 @@ impl Worker {
 - 为了在工作线程中实现线程安全共享管道对象，使用 `Mutex` 对管理对象进行包装。
 - 并且使用 `Arc` 为包装了管道对象的互斥量创建多所有权，使得接收端可以被多个工作线程使用，以接收线程池中传递的消息。
 
-注意，Worker 中的 thread 不是直接保存 `JoinHandle<()>` 而是将线程句柄封装在 Option 类型内。因为需要在多个线程种执行和线程的`join`，即需要多个可变引用。而它们没有实现 `Copy` trait，即没有多所有权的对象不能在多个线程中移动单一的所有权。
+注意，Worker 中的 thread 不是直接保存 `JoinHandle<()>` 而是将线程句柄封装在 Option 类型内。
+因为需要在多个线程种执行和线程的`join`，即需要多个可变引用。而它们没有实现 `Copy` trait，即没有
+多所有权的对象不能在多个线程中移动单一的所有权。
 
-管道的 Receiver 对象不能直接在多个线程间转移，它没有实现 Copy Trait，无法在转移所有权过程中进行拷贝，就无法在将其所有权在多个线程间移动。最简单的方法就是使用 `Arc<Mutex<T>>` 进行封装，实现线程安全的多所有权。
+管道的 Receiver 对象不能直接在多个线程间转移，它没有实现 Copy Trait，无法在转移所有权过程中进行
+拷贝，就无法在将其所有权在多个线程间移动。最简单的方法就是使用 `Arc<Mutex<T>>` 进行封装，实现线程
+安全的多所有权。
 
-Mutex 对象没有 `unlock` 方法，获取锁后返回一个 `MutexGuard<T>` 对象，封装在 `LockResult` 内，它在生命周期结束时，会自动对锁定对象进行解锁。 
+Mutex 对象没有 `unlock` 方法，获取锁后返回一个 `MutexGuard<T>` 对象，封装在 `LockResult` 内，
+它在生命周期结束时，会自动对锁定对象进行解锁。 
 
 如果，所有子线程全部结束后，再次通过管道发送消息，由于没有接收方，所以 `send` 方法会返回一个 `SendError`。
 
@@ -16640,8 +16997,13 @@ fn main() {
 - https://lib.rs/crates/webview-sys
 - https://github.com/webview/webview
 - https://github.com/Boscop/web-view/tree/master/webview-examples/examples
+- https://tauri.app/v1/guides/getting-started/setup/
+- https://docs.rs/tauri/1.2.3/tauri/
 
-修改配置文件 Cargo.toml 根据需要添加依赖，指定 Edge 浏览器内核需要 Windows 10 SDK，可以在 Visual Studio 安装程序中增加：
+Webview 可以用来开发基于 Web 的桌面应用，Tauri 是一个类似 electron 的跨平台基于 Web 的
+桌面应用框架，但更轻量化。
+
+修改配置文件 Cargo.toml 根据需要添加依赖：
 
 ```rust,ignore
 [dependencies]
@@ -16649,6 +17011,8 @@ web-view = { version = "0.7" }
 web-view = { version = "0.7", features = ["edge"] }
 web-view = { git = "https://github.com/Boscop/web-view", rev = "0d92ed6" }
 ```
+
+指定 Edge 浏览器内核需要 Windows 10 SDK，可以在 Visual Studio 安装程序中增加。
 
 然后编写测试程序：
 
@@ -16714,108 +17078,109 @@ Boscop web-view 项目管理参考，项目结构如下：
 
 主项目配置文件：
 
-```rust,ignore
-[package]
-name = "web-view"
-version = "0.7.3"
-authors = ["Boscop", "zxey <r.hozak@seznam.cz>", "Sam Green <sam.green81@gmail.com>"]
-readme = "README.md"
-license = "MIT"
-repository = "https://github.com/Boscop/web-view"
-description = "Rust bindings for webview, a tiny cross-platform library to render web-based GUIs for desktop applications"
-keywords = ["web", "gui", "desktop", "electron", "webkit"]
-categories = ["gui", "web-programming", "api-bindings", "rendering", "visualization"]
-exclude = ["webview-sys/**", "webview-examples/**", ".github/**", "Cargo.lock"]
+```sh
+    [package]
+    name = "web-view"
+    version = "0.7.3"
+    authors = ["Boscop", "zxey <r.hozak@seznam.cz>", "Sam Green <sam.green81@gmail.com>"]
+    readme = "README.md"
+    license = "MIT"
+    repository = "https://github.com/Boscop/web-view"
+    description = "Rust bindings for webview, a tiny cross-platform library to render web-based GUIs for desktop applications"
+    keywords = ["web", "gui", "desktop", "electron", "webkit"]
+    categories = ["gui", "web-programming", "api-bindings", "rendering", "visualization"]
+    exclude = ["webview-sys/**", "webview-examples/**", ".github/**", "Cargo.lock"]
 
-[dependencies]
-urlencoding = "1.1"
-webview-sys = { path = "webview-sys", version = "0.6.2" }
-boxfnonce = "0.1"
-tinyfiledialogs = "3.3"
+    [dependencies]
+    urlencoding = "1.1"
+    webview-sys = { path = "webview-sys", version = "0.6.2" }
+    boxfnonce = "0.1"
+    tinyfiledialogs = "3.3"
 
-[features]
-edge = ["webview-sys/edge"]
+    [features]
+    edge = ["webview-sys/edge"]
 
-[workspace]
-members = [
-    "webview-sys",
-    "webview-examples",
-]
+    [workspace]
+    members = [
+        "webview-sys",
+        "webview-examples",
+    ]
 ```
 
 webview-sys 配置文件：
 
-```rust,ignore
-[package]
-name = "webview-sys"
-version = "0.6.2"
-authors = ["Boscop", "zxey <r.hozak@seznam.cz>"]
-license = "MIT"
-repository = "https://github.com/Boscop/web-view"
-description = "Rust native ffi bindings for webview"
-keywords = ["web", "gui", "desktop", "electron", "webkit"]
-categories = ["gui", "web-programming", "api-bindings", "rendering", "visualization"]
-build = "build.rs"
-links = "webview"
-edition = "2018"
-exclude = ["Cargo.lock"]
+```sh
+    [package]
+    name = "webview-sys"
+    version = "0.6.2"
+    authors = ["Boscop", "zxey <r.hozak@seznam.cz>"]
+    license = "MIT"
+    repository = "https://github.com/Boscop/web-view"
+    description = "Rust native ffi bindings for webview"
+    keywords = ["web", "gui", "desktop", "electron", "webkit"]
+    categories = ["gui", "web-programming", "api-bindings", "rendering", "visualization"]
+    build = "build.rs"
+    links = "webview"
+    edition = "2018"
+    exclude = ["Cargo.lock"]
 
-[lib]
-name = "webview_sys"
-path = "lib.rs"
+    [lib]
+    name = "webview_sys"
+    path = "lib.rs"
 
-[features]
-edge = []
+    [features]
+    edge = []
 
-[target.'cfg(all(target_family = "unix", not(target_os = "macos")))'.dependencies]
-javascriptcore-rs-sys = "0.2"
-gtk-sys = "0.10"
-glib-sys = "0.10"
-gobject-sys = "0.10"
-webkit2gtk-sys = { version = "0.12.0", features = ["v2_8"] }
-gdk-sys = "0.10"
-gio-sys = "0.10"
-libc = "0.2"
+    [target.'cfg(all(target_family = "unix", not(target_os = "macos")))'.dependencies]
+    javascriptcore-rs-sys = "0.2"
+    gtk-sys = "0.10"
+    glib-sys = "0.10"
+    gobject-sys = "0.10"
+    webkit2gtk-sys = { version = "0.12.0", features = ["v2_8"] }
+    gdk-sys = "0.10"
+    gio-sys = "0.10"
+    libc = "0.2"
 
-[build-dependencies]
-cc = "1"
-pkg-config = "0.3"
+    [build-dependencies]
+    cc = "1"
+    pkg-config = "0.3"
 ```
 
 webview-examples 配置文件：
 
-```rust,ignore
-[package]
-name = "webview-examples"
-version = "0.1.0"
-authors = ["Boscop", "zxey <r.hozak@seznam.cz>", "Sam Green <sam.green81@gmail.com>"]
-license = "MIT"
-repository = "https://github.com/Boscop/web-view"
-description = "Examples of using Web frontend technologies in desktop apps using the web-view crate"
-keywords = ["web", "gui", "desktop", "electron", "webkit"]
-categories = ["gui", "web-programming", "api-bindings", "rendering", "visualization"]
-exclude = ["examples/todo-ps/dist/**/*", "examples/elm-counter/index.html"]
-publish = false
+```sh
+    [package]
+    name = "webview-examples"
+    version = "0.1.0"
+    authors = ["Boscop", "zxey <r.hozak@seznam.cz>", "Sam Green <sam.green81@gmail.com>"]
+    license = "MIT"
+    repository = "https://github.com/Boscop/web-view"
+    description = "Examples of using Web frontend technologies in desktop apps using the web-view crate"
+    keywords = ["web", "gui", "desktop", "electron", "webkit"]
+    categories = ["gui", "web-programming", "api-bindings", "rendering", "visualization"]
+    exclude = ["examples/todo-ps/dist/**/*", "examples/elm-counter/index.html"]
+    publish = false
 
-[dependencies]
-web-view = { path = "..", version = "0.7.3" }
+    [dependencies]
+    web-view = { path = "..", version = "0.7.3" }
 
-[features]
-edge = ["web-view/edge"]
+    [features]
+    edge = ["web-view/edge"]
 
-[dev-dependencies]
-tinyfiledialogs = "3.3"
-serde = "1.0"
-serde_derive = "1.0"
-serde_json = "1.0"
-actix-web = "1.0"
-actix-rt = "0.2"
-rust-embed = "5.1.0"
-mime_guess = "2.0.1"
-futures = "0.1"
-grep = "0.2.4"
-walkdir = "2.3.1"
+    [dev-dependencies]
+    tinyfiledialogs = "3.3"
+    serde = "1.0"
+    serde_derive = "1.0"
+    serde_json = "1.0"
+    actix-web = "1.0"
+    actix-rt = "0.2"
+    rust-embed = "5.1.0"
+    mime_guess = "2.0.1"
+    futures = "0.1"
+    grep = "0.2.4"
+    walkdir = "2.3.1"
 ```
+
 
 # 🟡🟠 Ruffle SWF Player
 - https://ruffle.rs/#usage

@@ -167,6 +167,10 @@ shot={
  ]
 }
 
+[mono]
+
+project/assembly_name="Godot Tutor 3.x"
+
 [physics]
 
 common/enable_pause_aware_picking=true

@@ -1,23 +1,35 @@
-// https://stackoverflow.com/questions/65985081
-// temporary value dropped while borrowed
+// The Rust Programming Language - Thinking in Rust
+// - [Functional Language Features: Iterators and Closures](ch13-00-functional-features.md)
+// - [temporary value dropped while borrowed](https://stackoverflow.com/questions/65985081)
 
 struct Animal<'a> {
-  format: &'a dyn Fn() -> (),
+  print: &'a dyn Fn() -> (),
 }
 impl<'a> Animal<'a> {
-  pub fn set_formatter(&mut self, _fmt: &'a dyn Fn() -> ()) -> () {}
-  pub fn bark(&self) { }
+  pub fn set_print(&mut self, _fun: &'a dyn Fn() -> ()) -> () {
+    self.print = _fun;
+  }
+  pub fn bark(&self) { 
+    (self.print)();
+  }
 }
 
 fn main() {
-  let x = 0;
-  let mut dog: Animal = Animal { format: &|| { 
-      println!("{}", x) 
+  let x = 999;
+  let mut dog: Animal = Animal { print: &|| { 
+      println!("dog print {}", x) 
       } };
-  // dog.set_formatter(&|| {
+
+  let bind = || { println!("dog barking: {}", x)};
+  dog.set_print(&bind);
+  dog.bark();
+  dbg!(x);
+
+  // dog.set_print(&|| {
   //     println!("{}", x)
   //     //             ^ borrowed value does not live long enough
   // });
-  dog.bark();
-  dbg!(x);
+  // temporary value (lambda) is freed at the end of this statement, at } symbol.
+  // dog.bark();
+  // ---------- borrow later used here
 }

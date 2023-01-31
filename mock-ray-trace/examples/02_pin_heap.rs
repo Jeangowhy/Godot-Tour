@@ -33,10 +33,6 @@ impl Test {
     }
 }
 
-fn method(t: Pin<&mut Test>) {
-    println!("{}", t.as_ref().a);
-}
-
 pub fn main() {
     let mut test1 = Test::new("test1");
     let mut test2 = Test::new("test2");

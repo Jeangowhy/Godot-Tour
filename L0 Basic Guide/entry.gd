@@ -19,3 +19,7 @@ func _on_box_circle_hit(event):
 			$bg/note.text = "Woo, it hurt!"
 		_:
 			$bg/note.text = "Basic Guide"
+
+
+func _on_CheckButton_toggled(button_pressed):
+	pass # Replace with function body.

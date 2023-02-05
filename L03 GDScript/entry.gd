@@ -1,11 +1,12 @@
 @tool
 
+# (optional) class definition with a custom icon
+@icon("res://icon.png")
+
 # BasicScene defined in L0 Basic Guide/entry.gd
 extends BasicScene
 
-# (optional) class definition with a custom icon
 class_name SceneL3
-@icon("res://icon.png")
 
 const tscn = preload("res://L0 Basic Guide/entry.tscn") # class PackedScene
 const gd   = preload("res://L0 Basic Guide/entry.gd")   # class GDScript
@@ -36,14 +37,14 @@ var editor:EditorInterface
 
 func _ready():
 	
-	if Engine.is_editor_hint():
-		#editor = ClassDB.instance("EditorPlugin").get_editor_interface()
-		editor = EditorPlugin.new().get_editor_interface()
-		var _view = editor.get_base_control() # main editor control
-		#_view.connect("gui_input", self._on_gui_input)
-		Activated = Activated
+#	if Engine.is_editor_hint():
+#		#editor = ClassDB.instance("EditorPlugin").get_editor_interface()
+#		editor = EditorPlugin.new().get_editor_interface()
+#		var _view = editor.get_base_control() # main editor control
+#		#_view.connect("gui_input", self._on_gui_input)
+#		Activated = Activated
 		
-	print("basic scene ", tscn, tscn.instantiate())
+	print("basic scene ", self is gd, tscn.instantiate())
 	print("basic script ", gd, gd.new())
 	
 	MyObject.new("argument pass to _init()").queue_free()

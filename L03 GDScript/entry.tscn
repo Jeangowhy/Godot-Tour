@@ -11,6 +11,7 @@ LabelText = "Click to attach if it is activated"
 Activated = false
 
 [node name="MyTitle" parent="bg" index="0"]
+theme_override_colors/font_color = Color(0.960784, 0.960784, 0.960784, 1)
 theme_override_colors/font_shadow_color = Color(1, 0.54902, 0, 1)
 text = "GDScript Programming"
 
@@ -19,6 +20,6 @@ text = "Try to activated BasicRoot, then click a node to attach a new lable."
 
 [node name="MySprite2" type="Sprite2D" parent="." index="1"]
 position = Vector2(963, 824)
-rotation = 36474.7
+rotation = 38262.1
 texture = ExtResource("4")
 script = ExtResource("3")

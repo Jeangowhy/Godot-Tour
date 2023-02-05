@@ -1,8 +1,8 @@
 @tool
+@icon("res://icon.png")
 
 extends Sprite2D
 class_name MySprite
-@icon("res://icon.png")
 # https://docs.godotengine.org/en/stable/development/file_formats/gdscript_grammar.html
 
 # Declare member variables here. Examples:

@@ -24,3 +24,12 @@ func _on_box_circle_hit(event):
 			$bg/note.text = "Woo, it hurt!"
 		_:
 			$bg/note.text = "Basic Guide"
+	#var a = {"a":1,"b":2,"c":123}
+#	var a = {"b":2,"a":1}
+#	match a:
+#		{"a": 1, "b": 2}:
+#			print(" 1 2")
+#		{"b": 2, "a": 1}:
+#			print(" 2 1")
+#		_:
+#			print(" _____")

@@ -12,10 +12,6 @@
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_lb8qv"]
 texture = ExtResource("4_to6n6")
-margin_left = 9.1768
-margin_top = 10.0111
-margin_right = 8.06446
-margin_bottom = 8.89871
 region_rect = Rect2(-2.48254, -2.20448, 69.2431, 67.5746)
 
 [sub_resource type="Theme" id="Theme_gya7s"]
@@ -155,7 +151,9 @@ unique_name_in_owner = true
 tree_root = ExtResource("6_d81io")
 anim_player = NodePath("../AnimationPlayer")
 active = true
-parameters/Transition/current = 1
+parameters/Transition/current_state = ""
+parameters/Transition/transition_request = ""
+parameters/Transition/current_index = 0
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." index="3"]
 libraries = {

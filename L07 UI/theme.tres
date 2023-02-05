@@ -6,10 +6,6 @@
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_lb8qv"]
 texture = ExtResource("3_qbwkk")
-margin_left = 9.1768
-margin_top = 10.0111
-margin_right = 8.06446
-margin_bottom = 8.89871
 region_rect = Rect2(-2.48254, -2.20448, 69.2431, 67.5746)
 
 [resource]

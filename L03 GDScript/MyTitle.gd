@@ -1,7 +1,7 @@
 @tool
 
-class_name MyTitle extends Label
 @icon("res://icon.png")
+class_name MyTitle extends Label
 
 @export var resource: Resource :
 	set(res):

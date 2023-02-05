@@ -2,6 +2,7 @@ using Godot;
 using CustomTypes.Attributes;
 
 [ClassName(Icon = "res://icon.svg")]
+// [GodotClassName("MyEngineClassName")]
 public partial class MySprite3D : Sprite3D
 {
 	// Called when the node enters the scene tree for the first time.

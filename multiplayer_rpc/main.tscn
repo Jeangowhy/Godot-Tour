@@ -1,0 +1,118 @@
+[gd_scene load_steps=9 format=3 uid="uid://ctc53e6lxjtjp"]
+
+[ext_resource type="Script" path="res://main_rpc.gd" id="1_f0d0e"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gjiah"]
+albedo_color = Color(0.380392, 0.639216, 0.317647, 1)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_o0b61"]
+size = Vector2(32, 32)
+
+[sub_resource type="Gradient" id="Gradient_pxhj4"]
+colors = PackedColorArray(0.4048, 0.562597, 0.386221, 1, 0.926806, 0.926806, 0.926806, 1)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_kxjaq"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_4crwf"]
+width = 16
+height = 64
+color_ramp = SubResource("Gradient_pxhj4")
+noise = SubResource("FastNoiseLite_kxjaq")
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_0mtbc"]
+blend_mode = 4
+
+[sub_resource type="SystemFont" id="SystemFont_o4lqa"]
+font_names = PackedStringArray("叶根友蚕燕隶书(3500)")
+
+[node name="Main" type="Node3D"]
+script = ExtResource("1_f0d0e")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866025, -0.433013, 0.25, 0, 0.5, 0.866026, -0.5, 0.75, -0.433013, 0, 15, 0)
+shadow_enabled = true
+directional_shadow_max_distance = 250.0
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.819152, 0.573577, 0, -0.573577, 0.819152, 0, 6, 12)
+
+[node name="Floor" type="MeshInstance3D" parent="."]
+material_override = SubResource("StandardMaterial3D_gjiah")
+mesh = SubResource("PlaneMesh_o0b61")
+
+[node name="NetworkInfo" type="VBoxContainer" parent="."]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -58.0
+offset_right = 58.0
+offset_bottom = 56.0
+grow_horizontal = 2
+
+[node name="NetworkSide" type="Label" parent="NetworkInfo"]
+self_modulate = Color(0.819608, 0.819608, 0.819608, 1)
+layout_mode = 2
+text = "Network Side"
+horizontal_alignment = 1
+
+[node name="PeerNodeInfo" type="Label" parent="NetworkInfo"]
+layout_mode = 2
+text = "Unique Peer ID"
+horizontal_alignment = 1
+
+[node name="MessageInput" type="LineEdit" parent="."]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -159.0
+offset_top = -34.0
+offset_right = 159.0
+offset_bottom = -2.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Menu" type="VBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+alignment = 1
+
+[node name="bg" type="TextureRect" parent="Menu"]
+layout_mode = 2
+size_flags_vertical = 3
+texture = SubResource("NoiseTexture2D_4crwf")
+stretch_mode = 6
+
+[node name="vbox" type="VBoxContainer" parent="Menu/bg"]
+self_modulate = Color(0.278431, 0.278431, 0.278431, 1)
+texture_filter = 5
+material = SubResource("CanvasItemMaterial_0mtbc")
+layout_mode = 1
+anchors_preset = 13
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -22.0
+offset_right = 22.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="Host" type="Button" parent="Menu/bg/vbox"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+theme_override_fonts/font = SubResource("SystemFont_o4lqa")
+text = "Host"
+
+[node name="Join" type="Button" parent="Menu/bg/vbox"]
+layout_mode = 2
+theme_override_fonts/font = SubResource("SystemFont_o4lqa")
+text = "Join"
+
+[connection signal="text_submitted" from="MessageInput" to="." method="_on_message_input_text_submitted"]

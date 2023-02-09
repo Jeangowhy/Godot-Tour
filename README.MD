@@ -3,7 +3,7 @@
 [TOC]
 
 
-## 🟡🟠 Godot Docs 官方文档阅读指南
+## 🟡 Godot Docs 官方文档阅读指南
 - [动画师救生手册 - 动画十二原则](https://www.bilibili.com/video/BV1x54y1e7J9)
 - [GAMES101-现代计算机图形学入门 - 闫令琪](https://www.bilibili.com/video/BV1X7411F744/)
 - [GAMES202-高质量实时渲染 - 闫令琪](https://www.bilibili.com/video/BV1YK4y1T7yY/)
@@ -20,6 +20,7 @@
 - [Godot Download](https://godotengine.org/download/windows)
 - [Godot Demo Projects](https://godotengine.github.io/godot-demo-projects)
 - [Godot Demo Projects](https://github.com/godotengine/godot-demo-projects)
+- [Godot 3 Recipes](https://kidscancode.org/godot_recipes/3.x/)
 
 Digital Content Creation (DCC) 数字内容创作工具是最现代代的生产力工具，包括但不仅限于 2D/3D、
 音频/视频剪辑合成、动态/互动内容创作、图像编辑等等。
@@ -56,10 +57,17 @@ Godot 除了自带的 GDScript 脚本外，通过模块扩展支持了多种语�
 
 Godot 官方示范项目很赞，提供了许多基础功能的演示，Godot 3.x/4.x 版本分使用 master 或 4.0-dev 分支：
 
-> git clone -b 4.0-dev --depth=1 git@github.com:godotengine/godot-demo-projects.git
-
+> git clone -b master -b 3.5 --depth=1 git@github.com:godotengine/godot.git
+>
+> git clone -b master -b 4.0-dev --depth=1 git@github.com:godotengine/godot-demo-projects.git
+>
 > git clone --depth=1 git@github.com:godotengine/godot-docs.git
+> git clone -b master -b stable -b 3.5 -b 3.6 --depth=1 git@github.com:godotengine/godot-docs docs
 
+Godot 源代码仓库包含了类型 API 文档，使用 xml 格式保存，可以在 doc 文件执行 make rst 或者
+make markdown 进行格式转换。
+
+克隆命令 git clone 不支持通过 -b 指定多个分支，只有最后指定的分支才有效。
 
 Godot 文档是非常人性化的，体现在以下几点：
 
@@ -93,7 +101,7 @@ Godot IDE 编辑器本身集成了在线手册，按 F1 或直接在代码中按
 - Appeale 吸引力，让画面更讨喜、比例更突出，使用画面简洁而突出重点，这也是动画与插画的区别；
 
 
-## 🟡🟠 Godot Architecture 构架介绍
+## 🟡 Godot Architecture 构架介绍
 - [Introduction to Godot development](https://docs.godotengine.org/en/stable/development/cpp/introduction_to_godot_development.html)
 - [Optimization using Servers](https://docs.godotengine.org/en/3.3/tutorials/optimization/using_servers.html)
 - [Inheritance class tree](https://docs.godotengine.org/en/stable/development/cpp/inheritance_class_tree.html)
@@ -106,6 +114,7 @@ Godot IDE 编辑器本身集成了在线手册，按 F1 或直接在代码中按
 - [What were the motivations behind creating GDScript?](https://docs.godotengine.org/en/latest/about/faq.html#doc-faq-what-is-gdscript)
 - [WebGL 可视化相机](https://webglfundamentals.org/webgl/lessons/zh_cn/webgl-visualizing-the-camera.html)
 - [《迷失岛2》游戏框架开发01:实现场景转换｜Godot教程](https://www.bilibili.com/video/BV1jr4y1V7xJ/)
+- [Scene Transitions By: Henrique Campos](https://www.gdquest.com/tutorial/godot/2d/scene-transition-rect/)
 
 Godot 架构是模块化的，通过扩展模块可以实现各种功能，而各种编程语言则是通过以下三个模块实现的。
 Godot 本身是 C++ 开发的，可以实现各种模块以扩展 Godot 功能，模块源代码位于 modules 子目录：
@@ -191,7 +200,50 @@ void OS_UWP::run() {
 
 整个引擎的消息处理循环结构就是 while 循环，Main::iteration() 函数就是游戏循环中要处理的工作，
 在这里会发送各种通知，让节点有处理的机会。在入口方法中，会判断当前的运行状态，根据是否在编辑器状态
-执行不同的代码。 
+执行不同的代码。
+
+游戏循环中，引擎会按 FPS 频率执行事件处理回调函数，当游戏进入空闲状态时，可以主动关闭事件处理回调，
+以降低空闲时的 CPU 消耗：
+
+```py
+void _physics_process(delta: float) virtual
+void _process(delta: float) virtual
+
+void set_physics_process(enable: bool)
+void set_process(enable: bool)
+
+var fps = ProjectSettings.get_setting("physics/common/physics_ticks_per_second", 60)
+Engine.set_physics_ticks_per_second(fps/3)
+
+get_tree().paused = true
+```
+
+你可以使用两种类型的处理：
+
+其中，`_process()` 这个事件处理回调函数在早期版本中，也称为 `_idle()` 即空闲事件处理。相对的，
+物理事件的处理更优先，因为有更高的实时性需求。任何与物理引擎相关的，比如移动可能与环境相碰撞的实体，
+都应使用 `_physics_process()`。
+
+- Idle processing 空闲处理可以用来执行每帧更新节点的代码，执行频率会尽可能地快。
+- Physics processing 物理处理的频率是固定的，和游戏的实际帧率无关，可以让物理平滑执行。
+
+在一些游戏中，可以大大降低物理处理周期率，比如说，将物理新 60FPS 改变为 30 次甚至 20 次，就大大
+降低 CPU 的负载。
+
+Godot 中的节点都有“Pause Mode”设置，暂停模式定义它们应该在何时进行处理。要将游戏暂停，必须设置
+暂停状态。将 SceneTree.paused 属性赋值为 true 即可。
+
+设置暂停后会导致两件事：首先，所有节点的 2D 和 3D 物理系统都会停止。其次，根据处理模式不同，某些
+节点的行为会停止或者开始。物理系统可以通过 set_active 方法激活。
+
+- Inherit：处理与否取决于父、祖父等等节点中第一个非**继承**状态的节点。
+- Stop：无条件停止节点，暂停时该节点不会进行处理。
+- Process：无条件处理节点，无论暂停与否，该节点都会进行处理。
+
+节点停止处理时会发生不少事情，`_process`、`_physics_process`、`_input`、`_input_event` 等
+函数都不会再被调用。但信号正常工作，所连接的函数也正常执行，即便脚本附加在“Stop”暂停模式的节点上。
+动画节点会暂停它们的当前动画，音频节点会暂停它们的当前音频流，粒子也会暂停。游戏不再暂停时，它们都会
+自动继续运行。
 
 
 Godot 编程体系的继承层次结构中，所有对象的父类是 **Object**，然后派生出各种功能的类对象，主要是
@@ -331,12 +383,24 @@ Godot 支持每个材质使用两个 UV 通道，次级的 UV2 通常用于环�
 ```py
 _enter_tree() 
 _ready() 
+_process(delta) 
 _exit_tree()
 ```
 
 节点树所有节点会按位置先后、由表层到内层依次执行 enter_tree 方法，而 ready 和 exit_tree 方法，
 则不同，会先由内层到外层的顺序执行，父级节点需要等待内层节点工作完成才能执行 ready 等动作。
 节点从非活跃状态转变为活跃状态，此时才会处理所有程序逻辑，包括用户输入、信号、消息处理，播放声音等。
+
+节点提供了一个 request_ready() 方法用于请求再次执行 `_ready()` 回调，由于场景树中是后序遍历来
+执行这个回调的，当需要在顶级节点执行完后再紧接进行其它任务，就可以使用利用 ready 信号和 yield 方法，
+通过 yield(root, "ready")，可以等待顶级节点完成后再执行 yield 后续的代码。
+
+
+完成初始化后就会进入循环处理，Godot 每帧所花销的计算时间会通过 delta 值传递到回调函数中。当计算
+量大时，delta 值可能会增加，这意味着 FPS 会下降。但是，physics process 回调中接收到的 delta
+值是一个恒定值，因为物理引擎需要一个精确的时间以进行模拟世界中的物理计算。
+
+通常计算属性值需要与 delta 相乘，使用其与时间关联，而不是依赖 FPS 的变化。
 
 使用 load、preload 方法加载场景文件得到 **PackedScene**，传递给 change_scene_to() 方法就
 可以切换场景，原场景内容就会卸载掉。使用 change_scene() 方法切换场景直接使用 res:// 指定场景文件。
@@ -505,7 +569,7 @@ class Something:
 
 
 
-## 🟡🟠 Project Settings 项目配置
+## 🟡 Project Settings 项目配置
 - [Multiple resolutions](https://docs.godotengine.org/en/3.5/tutorials/rendering/multiple_resolutions.html)
 - [Setting up the project](https://docs.godotengine.org/en/3.5/getting_started/first_2d_game/01.project_setup.html)
 
@@ -589,7 +653,7 @@ FPS 低于游戏设计时，可能会有输入延迟和卡顿。在需要快速�
 
 
 
-## 🟡🟠 MT Downloader
+## 🟡 MT Downloader
 - [Requests: HTTP for Humans](https://requests.readthedocs.io/en/latest/)
 
 一个 Python 实现的多线程下载器，将链接地址复制到粘贴板上，执行它就会自动下载文件并保存到当前目录。
@@ -733,7 +797,7 @@ if __name__ == "__main__":
         download_all(items)
 ```
 
-## 🟡🟠 sango2 三国群英传2兵种与阵法相克规则设计
+## 🟡 sango2 三国群英传2兵种与阵法相克规则设计
 
 三国群英传2兵种相克表：
 
@@ -797,7 +861,7 @@ if __name__ == "__main__":
     总和 |  0    0   1   0   -1   0   1   1   -2
 
 
-## 🟡🟠 GDNative/GDExtension 扩展开发
+## 🟡 GDNative/GDExtension 扩展开发
 - [Godot Engine Download](https://downloads.tuxfamily.org/godotengine/)
 - [Godot API Headers](https://github.com/godotengine/godot-headers)
 - [godot-cpp](https://github.com/godotengine/godot-cpp)
@@ -810,7 +874,6 @@ if __name__ == "__main__":
 - [Platform Support](https://doc.rust-lang.org/nightly/rustc/platform-support.html)
 - [The godot-rust Book](https://godot-rust.github.io/book/gdextension/)
 - [Introducing GDNative's successor, GDExtension](https://godotengine.org/article/introducing-gd-extensions)
-- [GodotSteam tutorials - Initializing](https://godotsteam.com/tutorials/initializing/)
 
 避免重新编译 Godot 源代码进行功能扩展的方法有 GDNative 和 GDExtension，它们分别在 Godot 3.x 和 4.x 中使用。
 
@@ -1160,12 +1223,14 @@ pub fn gdextension(meta: TokenStream, input: TokenStream) -> TokenStream {
 
 
 
-## 🟡🟠 Godot with CSharp
+## 🟡 Godot with CSharp
 - http://www.mono-project.com/docs/about-mono/compatibility
 - https://docs.godotengine.org/en/3.5/tutorials/scripting/c_sharp/c_sharp_features.html
 - https://docs.godotengine.org/en/3.5/tutorials/scripting/c_sharp/c_sharp_differences.html
 - https://docs.godotengine.org/en/stable/tutorials/scripting/cross_language_scripting.html
 - https://docs.godotengine.org/en/stable/tutorials/scripting/creating_script_templates.html
+- https://docs.godotengine.org/en/stable/development/compiling/compiling_with_mono.html
+- https://docs.godotengine.org/en/latest/contributing/development/compiling/compiling_with_mono.html
 - https://docs.godotengine.org/en/latest/tutorials/scripting/c_sharp/index.html
 - https://docs.godotengine.org/en/latest/tutorials/scripting/c_sharp/c_sharp_basics.html
 - https://docs.godotengine.org/en/latest/tutorials/scripting/c_sharp/c_sharp_exports.html
@@ -1178,6 +1243,8 @@ pub fn gdextension(meta: TokenStream, input: TokenStream) -> TokenStream {
 - [.NET SDK](https://dotnet.microsoft.com/download)
 - [Visual Studio Code](https://code.visualstudio.com/)
 - [Godot 3.5.1 Mono](https://downloads.tuxfamily.org/godotengine/3.5.1/mono/)
+- [CustomType for Godot 3.x](https://github.com/Jeangowhy/Godot-Tour/tree/main/mono-3x/addons/CustomType)
+- [CustomType for Godot 4.x](https://github.com/Jeangowhy/Godot-Tour/tree/4.x/mono-4x/addons/CustomType)
 - godot-docs\tutorials\scripting\c_sharp\c_sharp_basics.rst
 
 Godot 有两套语言支持构建：
@@ -1190,6 +1257,12 @@ Godot 有两套语言支持构建：
 与作用快速原型开发使用 GDScript 脚本不同，每次执行之前都需要进行编译，以生成最新的 C# 程序集。但是，
 作为预编译语言，它的运行效率虽然不能和 C++ 看齐，但比 GDSCript 有非常大的效率提升，简单情况有 4x 提升。
 并且，在使用的便利程序上，要比 C++ 好，所以在不是极限性能需要情况下，C# 是值得一试的方案。
+
+怎么选开发语言，就是权衡开发效率与程序运行性能：
+
+- 选择 GDScript 可以快速地做原型迭代；
+- 选择 C# 一方面提升了性能，另外它比 C++/Rust 更容易上手，同时编译速度也不太慢；
+- 最后，极致性能要求，那么就选择 C++/Rust 折腾去吧！
 
 参考 Bunnymark V2 测试数据，数值越大越好，测试 Sprite 绘制并使用 GetChildren() 迭代：
 
@@ -1345,7 +1418,8 @@ Node 节点类扩展代码示例：
 - C# 导出符号生效之前，需要重新编译程序集，通过 Godot 界面右上角的 Build 按钮构建工程。
 - C# 语句使用分号作为结束符号，而 GDScript 不需要。
 - C# 中以 `Godot.Object` 作为所有类型的基类，新版本更名为 `Godot.GodotObject`。
-- C# 使用 this 引用当前类实例，GDScript 使用 self 引用当前类实例。
+- C# 使用 `this` 引用当前类实例，GDScript 使用 `self` 引用当前类实例。
+- C# 使用 `base` 引用父类实例或构造器，GDScript 使用 `super(args)` 引用父类构造。
 
 在 C# 中，也不能像 GDScript 那样，直接拖动节点到脚本中创建引用，也不能使用 onready，而需要在
 Ready 这类事件中，使用 FindNode 或者 GetNode 获取节点引用：
@@ -1432,7 +1506,7 @@ C# 调用 GDScript API 时注意，如果第一个参数是一个数组，那么
 数组元素就会被当作一个参数使用，并可能导致函数签名不匹配。
 
 
-编写 C# 类代码时注意，类名与 ``.cs`` 代码文件名一致，否则提供错误：
+编写 C# 类代码时注意，类名与 ``.cs`` 代码文件名一致，否则提示错误：
 
     Invalid call. Nonexistent function `new` in base.
 
@@ -1459,7 +1533,7 @@ Godot 4.x Mono 信号机制在 C# 使用委托机制实现，并且可以使用�
 而目前在 C# 中给信号绑定默认参数则需要使用 lambdas 来构造出一个包含默认参数的 Callable 对象。
 如果方法没有参数，也没有返回值，可以包装成 Action，由 Callable.From() 再包装成可调用对象。
 
-```C#
+```C#,ignore
     // Default parameter values are not supported.
     public void PrintArgs(Variant arg1, Variant arg2, Variant arg3 = default)
     {
@@ -1597,7 +1671,7 @@ public partial class MyNode2D : Node2D
 通常，使用 C# 编程而不是 GDScript，一个主要的目的可能是为了提升程序运行速度，所以应该避免编写无
 效率的代码，以下是两种节点的移动方式对比，后者更高效：
 
-```C#
+```C#,ignore
 using Godot;
 
 public partial class YourCustomClass : Node3D
@@ -1632,7 +1706,7 @@ string 为 NodePath 或 StringName 会产生原生互操作和 marshalling 成�
 传递给相应的原生构造函数。
 
 
-### 🟢🔵 Export in CSharp
+### 🟠🔵 Export in CSharp
 
 以下演示在 Godot 4.x Mono 中使用 C# [Export] 标注导出符号，以及使用 [Signal] 自定义信号：
 
@@ -1780,18 +1854,29 @@ public partial class MyNode : Node
     private NamedEnum X;
 ```
 
-### 🟢🔵 Godot Plugin in CSharp
+### 🟠🔵 Godot Plugin in CSharp
 - https://github.com/m50/Godot-CSharp-Node-Exports
 - [.NET project SDKs](https://learn.microsoft.com/en-us/dotnet/core/project-sdk/overview)
 - [Attribute 基类](https://learn.microsoft.com/zh-cn/dotnet/api/system.attribute?view=net-7.0)
 - [CompilerServices 命名空间](https://learn.microsoft.com/zh-cn/dotnet/api/system.runtime.compilerservices)
 - https://referencesource.microsoft.com/#mscorlib/system/runtime/compilerservices/datetimeconstantattribute.cs
 - https://docs.godotengine.org/en/3.5/tutorials/plugins/editor/index.html
+- https://godotengine.org/asset-library/
 
 C# 中没有 class_name 这样的关键字用来注册自定义节点，这可以使用插件的 Custom types。通过菜单
 创建插件：Project → Project Settings → Plugins → Create new Plugin。使用 C# 创建插件时，
-注意脚本名称和类名要一致。C# 中可以自定义标注实现类似 [ClassName] 这样的标注，以替代 GDScript
-中的 classname 注册自定义类型：
+注意脚本名称和类名要一致。
+
+也可以使用 AssetLib → Plugins 打开插件管理面板，并且使用 AssetLib 提供的 Import 按钮来安装
+插件。开发好的插件只需要打包成 zip 文件，注意要将 addons 目录层级一并打包，Import 执行安装是直接
+解压文件到工程根目录。
+
+开发好的插件还可以上传 Godot Asset Library 分享，只需要注册一个账户即可。上传资产时只需要登记
+相关的插件信息，下载链接地址，使用 Github 托管很容易处理，填写相应的 Commit ID 和预览图即可，
+然后等待审核通过后即可以在列表中搜索到，Feed 页面可以查看资产的审核状态。
+
+
+C# 中可以自定义标注实现类似 GDScript 中的 classname 注册自定义类型：
 
 - **System.Attribute** 自定义标注需要继承的基类；
 - **System.AttributeUsage** 设置自定义标注的用途，以及 AllowMultiple，Inherited 等属性；
@@ -1816,11 +1901,12 @@ Caller 和 Callee 分别表示一个方法调用另一个方法的双方，Calle
     Script script = (Script) ResourceLoader.Load(target.ScriptPath);
 ```
 
-最新的 Godot 4 beta 16 提供了一个 GodotClassNameAttribute 标注，。
+最新的 Godot 4 beta 16 提供了一个 GodotClassNameAttribute 标注，但它不是用来注册自定义类型。
+它用来在生成的 C# 代码中的类名不一致时指定引擎类名，以允许内省代码查找与类关联的名称。
 
-C# 元数据编程中，一个方格号内可以包含多个标注，每个标注使用圆括号对其属性进行赋值。对标注好的代码
-进行处理时，使用程序集对象 Assembly 提供的反射方法，对当前运行中的程序集进行处理。通过处理程序集中
-标注过的类型，使用 AddCustomType() 将自定义类型注册到 Godot 系统内：
+C# 元数据编程中，一个方格号内可以包含多个标注，每个标注使用圆括号通过 = 运算符对其属性进行赋值。
+对标注好的代码进行处理时，使用程序集对象 Assembly 提供的反射方法，对当前运行中的程序集进行处理。
+通过处理程序集中标注过的类型，使用 AddCustomType() 将自定义类型注册到 Godot 系统内：
 
 ```C#
     using System.Reflection;
@@ -1915,7 +2001,7 @@ _exit_tree()
 
 对于插件，Project → Project Settings → Plugins 面板中启用它，即添加到场景树上，禁用时即移除。
 插件代码如果有更新，也需要通过禁用再重新启用来更新，并重新执行初始化。Godot 4 beta 16 中，只要
-重新执行构建扣，插件功能即可以随之更新，不需要重新设置工程插件配置，但初始化在下次启用插件时执行。
+重新执行构建，插件功能即可以随之更新，不需要重新设置工程插件配置，但初始化在下次启用插件时执行。
 
 以下是 CustomTypes 插件的实现，有两个 C# 代码文件，一个标注定义，另一个是主脚本。通过工程配置
 启用插件：Project → Project Settings... → Plugins → CustomTypes → Enable/Disable。
@@ -2068,28 +2154,206 @@ Custom Types 插件主脚本文件 Plugin.cs，在创建插件时将其填写到
     #endif
 ```
 
-## 🟡🟠 CLI 命令行工具
-- https://docs.godotengine.org/en/stable/tutorials/editor/command_line_tutorial.html
+## 🟡 Godot XR
+- [Godot XR Tools - AR and VR helper library](https://godotengine.org/asset-library/asset/214)
+- [Godot XR Tools](https://github.com/GodotVR/godot-xr-tools)
+- [Godot XR Docs](https://godotvr.github.io/godot-xr-tools)
+- [Godot XR Update](https://godotengine.org/article/godot-xr-progress-update-jan-2023/)
+- [Godot XR Template](https://github.com/GodotVR/godot-xr-template)
 
+Godot XR Tools - AR and VR helper library 3.2.0
+
+These are support scenes for creating AR and VR applications in Godot.
+Please note: Godot XR Tools v3 has breaking changes compared to v2!
+They need to be used in combination with one of the AR or VR interfaces.
+This plugin requires features added to Godot 3.5
+
+
+## 🟡 CLI & LSP 命令行工具与代码提示
+- https://docs.godotengine.org/en/stable/tutorials/editor/command_line_tutorial.html
+- [GDScript support for Sublime Text](https://packagecontrol.io/packages/GDScript%20(Godot%20Engine)
+- [LSP - Language Server Protocol for Sublime Text](https://packagecontrol.io/packages/LSP)
+- [LSP Client - GDScript (Godot Engine)](https://lsp.sublimetext.io/language_servers/#gdscript-godot-engine)
+- [Language Server Protocol Specification](https://microsoft.github.io/language-server-protocol/specification)
+- [TypeScript Wiki - Writing a Language Service Plugin](https://github.com/Microsoft/TypeScript/wiki/Writing-a-Language-Service-Plugin)
+- godot\3.5.1-stable\editor\editor_settings.cpp
+- godot\3.5.1-stable\modules\gdscript\language_server\lsp.hpp
+- godot\3.5.1-stable\modules\gdscript\language_server\gdscript_language_server.h
+- godot\master\modules\gdscript\language_server\godot_lsp.h
+- godot\master\modules\gdscript\language_server\gdscript_language_server.h
+- godot\master\modules\gdscript\language_server\gdscript_language_protocol.h
+- [Vulkan SDK Download](https://vulkan.lunarg.com/sdk/home)
 
 命令行创建远程 git 工程：
 
-```py
-$user="jimboyeah"
-$repo="godot-tour"
-git init
-curl -u "$user" https://api.github.com/user/repos -d "{`"$name`":`"$repo`"}"
-git remote add origin git@github.com:$user/$repo.git
-git add readme.md
-git commit -m "Welcome to Godot Tour!"
-git push origin master
+```sh
+    $user="jimboyeah"
+    $repo="godot-tour"
+    git init
+    curl -u "$user" https://api.github.com/user/repos -d "{`"$name`":`"$repo`"}"
+    git remote add origin git@github.com:$user/$repo.git
+    git add readme.md
+    git commit -m "Welcome to Godot Tour!"
+    git push origin master
 ```
+<!-- 
+github-recovery-codes.txt
 
+    50ae9-a6438
+    07419-b92e9
+    f985e-157ee
+    d9397-bea24
+    8ec6c-fb375
+    89d80-27bea
+    9fc36-42790
+    f60ec-c9f8f
+    7144d-c127e
+    6ddec-f4fc3
+    3d0f5-a5e44
+    c5224-3ddf2
+    0156c-a5f3e
+    f2a36-88cf1
+    552af-80475
+    cf28b-9621b
+ -->
+
+LSP - Language Server Protocol 是一种用于给编辑器提供代码提示功能的协议，LSP 协议定义的是
+代码编辑器与指定语言语法、关键字和各种对象符号之间的通信文档格式，编辑在编写代码的过程中，会将内容
+发送到 LSP 服务器。而各种语言的官方通常会实现自家的 LSP Client，LSP 服务器根据配置文件相询指定
+语言对应的 LSP Client，并从其获取符合 LSP 协议规范的数据，并反馈给代码编辑器，通常代码编辑器中
+会通过插件的形式提供 LSP 功能。比如，VSCode 或者 Sublime Text 等软件都有相应的 LSP 插件。
+
+LSP - Language Server Protocol 是一种编程辅助工具，简单地说 LSP 协议有两个主体：
+
+- Editor 按照 LSP 的消息规范向 Language Server 方发送用户操作、当前编辑代码的相关信息；
+- Server 按照 LSP 协议提供查询服务，响应编辑器请求，并根据程序上下文给出建议、语法检查、自动完成等等。
+
+LSP 的好处就是统一，所以语言通过服务器提供智能操作，通数据通信使用 JSON RPC protocol，用性极高。
+
+URI's are transferred as strings. The URI's format is defined in 
+[http://tools.ietf.org/html/rfc3986](http://tools.ietf.org/html/rfc3986)
+
+      foo://example.com:8042/over/there?name=ferret#nose
+      \_/   \______________/\_________/ \_________/ \__/
+       |           |            |            |        |
+    scheme     authority       path        query   fragment
+       |   _____________________|__
+      / \ /                        \
+      urn:example:animal:ferret:nose
+
+We also maintain a node module to parse a string into `scheme`, `authority`, `path`, 
+`query`, and `fragment` URI components. 
+The GitHub repository is [https://github.com/Microsoft/vscode-uri](https://github.com/Microsoft/vscode-uri) 
+the npm module is [https://www.npmjs.com/package/vscode-uri](https://www.npmjs.com/package/vscode-uri).
+
+
+除了使用 LSP 本地代码提示服务，另外还有 Language Server Index Format (LSIF) 语言服务器索引，
+这种数据格式的目标是支持开发工具或 Web UI 中的丰富代码导航，而不需要源代码的本地副本。该格式在本质上
+类似于语言服务器协议(LSP)，它简化了将丰富的代码编辑功能集成到开发工具中的过程。
+
+LSP 提供了丰富的代码创作功能，例如自动完成、类型格式化和丰富的代码导航。为了有效地提供这些功能，语言
+服务器要求所有源代码文件都在本地磁盘上可用。LSP 语言服务器还可以将部分或全部文件读入内存并计算抽象
+语法树以支持这些功能。LSIF 的目标是增强 LSP 协议以支持没有这些要求的丰富代码导航功能。LSIF 为语言
+服务器或其他编程工具定义了一种标准格式，以发布他们关于代码工作空间的知识。此持久化信息稍后可用于响应
+对同一工作区的 LSP 请求，而无需运行语言服务器。
+
+当前 LSIF 规范版本还支持：
+
+   1. Document symbols
+   2. document links
+   3. Go to Definition
+   4. Go to Declaration
+   5. Go to Type Definition
+   6. Find All References
+   7. Go to Implementation
+
+LSP Specification 3.16 Major new feature are:
+
+   1. Semantic Token support
+   2. Call Hierarchy support
+   3. Linked Editing support
+   4. Moniker support
+   5. Events for file operations (create, rename, delete)
+   6. Change annotation support for text edits and file operations (create, rename, delete)
+
+
+LSP 2.x Messages overview 注意箭头表示消息流向，右侧为 Client ➡️ Server，带回钩表示有回复：
+
+| Document                          | General                               |
+| ⬅️ textDocument/publishDiagnostics | ------------------------------------- |
+| ➡️ textDocument/didChange          | ↩️ initialize                         |
+| ➡️ textDocument/didClose           | ↩️ shutdown                           |
+| ➡️ textDocument/didOpen            | ➡️ exit                               |
+| ➡️ textDocument/didSave            | ➡️ $/cancelRequest                    |
+| ↩️ textDocument/completion         | ------------------------------------- |
+| ↩️ completionItem/resolve          | Window                                |
+| ↩️ textDocument/hover              | ------------------------------------- |
+| ↩️ textDocument/signatureHelp      | ⬅️ window/showMessage                 |
+| ↩️ textDocument/references         | ↪️ window/showMessageRequest          |
+| ↩️ textDocument/documentHighlight  | ⬅️ window/logMessage                  |
+| ↩️ textDocument/documentSymbol     | ⬅️ telemetry/event                    |
+| ↩️ textDocument/formatting         | ------------------------------------- |
+| ↩️ textDocument/rangeFormatting    | Workspace                             |
+| ↩️ textDocument/onTypeFormatting   | ------------------------------------- |
+| ↩️ textDocument/definition         | ➡️ workspace/didChangeConfiguration   |
+| ↩️ textDocument/codeAction         | ➡️ workspace/didChangeWatchedFiles    |
+| ↩️ textDocument/codeLens           | ↩️ workspace/symbol                   |
+| ↩️ codeLens/resolve                |                                       |
+| ↩️ textDocument/documentLink       |                                       |
+| ↩️ documentLink/resolve            |                                       |
+| ↩️ textDocument/rename             |                                       |
+
+在 VSCode 或 Sublime Text 使用 LSP 插件。安装插件后，使用 LSP: Troubleshoot Server
+来检测 clangd 等语言服务是否正常，即安装了 Clangd 并可以在路径环境变量中搜索到它。
+
+
+Godot 也实现了 LSP Client 服务，新旧版本默认服务端口分别是 6005 和 6008。这些配置都可以通过
+EditorSettings 进行设置：
+
+```C++
+// Godot 3.5
+GDScriptLanguageServer::GDScriptLanguageServer() {
+    thread_running = false;
+    started = false;
+    use_thread = false;
+    host = "127.0.0.1";
+    port = 6008;
+
+    _EDITOR_DEF("network/language_server/remote_host", host);
+    _EDITOR_DEF("network/language_server/remote_port", port);
+    _EDITOR_DEF("network/language_server/enable_smart_resolve", true);
+    _EDITOR_DEF("network/language_server/show_native_symbols_in_editor", false);
+    _EDITOR_DEF("network/language_server/use_thread", use_thread);
+}
+
+// Godot 4.x
+class GDScriptLanguageServer : public EditorPlugin {
+    GDCLASS(GDScriptLanguageServer, EditorPlugin);
+
+    GDScriptLanguageProtocol protocol;
+
+    Thread thread;
+    bool thread_running = false;
+    bool started = false;
+    bool use_thread = false;
+    String host = "127.0.0.1";
+    int port = 6005;
+    static void thread_main(void *p_userdata);
+
+private:
+    void _notification(int p_what);
+
+public:
+    GDScriptLanguageServer();
+    void start();
+    void stop();
+};
+```
 
 配置 Sublime Text 以运行 GDScript 脚本：
 
 - 先创建构建配置，执行菜单： Tools -> Build System -> New Build System ...
-- 将以下 JSON 配置粘贴到配置文件中，并保存到 Packages\User\GDScript.sublime-build 文件
+- 将以下 JSON 配置粘贴到配置文件中，并保存到 Packages\User\Godot.sublime-build 文件
 - 然后打开 GDScript 脚本，按 Ctrl+B 执行构建命令
 
 ```json
@@ -2101,29 +2365,119 @@ git push origin master
     "quiet": true,
     "working_dir": "${file_path:${project_path}}",
     "env": {
-        "PATH":"%PATH%;c:/download/games",
-        "godot":"Godot_v3.5.1-stable_win64.exe",
+        "PATH":"c:/download/games",
+        "Godot":"Godot_v3.5.1-stable_win64.exe",
+        "Godot4":"Godot_v4.0-beta16_win64.exe",
     },
     "variants":
     [
-        {
-            "name": "Godot --help",
-            "shell_cmd": "%Godot% --help",
-        },
-        {
-            "name": "Godot Run GDScript",
-            "shell_cmd": "%Godot% --no-window -s \"${file}\"",
-        },
-        {
-            "name": "Godot Run Scene",
-            "shell_cmd": "%Godot% -e \"${file}\"",
-        },
+        {"name": "3.5 Help",            "shell_cmd": "%Godot% --help", },
+        {"name": "3.5 Check GDScript",  "shell_cmd": "%Godot% --no-window --check-only -s \"${file}\"", },
+        {"name": "3.5 Run GDScript",    "shell_cmd": "%Godot% --no-window -s \"${file}\"", },
+        {"name": "3.5 Run GDScript[GUI]", "shell_cmd": "%Godot% -s \"${file}\"", },
+        {"name": "3.5 Run Scene",       "shell_cmd": "%Godot% -e \"${file}\"", },
+        {"name": "3.5 Run Project",     "shell_cmd": "%Godot% --path \"${file_path}\"", },
+        {"name": "4.x Help",            "shell_cmd": "%Godot4% --help", },
+        {"name": "4.x Check GDScript",  "shell_cmd": "%Godot4% --headless --check-only -s \"${file}\"", },
+        {"name": "4.x Run GDScript",    "shell_cmd": "%Godot4% --headless -s \"${file}\"", },
+        {"name": "4.x Run GDScript[GUI]", "shell_cmd": "%Godot4% -s \"${file}\"", },
+        {"name": "4.x Run Scene",       "shell_cmd": "%Godot4% \"${file}\"", },
+        {"name": "4.x Run Project",     "shell_cmd": "%Godot4% --path \"${file_path}\"", },
     ]
 }
 ```
 
-新建测试脚本 sayhello.gd 以演示通过 Godot 命令运行：
-注意，脚本必须继承 **SceneTree** 或 **MainLoop** 类型，这是 Godot 游戏的入口类型。
+推荐安装以下插件，以提供语法高亮和自动完成功能：
+
+- GDScript support for Sublime Text
+- LSP - Language Server Protocol for Sublime Text
+
+安装好插件后，需要配置 LSP，将以下配置写入 Preferences > Package Settings > LSP > Settings，
+添加 "godot-lsp" 客户服务后就可以通过 LSP 提供自动完成，以及上下文提示：
+
+```json
+{
+    "clients": {
+        "godot-lsp": {
+            "enabled": true,
+            "command": [
+                "/PATH/TO/godot-editor.exe", // Update the PATH
+                "--headless",  // No rendering, No Window 
+                "--script", "path/to/some/scenetree.gd"
+            ],
+            "tcp_port": 6008, // Godot 4.x 6008, Godot 3.x 6005
+            "selector": "source.gdscript",
+        }
+    }
+}
+```
+
+启动 Godot 编辑器后，默认就会启用 LSP Client，在编辑器设置中可以修改默认配置。Sublime Text 的
+快捷命令面板中，Ctrl-Shift-P，执行 LSP: Troubleshoot Server 可以对语言服务进行检测。如果配置
+的端口不一致，就会导致服务连接不上，如果没有使用对应 Godot 版本的端口，那么提供的提示信息就可能不
+是最准确的。比如，旧版 ClassDB.instance() 和新版本的 instantiate() 是用于执行类型实例的函数，
+可能因为使用的 Godot LSP Client 版本不同而出现不同的提示信息。
+
+Sublime Text 中，启用 Godot LSP 服务时，会自动打开配置中 Godot 编辑器以运行 LSP Client。
+如果，已经运行其它同版本的 Godot 编辑器，那么 LSP Client 就可能已经在运行了，自动打开的可以关闭。
+Godot 在项目管理列表界面下，LSP Client 是关闭的。
+
+为了解决 Sublime Text 中 LSP 插件默认总是自动运行 Godot 问题，可以使用 --headless 参数启动
+Godot，并且使用 --script 指定一个脚本让 Godot 自动结束程序，脚本中只需要执行 quit() 方法，
+或者，在其中一个 process 回调方法中返回 true，即可以结束 Godot：
+
+<!-- c:\\download\\games\\Godot_v4.0-beta16_win64.exe --headless --script "C:\\download\\games\\scenetree.gd" -->
+
+```py
+#!/usr/bin/env -S godot -s
+class_name MyScene
+extends SceneTree
+
+func _init():
+    print_debug("step 1: _init")
+    quit() # exit command: godot --headless --script scenetree.gd
+
+func _iteration(delta):
+    assert(Engine.get_version_info().major == 3)
+    print_debug("step 3: _iteration (Node._physics_process)")
+
+func _idle(delta):
+    assert(Engine.get_version_info().major == 3)
+    print_debug("step 3: _idle (Node._process)")
+
+func _physics_process(delta):
+    assert(Engine.get_version_info().major == 4)
+    root.title = "MyScene 4.x" # root is Window in Godot 4
+    #root.set("theme_override_colors/title_color", Color.YELLOW)
+    print_debug("step 3: _physics_process")
+
+func _process(delta):
+    assert(Engine.get_version_info().major == 4)
+    print_debug("step 4: _process")
+
+func _initialize():
+    print_debug("step 2: _initialize")
+
+func _finalize():
+    print_debug("step 5: _finalize")
+```
+
+在双显卡系统，使用 --gpu-index 可以指定显卡，--verbose 可以打印详细信息，Godot 运行项目时就
+会打印出当前系统中的显卡信息，Vulkan 驱动默认选择独立显卡：
+
+    Vulkan devices:
+      #0: NVIDIA NVIDIA GeForce GTX 1050 - Supported, Discrete
+      #1: Intel Intel(R) UHD Graphics 620 - Supported, Integrated
+    Vulkan API 1.3.224 - Using Vulkan Device #0: NVIDIA - NVIDIA GeForce GTX 1050
+
+安装 Vulkan SDK，使用 Vulkan Configurator (vkconfig) 可以对程序的 Vulkan 环境配置进行修改。
+
+
+以下，新建测试脚本 sayhello.gd 以演示通过 Godot 命令运行脚本，方便编辑代码和做测试。
+
+注意，脚本必须继承 **SceneTree** 或 **MainLoop** 类型，这是 Godot 游戏的入口类型。场景树类型
+没有 Node 类型中的 ready 之类的回调，使用的是另一套回调。如果代码有语法错误，Godot 运行可能不会
+给出信息提示，而是直接退出。比如，混用 TAB 和空格作为缩进，又如圆括号不匹配：
 
 ```py
 #!/usr/bin/env -S godot -s
@@ -2139,6 +2493,28 @@ func _init():
 
 func _ready():
     quit() # why not? SceneTree no _ready() life cycle funtion
+```
+
+MainLoop 实现需要提供给 OS 调用，错误就会导致 Godot 终止执行并退出，以下是类型结构参考：
+
+```py
+class_name CustomMainLoop
+extends MainLoop
+
+var time_elapsed = 0
+
+func _initialize():
+    print("Initialized:")
+    print("  Starting time: %s" % str(time_elapsed))
+
+func _process(delta):
+    time_elapsed += delta
+    # Return true to end the main loop.
+    return Input.get_mouse_button_mask() != 0 || Input.is_key_pressed(KEY_ESCAPE)
+
+func _finalize():
+    print("Finalized:")
+    print("  End time: %s" % str(time_elapsed))
 ```
 
 
@@ -2214,103 +2590,385 @@ func _ready():
       --test <test>                    Run a unit test ('string', 'math', 'basis', 'transform', 'physics', 'physics_2d', 'render', 'oa_hash_map', 'gui', 'shaderlang', 'gd_tokenizer', 'gd_parser', 'gd_compiler', 'gd_bytecode', 'ordered_hash_map', 'astar', 'xml_parser', 'theme').
 
 
-
-    Godot Engine v4.0.beta7.official.0bb1e89fb - https://godotengine.org
+    Godot Engine v4.0.beta16.mono.official.518b9e580 - https://godotengine.org
     Free and open source software under the terms of the MIT license.
-    (c) 2007-2022 Juan Linietsky, Ariel Manzur.
-    (c) 2014-2022 Godot Engine contributors.
+    (c) 2014-present Godot Engine contributors.
+    (c) 2007-2014 Juan Linietsky, Ariel Manzur.
 
-    Usage: Godot_v4.0-beta7_win64.exe [options] [path to scene or 'project.godot' file]
+    Usage: Godot_v4.0-beta16_mono_win64.exe [options] [path to scene or 'project.godot' file]
 
     General options:
-      -h, --help                                   Display this help message.
-      --version                                    Display the version string.
-      -v, --verbose                                Use verbose stdout mode.
-      -q, --quiet                                  Quiet mode, silences stdout messages. Errors are still displayed.
+      -h, --help                        Display this help message.
+      --version                         Display the version string.
+      -v, --verbose                     Use verbose stdout mode.
+      -q, --quiet                       Quiet mode, silences stdout messages. Errors are still displayed.
 
     Run options:
-      --, ++                                       Separator for user-provided arguments. Following arguments are not used by the engine, but can be read from `OS.get_cmdline_user_args()`.
-      -e, --editor                                 Start the editor instead of running the scene.
-      -p, --project-manager                        Start the project manager, even if a project is auto-detected.
-      --debug-server <uri>                         Start the editor debug server (<protocol>://<host/IP>[:<port>], e.g. tcp://127.0.0.1:6007)
-      --quit                                       Quit after the first iteration.
-      -l, --language <locale>                      Use a specific locale (<locale> being a two-letter code).
-      --path <directory>                           Path to a project (<directory> must contain a 'project.godot' file).
-      -u, --upwards                                Scan folders upwards for project.godot file.
-      --main-pack <file>                           Path to a pack (.pck) file to load.
-      --render-thread <mode>                       Render thread mode ('unsafe', 'safe', 'separate').
-      --remote-fs <address>                        Remote filesystem (<host/IP>[:<port>] address).
-      --remote-fs-password <password>              Password for remote filesystem.
-      --audio-driver <driver>                      Audio driver ['WASAPI', 'Dummy'].
-      --display-driver <driver>                    Display driver (and rendering driver) ['windows' ('vulkan', 'opengl3'), 'headless' ('dummy')].
-      --rendering-method <renderer>                   Renderer name. Requires driver support.
-      --rendering-driver <driver>                  Rendering driver (depends on display driver).
-      --gpu-index <device_index>                   Use a specific GPU (run with --verbose to get available device list).
-      --text-driver <driver>                       Text driver (Fonts, BiDi, shaping)
-      --tablet-driver <driver>                     Pen tablet input driver.
-      --headless                                   Enable headless mode (--display-driver headless --audio-driver Dummy). Useful for servers and with --script.
-      --write-movie <file>                         Run the engine in a way that a movie is written (by default .avi MJPEG). Fixed FPS is forced when enabled, but can be used to change movie FPS. Disabling vsync can speed up movie writing but makes interaction more difficult.
-      --disable-vsync                              Force disabling of vsync. Run the engine in a way that a movie is written (by default .avi MJPEG). Fixed FPS is forced when enabled, but can be used to change movie FPS.
+      --, ++                            Separator for user-provided arguments. Following arguments are not used by the engine, but can be read from `OS.get_cmdline_user_args()`.
+      -e, --editor                      Start the editor instead of running the scene.
+      -p, --project-manager             Start the project manager, even if a project is auto-detected.
+      --debug-server <uri>              Start the editor debug server (<protocol>://<host/IP>[:<port>], e.g. tcp://127.0.0.1:6007)
+      --quit                            Quit after the first iteration.
+      -l, --language <locale>           Use a specific locale (<locale> being a two-letter code).
+      --path <directory>                Path to a project (<directory> must contain a 'project.godot' file).
+      -u, --upwards                     Scan folders upwards for project.godot file.
+      --main-pack <file>                Path to a pack (.pck) file to load.
+      --render-thread <mode>            Render thread mode ['unsafe', 'safe', 'separate'].
+      --remote-fs <address>             Remote filesystem (<host/IP>[:<port>] address).
+      --remote-fs-password <password>   Password for remote filesystem.
+      --audio-driver <driver>           Audio driver ['WASAPI', 'Dummy'].
+      --display-driver <driver>         Display driver (and rendering driver) ['windows' ('vulkan', 'opengl3'), 'headless' ('dummy')].
+      --rendering-method <renderer>     Renderer name. Requires driver support.
+      --rendering-driver <driver>       Rendering driver (depends on display driver).
+      --gpu-index <device_index>        Use a specific GPU (run with --verbose to get available device list).
+      --text-driver <driver>            Text driver (Fonts, BiDi, shaping).
+      --tablet-driver <driver>          Pen tablet input driver.
+      --headless                        Enable headless mode (--display-driver headless --audio-driver Dummy). Useful for servers and with --script.
+      --write-movie <file>              Writes a video to the specified path (usually with .avi or .png extension).
+                                        --fixed-fps is forced when enabled, but it can be used to change movie FPS.
+                                        --disable-vsync can speed up movie writing but makes interaction more difficult.
 
     Display options:
-      -f, --fullscreen                             Request fullscreen mode.
-      -m, --maximized                              Request a maximized window.
-      -w, --windowed                               Request windowed mode.
-      -t, --always-on-top                          Request an always-on-top window.
-      --resolution <W>x<H>                         Request window resolution.
-      --position <X>,<Y>                           Request window position.
-      --single-window                              Use a single window (no separate subwindows).
-      --xr-mode <mode>                             Select XR mode (default/off/on).
+      -f, --fullscreen                  Request fullscreen mode.
+      -m, --maximized                   Request a maximized window.
+      -w, --windowed                    Request windowed mode.
+      -t, --always-on-top               Request an always-on-top window.
+      --resolution <W>x<H>              Request window resolution.
+      --position <X>,<Y>                Request window position (if set, screen argument is ignored).
+      --screen <N>                      Request window screen.
+      --single-window                   Use a single window (no separate subwindows).
+      --xr-mode <mode>                  Select XR (Extended Reality) mode ['default', 'off', 'on'].
 
     Debug options:
-      -d, --debug                                  Debug (local stdout debugger).
-      -b, --breakpoints                            Breakpoint list as source::line comma-separated pairs, no spaces (use %20 instead).
-      --profiling                                  Enable profiling in the script debugger.
-      --gpu-profile                                Show a GPU profile of the tasks that took the most time during frame rendering.
-      --gpu-validation                             Enable graphics API validation layers for debugging.
-      --gpu-abort                                  Abort on graphics API usage errors (usually validation layer errors). May help see the problem if your system freezes.
-      --remote-debug <uri>                         Remote debug (<protocol>://<host/IP>[:<port>], e.g. tcp://127.0.0.1:6007).
-      --debug-collisions                           Show collision shapes when running the scene.
-      --debug-paths                                Show path lines when running the scene.
-      --debug-navigation                           Show navigation polygons when running the scene.
-      --debug-stringnames                          Print all StringName allocations to stdout when the engine quits.
-      --frame-delay <ms>                           Simulate high CPU load (delay each frame by <ms> milliseconds).
-      --time-scale <scale>                         Force time scale (higher values are faster, 1.0 is normal speed).
-      --disable-render-loop                        Disable render loop so rendering only occurs when called explicitly from script.
-      --disable-crash-handler                      Disable crash handler when supported by the platform code.
-      --fixed-fps <fps>                            Force a fixed number of frames per second. This setting disables real-time synchronization.
-      --print-fps                                  Print the frames per second to the stdout.
+      -d, --debug                       Debug (local stdout debugger).
+      -b, --breakpoints                 Breakpoint list as source::line comma-separated pairs, no spaces (use %20 instead).
+      --profiling                       Enable profiling in the script debugger.
+      --gpu-profile                     Show a GPU profile of the tasks that took the most time during frame rendering.
+      --gpu-validation                  Enable graphics API validation layers for debugging.
+      --gpu-abort                       Abort on graphics API usage errors (usually validation layer errors). May help see the problem if your system freezes.
+      --remote-debug <uri>              Remote debug (<protocol>://<host/IP>[:<port>], e.g. tcp://127.0.0.1:6007).
+      --debug-collisions                Show collision shapes when running the scene.
+      --debug-paths                     Show path lines when running the scene.
+      --debug-navigation                Show navigation polygons when running the scene.
+      --debug-stringnames               Print all StringName allocations to stdout when the engine quits.
+      --frame-delay <ms>                Simulate high CPU load (delay each frame by <ms> milliseconds).
+      --time-scale <scale>              Force time scale (higher values are faster, 1.0 is normal speed).
+      --disable-vsync                   Forces disabling of vertical synchronization, even if enabled in the project settings. Does not override driver-level V-Sync enforcement.
+      --disable-render-loop             Disable render loop so rendering only occurs when called explicitly from script.
+      --disable-crash-handler           Disable crash handler when supported by the platform code.
+      --fixed-fps <fps>                 Force a fixed number of frames per second. This setting disables real-time synchronization.
+      --print-fps                       Print the frames per second to the stdout.
 
     Standalone tools:
-      -s, --script <script>                        Run a script.
-      --check-only                                 Only parse for errors and quit (use with --script).
-      --export-release <preset> <path>             Export the project in release mode using the given preset and output path. The preset name should match one defined in export_presets.cfg.
-                                                   <path> should be absolute or relative to the project directory, and include the filename for the binary (e.g. 'builds/game.exe').
-                                                   The target directory must exist.
-      --export-debug <preset> <path>               Export the project in debug mode using the given preset and output path. The preset name should match one defined in export_presets.cfg.
-      --export-pack <preset> <path>                Export the project data only using the given preset and output path. The <path> extension determines whether it will be in PCK or ZIP format.
-      --convert-3to4 [<max_file_kb>] [<max_line_size>]              Converts project from Godot 3.x to Godot 4.x.
-      --validate-conversion-3to4 [<max_file_kb>] [<max_line_size>]  Shows what elements will be renamed when converting project from Godot 3.x to Godot 4.x.
-      --doctool [<path>]                           Dump the engine API reference to the given <path> (defaults to current dir) in XML format, merging if existing files are found.
-      --no-docbase                                 Disallow dumping the base types (used with --doctool).
-      --build-solutions                            Build the scripting solutions (e.g. for C# projects). Implies --editor and requires a valid project to edit.
-      --dump-gdextension-interface                 Generate GDExtension header file 'gdnative_interface.h' in the current folder. This file is the base file required to implement a GDExtension.
-      --dump-extension-api                         Generate JSON dump of the Godot API for GDExtension bindings named 'extension_api.json' in the current folder.
-      --startup-benchmark                          Benchmark the startup time and print it to console.
-      --startup-benchmark-file <path>              Benchmark the startup time and save it to a given file in JSON format.
+      -s, --script <script>             Run a script.
+      --check-only                      Only parse for errors and quit (use with --script).
+      --export-release <preset> <path>  Export the project in release mode using the given preset and output path. The preset name should match one defined in export_presets.cfg.
+                                        <path> should be absolute or relative to the project directory, and include the filename for the binary (e.g. 'builds/game.exe').
+                                        The target directory must exist.
+      --export-debug <preset> <path>    Export the project in debug mode using the given preset and output path. See --export-release description for other considerations.
+      --export-pack <preset> <path>     Export the project data only using the given preset and output path. The <path> extension determines whether it will be in PCK or ZIP format.
+      --convert-3to4 [<max_file_kb>] [<max_line_size>]
+                                        Converts project from Godot 3.x to Godot 4.x.
+      --validate-conversion-3to4 [<max_file_kb>] [<max_line_size>]
+                                        Shows what elements will be renamed when converting project from Godot 3.x to Godot 4.x.
+      --doctool [<path>]                Dump the engine API reference to the given <path> (defaults to current dir) in XML format, merging if existing files are found.
+      --no-docbase                      Disallow dumping the base types (used with --doctool).
+      --build-solutions                 Build the scripting solutions (e.g. for C# projects). Implies --editor and requires a valid project to edit.
+      --dump-gdextension-interface      Generate GDExtension header file 'gdextension_interface.h' in the current folder. This file is the base file required to implement a GDExtension.
+      --dump-extension-api              Generate JSON dump of the Godot API for GDExtension bindings named 'extension_api.json' in the current folder.
+      --startup-benchmark               Benchmark the startup time and print it to console.
+      --startup-benchmark-file <path>   Benchmark the startup time and save it to a given file in JSON format.
 
 
 
 
-## 🟡🟠 Debug & Profiler 调试与性能分析、优化
+## 🟡 TSCN & TRES 资源文件格式
+- https://docs.godotengine.org/en/stable/development/file_formats/tscn.html
+- https://github.com/godotengine/godot/blob/master/scene/resources/resource_format_text.cpp
+- https://github.com/godotengine/godot/blob/master/core/variant_parser.cpp
+- godot-docs\development\file_formats\tscn.rst
+- godot\scene\resources\resource_format_text.cpp
+- godot\core\variant_parser.cpp
+
+TSCN (text scene) 字符串格式场景文件，Godot 加载后会编译成二进制文件保存在 `.import/` 或 
+工作目录，Godot 4.x 则保存在 `.godot/imported/`。
+
+Godot 在底层定义了一个专用用于文本文件格式的解析器，VariantParser，通过个变体解析器，可以将各种
+Godot 资源保存到文本格式文件中。场景文件 TSCN 就是其中的一种，资源文件，这里指的是 `Resource`
+这种资源类型保存的文件，也同样使用文本格式。每个文本文件都包含一个 File Descriptor，用于表示其
+记录的类型。
+
+TSCN 文件有 5 个区段，分别开头表示注解：
+
+0. File Descriptor    - ``[gd_scene]``
+1. External resources - ``[ext_resource]``
+2. Internal resources - ``[sub_resource]``
+3. Nodes              - ``[node]``
+4. Signal Connections - ``[connection]``
+
+所有区段中使用的实体使用方括号包括，实体可以添加任意的 key="value" 键值对，实体后可以紧跟属性设置，
+使用 property=value 这样的格式书写。
+
+Godot 4.x 使用的格式版本为 Version 3，使用字符串作为资源 ID、UID，与前一个版本不兼容：
+
+- Version 2: changed names for Basis, AABB, Vectors, PoolVectors, etc.
+- Version 3: new string ID for ext/subresources, and uid, breaks forward compat.
+
+需要将 Godot 4.x 工程降级为低版本的 Godot 3.x 工程，则需要考虑类型名称变化、资源文件格式问题，
+还有新版本中 GDScript 关键字、注解功能的差别。手动降级 Godot 工程的操作步骤：
+
+- 修改 project.godot 中的版本号，将新版本 config_version=5，旧版本 Godot 3.x 版本为 4；
+- 修改场景文件中的版本号，改为 format=2；
+- 删除场景中的 uid 属性，并重新设置实体的 id 属性，去掉双引号及字符串，直接使用一个唯一的数值；
+- 相应地修改资源引用 SubResource(id) 或 ExtResource(id)；
+- 根据节点及数据类型修改 type 属性，更新相应的名称，以及结构；
+- 更新 GDScript 脚本中关键字、注解的使用，同时修改类型名称；
+
+例如，Godot 4.x 中的 RPC 标注与 Godt 3.5 中的关键字等价关系：
+
+|      Godot 3.5 keywords     |                 Godot 4 @rpc annotations                |
+|-----------------------------|---------------------------------------------------------|
+| remote                      | "any_peer", "call_remote"                               |
+| remotesync                  | "any_peer", "call_local"                                |
+| master                      | "authority", "call_remote"                              |
+| mastersync                  | "authority", "call_local"                               |
+| rpc_unreliable()            | @rpc("unreliable")                                      |
+| rpc_unreliable(master func) | @rpc or @rpc("authority", "call_remote", "reliable", 1) |
+
+
+```py
+    ; Godot 3.5
+    [gd_scene load_steps=3 format=2]
+    
+    [ext_resource path="res://Sprite_2D.gd" type="Script" id=1]
+    [ext_resource path="res://MyNode2D.cs" type="Script" id=2]
+    [ext_resource path="res://icon.svg" type="Texture" id=3]
+
+    [node name="Cube" type="Spatial" parent="."]
+    transform=Transform( 1.0, 0.0, 0.0 ,0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0 )
+
+    ; Godot 4.x
+    [gd_scene load_steps=3 format=3 uid="uid://bxv0sdh81ec2f"]
+    [ext_resource path="res://Sprite_2D.gd" type="Script" id="Script_xxx1"]
+    [ext_resource path="res://MyNode2D.cs" type="Script" id="Script_xxx2"]
+    [ext_resource path="res://icon.svg" type="Texture" id="Script_xxx3"]
+
+    [node name="Cube" type="Node3D" parent="."]
+    transform=Transform( 1.0, 0.0, 0.0 ,0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0 )
+```
+
+文件描述符号是场景文件的开头区段，定义场景文件的格式版本和加载步骤数：外部资源数量+场景文件本身。即使
+load_steps 数值不正确，引擎还是会加载场景文件，但会影响使用这个值的代码。
+
+除了外部资源，场景文件还可以内嵌资源，比如节点内嵌的脚本，分别使用 `ExtResource` 和 `SubResource`
+引用 ID 指定的外部资源和内嵌资源。内嵌资源包括 meshes, materials, GDScript 等等数据。
+
+比如以下场景文件，根节点引用了内嵌脚本资源，内嵌资源使用 [sub_resource] 实体定义，并通过资源属性
+`script/source` 指定脚本源代码，代码按原样直接紧接资源属性的 = 后面，并使用双引号包括，源代码中
+的双引号和 \ 会被转义为 \" 和 \\：
+
+```py
+    [gd_scene load_steps=2 format=2]
+
+    [sub_resource type="GDScript" id=1]
+    resource_name = "builtin-gdscript"
+    script/source = "extends Spatial
+
+    # Declare member variables here. Examples:
+    # var b = \"text\\newline\"
+
+
+    # Called when the node enters the scene tree for the first time.
+    func _ready():
+        pass # Replace with function body.
+    "
+
+    [node name="Spatial" type="Spatial"]
+    script = SubResource( 1 )
+```
+
+节点和外部资源是场景树层次结构组织的基本方式，[ext_resource] 实体定义外部资源，[node] 定义节点。
+场景文件中第一个定义节点即为场景的根节点，子节点通过 parent 属性指定父级节点。
+
+```py
+    [node name="Player" type="Node3D"]             ; The scene root
+    [node name="Arm" parent="." type="Node3D"]     ; Parented to the scene root
+    [node name="Hand" parent="Arm" type="Node3D"]
+    [node name="Finger" parent="Arm/Hand" type="Node3D"]
+```
+
+场景树中一些节点需要引用其它节点，场景文件中需要使用``NodePath(Path/To/Node)``来指定节点路径，
+比如，MeshInstance3D 中的骨架属性，需要使用``NodePath()``引用指定骨架节点。动画节点 Animation
+也类似地使用``NodePath()``引用指定节点的属性：
+
+```py
+    [node name="mesh" type="MeshInstance3D" parent="Armature001"]
+    mesh = SubResource(1)
+    skeleton = NodePath("..:")
+
+
+    [sub_resource id=3 type="Animation"]
+    ...
+    tracks/0/type = "transform"
+    tracks/0/path = NodePath("Cube:")
+    ...
+```
+
+资源类型作为 Godot 最常用的类型之一，它本身也可以像场景一样，使用 TSCN 这样的通用文本格式保存，
+只是扩展名为 .tres，一个新创建的资源类型，它的文本格式内容如下，只有一个 File Descriptor 实体，
+和一个类型实体 [resource]。文件描述符用于标志这个资源文件所属的类型，这里的类型就是 `Resource`，
+而资源类型实体 [resource] 用于定义资源类型的属性数据，这里没有任何属性数据，所以它就是一个全新的
+资源对象：
+
+```py
+[gd_resource type="Resource" format=2]
+
+[resource]
+```
+
+通过 GDSCript 扩展资源类型后，可以使用资源拥有各种功能，例如 `MyResource`：
+
+```py
+    class_name MyResource
+    extends Resource
+
+    export var title = ""
+    export var subtitle = ""
+    export(NodePath) var visual = null
+    export(String, FILE) var file_path = "user://local.file"
+    export(String, MULTILINE) var text = ""
+
+    # Called when the node enters the scene tree for the first time.
+    func _ready():
+        pass # Replace with function body.
+```
+
+资源类型的属性也可以是资源，也可使用 ExtResource 或 SubResource 进行扩展，使得自定义资源类型
+拥有各种用途，记录各种数据资源。
+
+在 Godot 编辑器中双击打开资源文件，在属性面板中可以将 MyResource 附加到资源文件的脚本属性，这样
+设置后，资源文件中的定义的资源就成为 MyResource 类型，并且可以通过脚本中的导出变量设置更多的资源
+属性或数据。比如将，MyResource 脚本内容作为资源的 **text** 属性记录到资源文件：
+
+```py
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://course/MyResource.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+title = "Demo Resource"
+subtitle = ""
+visual = NodePath("Robot")
+file_path = "user://local.file"
+text = "extends Resource
+
+export var title = \"\"
+export(String, MULTILINE) var text = \"\"
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+    pass # Replace with function body.
+"
+```
+
+注意 `script = ExtResource( 1 )` 这里，MyResource 脚本将附加到资源上，并作为资源的扩展类型。
+将脚本附加到一种类型中，并通过脚本扩展这种类型的这种机制是 Godot 顶级父类 Object 提供的能力。这是
+与通知机制、信号机制等等之外的，另一种最基础的能力。
+
+
+提示：修改自定义类型后，再编辑资源文件时，可能出现资源属性不能更新为最新状态，这时可以重新加载工程。
+
+
+此外，场景文件中还有其它许多不同的节点类型，及数据格式，参考 TSCN 文件格式文档。
+
+源代码中定义了文本资源加载器，使用 is_scene 指示加载的是 TSCN 场景资源文件，即等同 [gd_scene]。
+ResourceLoaderText::open() 负责打开文本资源文件，并通过 VariantParser::parse_tag() 解析
+资源文件中的实体定义。VariantParser::parse_value() 中定义了支持使用的数据类型：
+
+- godot\scene\resources\resource_format_text.cpp
+- godot\core\variant_parser.cpp
+
+```py
+    # Godot 3.5
+    } else if (id == "Vector2") {
+    } else if (id == "Rect2") {
+    } else if (id == "Vector3") {
+    } else if (id == "Transform2D" || id == "Matrix32") { //compatibility
+    } else if (id == "Plane") {
+    } else if (id == "Quat") {
+    } else if (id == "AABB" || id == "Rect3") {
+    } else if (id == "Basis" || id == "Matrix3") { //compatibility
+    } else if (id == "Transform") {
+    } else if (id == "Color") {
+    } else if (id == "NodePath") {
+    } else if (id == "RID") {
+    } else if (id == "Object") {
+    } else if (id == "Resource" || id == "SubResource" || id == "ExtResource") {
+    } else if (id == "InputEvent") {
+    } else if (id == "PoolByteArray" || id == "PackedByteArray" || id == "ByteArray") {
+    } else if (id == "PoolIntArray" || id == "PackedInt32Array" || id == "PackedInt64Array" || id == "IntArray") {
+    } else if (id == "PoolRealArray" || id == "PackedFloat32Array" || id == "PackedFloat64Array" || id == "FloatArray") {
+    } else if (id == "PoolStringArray" || id == "PackedStringArray" || id == "StringArray") {
+    } else if (id == "PoolVector2Array" || id == "PackedVector2Array" || id == "Vector2Array") {
+    } else if (id == "PoolVector3Array" || id == "PackedVector3Array" || id == "Vector3Array") {        } else if (id == "PoolColorArray" || id == "PackedColorArray" || id == "ColorArray") {
+
+    # Godot 4.x
+    } else if (id == "Vector2i") {
+    } else if (id == "Rect2") {
+    } else if (id == "Rect2i") {
+    } else if (id == "Vector3") {
+    } else if (id == "Vector3i") {
+    } else if (id == "Vector4") {
+    } else if (id == "Vector4i") {
+    } else if (id == "Transform2D" || id == "Matrix32") { //compatibility
+    } else if (id == "Plane") {
+    } else if (id == "Quaternion" || id == "Quat") { // "Quat" kept for compatibility
+    } else if (id == "AABB" || id == "Rect3") {
+    } else if (id == "Basis" || id == "Matrix3") { //compatibility
+    } else if (id == "Transform3D" || id == "Transform") { // "Transform" kept for compatibility with Godot <4.
+    } else if (id == "Projection") { // "Transform" kept for compatibility with Godot <4.
+    } else if (id == "Color") {
+    } else if (id == "NodePath") {
+    } else if (id == "RID") {
+    } else if (id == "Object") {
+    } else if (id == "Resource" || id == "SubResource" || id == "ExtResource") {
+    } else if (id == "Array") {
+    } else if (id == "PackedByteArray" || id == "PoolByteArray" || id == "ByteArray") {
+    } else if (id == "PackedInt32Array" || id == "PackedIntArray" || id == "PoolIntArray" || id == "IntArray") {
+    } else if (id == "PackedInt64Array") {
+    } else if (id == "PackedFloat32Array" || id == "PackedRealArray" || id == "PoolRealArray" || id == "FloatArray") {
+    } else if (id == "PackedFloat64Array") {
+    } else if (id == "PackedStringArray" || id == "PoolStringArray" || id == "StringArray") {
+    } else if (id == "PackedVector2Array" || id == "PoolVector2Array" || id == "Vector2Array") {
+    } else if (id == "PackedVector3Array" || id == "PoolVector3Array" || id == "Vector3Array") {
+    } else if (id == "PackedColorArray" || id == "PoolColorArray" || id == "ColorArray") {
+```
+
+
+## 🟡 Debug & Profiler 调试与性能分析、优化
 - [The Profiler](https://docs.godotengine.org/en/latest/tutorials/scripting/debug/the_profiler.html)
 - [Optimization](https://docs.godotengine.org/en/stable/tutorials/performance/index.html)
 - [Debugging and profiling](https://docs.godotengine.org/en/latest/contributing/development/debugging/index.html)
 - [Using C++ profilers](https://docs.godotengine.org/en/stable/development/cpp/using_cpp_profilers.html)
+- [GDQuest Optimization 3D](https://www.gdquest.com/tutorial/godot/3d/optimization-3d/)
+- [GDQuest Optimization Code](https://www.gdquest.com/tutorial/godot/gdscript/optimization-code/)
+- [Optimizing for size](https://docs.godotengine.org/en/stable/development/compiling/optimizing_for_size.html)
 - https://github.com/VerySleepy/verysleepy/wiki/User-Interface
 - godot-docs\tutorials\scripting\debug\overview_of_debugging_tools.rst
 - godot-docs\tutorials\scripting\debug\the_profiler.rst
 - godot-docs\development\cpp\using_cpp_profilers.rst
+
+![the Graphics Monitor](https://gdquest.com/tutorial/godot/3d/optimization-3d/monitors.png)
+
+Godot 自带的图形监视面板收集以下几个重要的 3D 场景绘制的信息：
+
+- **Mat changes** are when the CPU tells the GPU to replace a material with a new one.
+- **Shader changes** are when you change shader code.
+- **Surface changes** are when you update the world’s geometry.
+- **Draw calls** are the CPU telling the GPU to render something.
+
+通过优化网格、着色器等等，可以降低对 GPU 执行的 Draw calls，并提供 GPU 性能。
 
 在使用 C++ 分析器之前，需要为 Godot 主程序设置调试符号信息，官方提供的下载已经清理了调试符号数据以
 减小下载数据。需要在本地重新编译 Godot 并且按以下编译配置保留调试符号数据：
@@ -2367,27 +3025,88 @@ Godot 自带的性能分析器在调试器面板中，通过手动点击 Start �
 的时间消耗信息，收集到数据后就可以关闭 Profiler，然后对数据进行分析，以确定性能瓶颈在 CPU 还 GPU。
 
 
-Measuring manually in microseconds
+Measuring manually in microseconds by get_ticks_usec()
 
 ```py
-# Measuring the time it takes for worker_function() to run
-var start = OS.get_ticks_usec()
-worker_function()
-var end = OS.get_ticks_usec()
-var worker_time = (end-start)/1000000.0
+class_name MyMainLoop
+extends MainLoop
 
-# Measuring the time spent running a calculation over each element of an array
-start = OS.get_ticks_usec()
-for calc in calculations:
-    result = pow(2, calc.power) * calc.product
-end = OS.get_ticks_usec()
-var loop_time = (end-start)/1000000.0
+var time_elapsed = 0
 
-print("Worker time: %s\nLoop time: %s" % [worker_time, loop_time])
+func _initialize():
+    print("Initialized:")
+    print("  Starting time: %s" % str(time_elapsed))
+    _test()
+
+func _process(delta: float):
+    time_elapsed += delta
+    # Return true to end the main loop.
+    return Input.get_mouse_button_mask() != 0 || Input.is_key_pressed(KEY_ESCAPE)
+
+func _physics_process(delta: float):
+    pass
+    return true # exit main loop
+
+func _finalize():
+    print("Finalized:")
+    print("  End time: %s" % str(time_elapsed))
+
+# in Godot 3.x 
+# bool _idle(delta: float) virtual      -> Node._process().
+# bool _iteration(delta: float) virtual -> Node._physics_process().
+
+func _test():
+    var dim = 9455
+    var arr2D = [range(dim)]
+    arr2D.resize(dim) # 10000x10000 array, value of new element is null
+
+    # OS.get_ticks_usec() in Godot 3.x
+    var ticks = Time.get_ticks_usec()
+    print_debug("Ticks start: %d" % [ticks])
+
+    for i in range(dim):
+        arr2D[i] = range(dim)
+        for j in range(dim):
+            var k = i+j*dim
+            arr2D[i][j] = k
+
+    var elapsed = (Time.get_ticks_usec() - ticks) / 1000000
+    print_debug("  time_elapsed: %d seconds." % elapsed)
+
+    var arr1D = range(dim * dim)
+    ticks = Time.get_ticks_usec()
+
+    for i in range(dim * dim):
+        arr1D[i] = i
+
+    elapsed = (Time.get_ticks_usec() - ticks) / 1000000
+    print_debug("  time_elapsed: %d seconds." % elapsed)
+
+    # print_debug("  123".to_int(), int("456"), "789" as int)
 ```
 
+从输出结果来看，CPU Intel i7-8650U，二维数组因为多了一个 for 结构，以及函数 range()，它涉及
+内存动态分配的调用，这非常消耗时间：
 
-## 🟡🟠 Signals & Notifications 信号与消息
+    Initialized:
+      Starting time: 0
+    Ticks start: 1533756
+      time_elapsed: 19 seconds.
+      time_elapsed: 6 seconds.
+    Finalized:
+      End time: 0.15
+
+Godot 没有提供直接初始化大数组的方法，使用 range() 和 resize() 函数间接获取大数组需要的内存，
+或者通过 C++ 底层进行内存动态分配。
+
+每个 Variant 实例至少占用内存为 20 bytes，使用 float 作为浮点数类型，如果使用 double 则
+占用 30 bytes。另外像 PoolVector，aabb，metrix 这些数组或专用类型的额外内存占用另计。
+
+以 10000 方形二维数组为例，使用默认的变体类型大小就占用 2GB = 10000 * 10000 * 20 内存，
+这是相当占用内存！
+
+
+## 🟡 Signals & Notifications 信号与消息
 - [Using signals](https://docs.godotengine.org/en/stable/getting_started/step_by_step/signals.html)
 - [Godot notifications](https://docs.godotengine.org/en/3.5/tutorials/best_practices/godot_notifications.html)
 - [GDScript grammar](https://docs.godotengine.org/en/stable/development/file_formats/gdscript_grammar.html)
@@ -2565,7 +3284,7 @@ yield($Button0, "pressed") #  按钮点击后执行
 ```
 
 
-## 🟡🟠 InputMap 用户输入与映射
+## 🟡 InputMap 用户输入与映射
 - [User Inputs](https://docs.godotengine.org/en/3.5/tutorials/inputs/index.html)
 
 
@@ -2584,7 +3303,7 @@ Godot 就提供了一个 TouchScreenButton 用于触摸屏的输入。对于一�
 
 ![Input Event Flow](https://docs.godotengine.org/en/3.5/_images/input_event_flow.png)
 
-用户转入会先进入标准 `Node._input()` 函数，任何节点中覆盖这个函数就可以处理用户的所有输入，只要
+用户输入会先进入标准 `Node._input()` 函数，任何节点中覆盖这个函数就可以处理用户的所有输入，只要
 还没有使用 `Node.set_process_input()` 禁用输入处理。如果任何用户输入的是正要处理的事件，可以
 调用 SceneTree 或 Viewport 的 `set_input_as_handled()` 函数告诉引擎，这个事件已经被处理好，
 不必再传播，这确保可以过滤所有感兴趣的事件。对于游戏输入，`Node._unhandled_input()` 通常更适合，
@@ -2596,10 +3315,6 @@ gui_input 信号会在此发布。如果控件处理好事件，应该调用 `Co
 
 如果，前两步中还没有表明事件被处理好，事件就会送入 `_unhandled_input()` 及 `_unhandled_key_input()` 
 函数中处理，只要没有通过以下方法禁用。
-
-    void set_process_unhandled_input(const bool enable);
-
-    void set_process_unhandled_key_input(const bool enable);
 
 处理未经处理的输入是全屏游戏事件处理的理想选择，因此当 GUI 处于活动状态时，它们不会被接收。如果到
 这一步还没表示该事件已经被处理，在启用 Object Picking 的情况下将摄影机指定给视口，则事件将会
@@ -2616,6 +3331,34 @@ gui_input 信号会在此发布。如果控件处理好事件，应该调用 `Co
 
 ![reverse depth-first order](https://docs.godotengine.org/en/3.5/_images/input_event_scene_flow.png)
 
+总结一下输入数据的走向，在没有事件传播干预的条件下，用户输入的流向：
+
+```py
+# Step 1: Node 
+void _input(event: InputEvent) virtual
+
+# Step 2: Control
+void _gui_input(event: InputEvent) virtual
+
+# Step 3: Node
+void _unhandled_input(event: InputEvent) virtual
+void _unhandled_key_input(event: InputEventKey) virtual
+```
+
+对输入数据传播进行干扰的方法：
+
+```py
+# SceneTree
+void set_input_as_handled()
+
+# Node
+void set_process_input(enable: bool)
+void set_process_unhandled_input(enable: bool)
+void set_process_unhandled_key_input(enable: bool)
+
+# Control
+void accept_event()
+```
 
 就键盘输入而言，不同国家使用的键盘布局也不尽相同，按键物理位置分布有所差异。Godot 工程设置 Input Map
 可以将以下 5 种输入事件映射到一个 Action 上：
@@ -2807,6 +3550,10 @@ func _axis_simulate(delta):
     elif Input.is_action_pressed("move_up"):
         icon.position.y -= (base  + sprint) * delta
 
+    var axis_x = int(Input.is_key_pressed(KEY_A)) - int(Input.is_key_pressed(KEY_D))
+    var axis_z = int(Input.is_key_pressed(KEY_W)) - int(Input.is_key_pressed(KEY_S))
+    var direction:Vector3 = Vector3(-axis_x, 0, -axis_z)
+
 func _process(delta):
     #Input.get_action_strength("move_up")
     var axis_y = Input.get_axis("move_up", "move_down")
@@ -2821,12 +3568,71 @@ func _process(delta):
 
 
 
-## 🟡🟠 IO & Serialization 序列化与存档读档
+## 🟡 IO & Serialization 序列化与存档读档
 - [Input and Output (I/O)](https://docs.godotengine.org/en/3.6/tutorials/io/index.html)
+- [File System](https://docs.godotengine.org/en/latest/tutorials/scripting/filesystem.html)
+- [Resources](https://docs.godotengine.org/en/latest/tutorials/scripting/resources.html)
+- [Background loading](https://docs.godotengine.org/en/latest/tutorials/io/background_loading.html)
+- [Exporting packs, patches, and mods](https://docs.godotengine.org/en/latest/tutorials/export/exporting_pcks.html)
 
 Godot 使用 res:// 和 user:// 两个文件路径协议，前者表示工程内部资源路径，后者表示用户操作系统
 资源路径。游戏存档、用户配置等就需要使用后者，可以使用 OS.get_executable_path() 提供的路径将，
 保存数据到相对于主程序的目录中。
+
+资源加载有多种方式，资源路径除了以上两种协议，不能使用其它方式，不支持相对路，如果活力协议，API 会
+自动添加默认的 res:// 协议为路径前缀：
+
+```py
+    # @GDscript global functions
+    Resource load(path: String)
+    Resource preload(path: String)
+
+    # ResourceLoader singleton
+    Resource load(path: String, type_hint: String = "", no_cache: bool = false)
+    ResourceInteractiveLoader load_interactive(path: String, type_hint: String = "")
+```
+
+- `load()` 全局函数动态加载 path 指定资源，为了避免重复执行加载，可以将资源保存到变量中。
+- `preload` 关键字提供的这种加载方法只在解析时执行预载，path 是一个常量。
+- `ResourceLoader.load()` 是全局 load() 函数的完成版。
+- `ResourceInteractiveLoader` 以交互方式加载资源，允许高粒度执行 chunks 加载过程，依次调用其 poll() 方法。
+
+注意，preload 不是函数，是关键字，在解析器提供的方法，load() 是全局函数，它们的功能不太一样。
+
+前面 `load()` 和 `preload` 两种方法都会阻塞线程，为了解决资源加载时出现卡顿问题提供了交互式
+资源加载器，还过在 Godot 4 中移除了。还可以使用 ResourcePreloader 按列表加载资源，甚至是使用
+多线程进行资源加载处理。
+
+- https://docs.godotengine.org/en/latest/_downloads/bc54982daa1be2e5b495d74f01a098f1/resource_queue.gd
+
+Godot 导出工程会将所有资源打包生成 .pck 资源包文件，相比 zip，非压缩的这种资源包优点如下：
+
+- incremental updates/patches
+- offer DLCs
+- offer mod support
+- no source code disclosure needed for mods
+- more modular project structure
+- users don't have to replace the entire game
+
+Downloadable Content (DLC) 是游戏更新的一种方法，pck 资源包就可以在运行时加载：
+
+```py
+func _your_function():
+    # This could fail if, for example, mod.pck cannot be found.
+    var success = ProjectSettings.load_resource_pack("res://mod.pck")
+
+    if success:
+        # Now one can use the assets as if they had them in the project from the start.
+        var imported_scene = load("res://mod_scene.tscn")
+```
+
+默认设置下，DLC 加载会覆盖相同路径的原工程资源，可以在加载资源包时传入参数避免这种覆盖行为。
+
+对于 C# 工程，需要编译生成程序集的 DLL 并先放置到工程目录中，在加载资源包之前加载这个程序集：
+
+```C#
+    Assembly.LoadFile("mod.dll")
+```
 
 典型的系统中用户数据默认路径位置如下：
 
@@ -2947,8 +3753,13 @@ func load_game():
         get_node(variant.path).text = variant.text
     return content
 
+```
 
-func _test_json():
+Godot 4.x 文件及目录 API 改写为 FileAccess 和 DirAccess，同时也取消了 close() 方法，在
+超出作用域、通过赋值 null 释放文件引用时，FileAccess 会自动关闭文件，而在 C# 中必需 disposed。
+
+```py
+# Godot 3.x
     var path = "user://path/to/save.json"
     var file = File.new()
     var dir = Directory.new()
@@ -2967,11 +3778,166 @@ func _test_json():
         var variant = parse_json(json)
         print("json read from file: ", path, "\n", variant)
     file.close()
+
+# Godot 4.x
+    path = "user://path/to/save.json"
+    if not FileAccess.file_exists(path):
+        DirAccess.make_dir_recursive_absolute(path)
+        DirAccess.remove_absolute(path)
+        var json: String = var_to_str({NodePath=self.get_path()})
+        var file = FileAccess.open(path, FileAccess.WRITE)
+        if FileAccess.get_open_error() != OK:
+            return print("fail to write file: ", path)
+        file.store_string(json)
+        file = null
+        print("json save to file: ", path)
+    else:
+        var file = FileAccess.open(path, FileAccess.READ)
+        var json = file.get_as_text()
+        var variant = str_to_var(json)
+        print("json read from file: ", path, "\n", variant)
+        file = null # File is closed. not file.close()
+```
+
+另外，String 类型提供了几个方法用于处理文件相关的字符串：
+
+- get_base_dir()
+- get_basename()
+- get_extension()
+- get_file()
+- plus_file(file: String)
+
+```py
+print("/path/to/file.txt".get_extension())  # "txt"
+print("file.txt".get_extension())  # "txt"
+print("file.sample.txt".get_extension())  # "txt"
+print(".txt".get_extension())  # "txt"
+print("file.txt.".get_extension())  # "" (empty string)
+print("file.txt..".get_extension())  # "" (empty string)
+print("txt".get_extension())  # "" (empty string)
+print("".get_extension())  # "" (empty string)
+```
+
+
+## 🟡 Audio Stream 声频流处理
+- [Audio Generator Demo](https://godotengine.org/asset-library/asset/526)
+- [Audio Mic Record Demo](https://godotengine.org/asset-library/asset/527)
+- [Audio Spectrum](https://godotengine.org/asset-library/asset/528)
+- [Audio Device Changer Demo](https://godotengine.org/asset-library/asset/525)
+- [Godot 3.2 will get new audio features](https://godotengine.org/article/godot-32-will-get-new-audio-features/)
+- [Importing audio samples](https://docs.godotengine.org/en/3.5/tutorials/assets_pipeline/importing_audio_samples.html)
+- [Audio Buses](https://docs.godotengine.org/en/3.5/tutorials/audio/audio_buses.html)
+- [Audio Stream](https://docs.godotengine.org/en/3.5/tutorials/audio/audio_streams.html)
+- [Sync the gameplay with audio and music](https://docs.godotengine.org/en/3.5/tutorials/audio/sync_with_audio.html)
+- [Recording with microphone](https://docs.godotengine.org/en/3.5/tutorials/audio/recording_with_microphone.html)
+
+|           Godot 3.5            |            Godot 4.x             |
+|--------------------------------|----------------------------------|
+| AudioServer                    | AudioServer                      |
+| AudioBusLayout                 | AudioBusLayout                   |
+| AudioStream                    | AudioStream                      |
+| - AudioStreamGenerator         | - AudioStreamGenerator           |
+| - AudioStreamMP3               | - AudioStreamMP3                 |
+| - AudioStreamMicrophone        | - AudioStreamMicrophone          |
+| - AudicStreamOGGVorbis         | - AudicStreamOggVorbis           |
+| - AudioStreamRandomPitch       | - AudioStreamRandomizer          |
+| - AudioStreamSample            | - AudioStreamPolyphonic          |
+| -                              | - AudioStreamWAV                 |
+| AudioStreamPlayback            | AudioStreamPlayback              |
+| - AudioStreamPlaybackResampled | - AudioStreamPlaybackResampled   |
+| -                              | --- AudioStreamGeneratorPlayback |
+| -                              | --- AudioStreamPlaybackOggVorbis |
+| - AudioStreamGeneratorPlayback | - AudioStreamGeneratorPlayback   |
+| AudioStreamPlayer              | AudioStreamPlayer                |
+| AudioStreamPlayer2D            | AudioStreamPlayer2D              |
+| AudioStreamPlayer3D            | AudioStreamPlayer3D              |
+| -                              | AudioListener2D                  |
+| -                              | AudioListener3D                  |
+
+![AudioBuses](https://docs.godotengine.org/en/3.5/_images/audio_stream_reverb_bus2.png)
+
+声效类型较多另外展示，并且升级后效果类型没有变化：
+
+- AudioEffect
+- - AudioEffectAmplify
+- - AudioEffectCapture
+- - AudioEffectChorus
+- - AudioEffectCompressor
+- - AudioEffectDelay
+- - AudioEffectDistortion
+- - AudioEffectEQ
+- --- AudioEffectEQ10
+- --- AudioEffectEQ21
+- --- AudioEffectEQ6
+- - AudioEffectFilter
+- --- AudioEffectBandLimitFilter
+- --- AudioEffectBandPassFilter
+- --- AudioEffectHighPassFilter
+- --- AudioEffectHighShelfFilter
+- --- AudioEffectLowPassFilter
+- --- AudioEffectLowShelfFilter
+- --- AudioEffectNotchFilter
+- - AudioEffectLimiter
+- - AudioEffectPanner
+- - AudioEffectPhaser
+- - AudioEffectPitchShift
+- - AudioEffectRecord
+- - AudioEffectReverb
+- - AudioEffectSpectrumAnalyzer
+- - AudioEffectStereoEnhance
+- AudioEffectInstance
+- - AudioEffectSpectrumAnalyzerInstance
+
+一个只有基本功能的 MP3 播放器：
+
+```py
+extends AudioStreamPlayer
+
+var position = 0.0
+
+func _ready():
+    stream: AudioStreamMP3 = preload("res://some.mp3")
+
+func _input(event):
+    if not event is InputEventKey:
+        return
+    
+    match [event.keycode, event.is_pressed(), event.ctrl_pressed, is_playing()]:
+        [KEY_SPACE, true, _, true]:
+            position = get_playback_position()
+            stop()
+            #set_stream_paused(true)
+        [KEY_SPACE, true, _, false]:
+            play(position)
+            #set_stream_paused(false)
+        [KEY_ESCAPE, true, _, _ ]:
+            position = 0.0
+            stop()
+        [KEY_LEFT,  true, _, true ]:
+            play(get_playback_position() + -5)
+        [KEY_RIGHT, true, _, true ]:
+            play(get_playback_position() + 5)
+        [KEY_DOWN,  true, false, true]:
+            set_volume_db(get_volume_db() + -1.0)
+        [KEY_UP,    true, false, true]:
+            set_volume_db(get_volume_db() + 1.0)
+        [KEY_DOWN,  true, true, true]:
+            set_pitch_scale(get_pitch_scale() + -0.01)
+        [KEY_UP,    true, true, true]:
+            set_pitch_scale(get_pitch_scale() + 0.01)
 ```
 
 
 
-## 🟡🟠 UI 用户界面
+
+
+
+
+
+
+
+
+## 🟡 UI 用户界面
 - [User Interface(UI)](https://docs.godotengine.org/en/3.5/tutorials/ui/index.html)
 - [BBCode in RichTextLabel](https://docs.godotengine.org/en/3.5/tutorials/ui/bbcode_in_richtextlabel.html)
 - [Using Containers](https://docs.godotengine.org/en/3.5/tutorials/ui/gui_containers.html)
@@ -3146,7 +4112,7 @@ func _on_meta_clicked(meta):
 
 
 
-## 🟡🟠 Maths 图形学的数学
+## 🟡 Maths 图形学的数学
 - [Vector math](https://docs.godotengine.org/en/stable/tutorials/math/vector_math.html)
 - [Viewport and canvas transforms](https://docs.godotengine.org/en/3.5/tutorials/2d/2d_transforms.html)
 - [Matrices and transforms](https://docs.godotengine.org/en/stable/tutorials/math/matrices_and_transforms.html)
@@ -3198,7 +4164,7 @@ Equations，Inequalities，进入代数时代。
 
 
 
-### 🟢🔵 Functions 函数
+### 🟠🔵 Functions 函数
 - 数学分析(全二卷)(第7版) by B.A.卓里奇
 - 张筑生《数学分析新讲》（全三册）
 - [Maths is fun - Algebra](https://www.mathsisfun.com/algebra/index.html)
@@ -3252,7 +4218,7 @@ C 个偏移量，如果 C 小于 0，则向下偏移。
 
 
 
-### 🟢🔵 Trigonomery 三角函数
+### 🟠🔵 Trigonomery 三角函数
 - [Maths is fun - Trigonometry](https://www.mathsisfun.com/algebra/trigonometry.html)
 - [Maths is fun - Trigonometry zh_CN](https://www.shuxuele.com/algebra/trigonometry.html)
 - [Trigonometry](https://www.math.net/trigonometry)
@@ -3316,7 +4282,7 @@ Tangent 正切函数是根据角度 α 求解对边与邻边的比值，而反�
 
 
 
-### 🟢🔵 Vectors 向量
+### 🟠🔵 Vectors 向量
 - [Vectors](https://www.math.net/vector)
 - [Vectors - Maths is fun](https://www.mathsisfun.com/algebra/vectors.html)
 - [Vectors - 3Blue1Brown](https://www.3blue1brown.com/lessons/vectors)
@@ -3396,7 +4362,7 @@ Span space。例外的情况是，这两个向量的方向重叠时，它们张�
 
 例如，从原点到坐标 (4, 3) 位置就可以用向量表示为 Vector2(4, 3)。
 
-编写以下这样的一个 sayhello.gd 脚本，使用 godot.exe --no-window -s sayhello.gd 命令执行，
+编写以下这样的一个 sayhello.gd 脚本，使用 godot.exe --headless -s sayhello.gd 命令执行，
 就可以得到脚本运行输出的结果，并不需要运行整个 Godot 编辑器：
 
 ```py
@@ -3520,7 +4486,7 @@ A - B = -C，所以，结果是反转 180°。记作，负号在哪方，箭头�
 
 
 
-### 🟢🔵 Vector in Godot 向量的应用
+### 🟠🔵 Vector in Godot 向量的应用
 - [Advanced vector math](https://docs.godotengine.org/en/3.5/tutorials/math/vectors_advanced.html)
 
 单位向量作为法向量 Normal 使用时不仅可以用来指示方向，利用法向量还可以作各种应用，不限于以下这些：
@@ -3677,7 +4643,7 @@ if (overlapping):
 即垂直于这些边确定的平面。
 
 
-### 🟢🔵 Vector & Normal Mapping 向量与法线贴图
+### 🟠🔵 Vector & Normal Mapping 向量与法线贴图
 - [Tangent Space Normal Mapping](https://docs.cryengine.com/display/SDKDOC4/Tangent%2BSpace%2BNormal%2BMapping)
 - [Normal map (Bump mapping)](https://docs.unity.cn/2020.3/Documentation/Manual/StandardShaderMaterialParameterNormalMap.html)
 - [LearnOpenGL Advanced Lighting - Normal Mapping](https://learnopengl.com/Advanced-Lighting/Normal-Mapping)
@@ -3831,7 +4797,7 @@ RGB 中的 RG 分量，手绘法线贴图可以参考：
 
 
 
-### 🟢🔵 Matrix & Determinant 矩阵与行列式
+### 🟠🔵 Matrix & Determinant 矩阵与行列式
 - [Linear Algebra](https://www.3blue1brown.com/topics/linear-algebra)
 - [Solving Systems of Linear Equations Using Matrices](https://www.mathsisfun.com/algebra/systems-linear-equations-matrices.html)
 - [Solving Systems of Linear Equations Using Matrices zh_CN](https://www.shuxuele.com/algebra/systems-linear-equations-matrices.html)
@@ -4066,7 +5032,7 @@ Sarrus’s rule，这种方法是将行列式往右边循环扩展，从左上�
 
 
 
-### 🟢🔵 Complexes 复数
+### 🟠🔵 Complexes 复数
 - [闫令琪 GAMES101-现代计算机图形学入门 - 04 Transformation Cont.](https://www.bilibili.com/video/BV1X7411F744/?p=3)
 - [Imaginary Numbers Are Real - Welch Labs](https://www.bilibili.com/video/BV1Ts411u7iH?p=5)
 - [Imaginary Numbers Are Real - Welch Labs](https://www.welchlabs.com/resources/freebook)
@@ -4314,7 +5280,7 @@ zₙ+1 ＝ zₙ² + c，重复该步骤直到：
 - 不会发散，并形成实际的 Mandelbrot 集，显示为黑色。
 
 
-### 🟢🔵 Quaternions 四元数
+### 🟠🔵 Quaternions 四元数
 - [四元数的可视化 by 3Blue1Brown](https://www.bilibili.com/video/av33385105/)
 - [Visualizing quaternions, an explorable video series](https://eater.net/quaternions/video/intro)
 - [Understanding Quaternions](https://www.3dgep.com/understanding-quaternions/)
@@ -4475,7 +5441,7 @@ y = 0，投影结果就是图上的圆。当投影位于圆内，则分两种情
 
 
 
-### 🟢🔵 Calculus 微积分
+### 🟠🔵 Calculus 微积分
 - [Highlights of Calculus - Bilbert Strang](https://www.bilibili.com/video/BV13v411t7A6/)
 
 微积分，包括微分和积分两种完全相反的问题处理思维，differential and integral，微分向细微处求解，
@@ -4484,7 +5450,7 @@ y = 0，投影结果就是图上的圆。当投影位于圆内，则分两种情
 ∫ₙᵐ
 
 
-### 🟢🔵 Transformations 变换
+### 🟠🔵 Transformations 变换
 - [Geometry Transformations](https://www.mathsisfun.com/geometry/transformations.html)
 - [Matrices and transforms](https://docs.godotengine.org/en/3.5/tutorials/math/matrices_and_transforms.html)
 - [Visualization - Geometric Algorithms](https://www.cs.usfca.edu/~galles/visualization/Algorithms.html)
@@ -4745,7 +5711,7 @@ get_tree().input_event(ie)
 ```
 
 
-### 🟢🔵 Curve & Geometry 曲线与几何抽象思维
+### 🟠🔵 Curve & Geometry 曲线与几何抽象思维
 - [Geometry](https://www.mathsisfun.com/geometry/index.html)
 - [从零开始学图形学 - 贝塞尔曲线](https://zhuanlan.zhihu.com/p/344934774)
 - [曲线篇: 贝塞尔曲线](https://zhuanlan.zhihu.com/p/136647181)
@@ -4913,7 +5879,7 @@ SVG 矢量图形对象布尔运算是常规需求，这是很有趣的问题，�
 
 
 
-## 🟡🟠 Color Theory 色彩理论
+## 🟡 Color Theory 色彩理论
 - [色彩构成理论基础](https://www.bilibili.com/video/BV1Vx411G7ZV)
 - [色彩搭配基础理论](https://www.bilibili.com/video/BV1t7411o79q)
 - [Jerry Vickery 光影色彩理论](https://www.bilibili.com/video/BV14t41127Xz)
@@ -5107,7 +6073,7 @@ SVG 矢量图形对象布尔运算是常规需求，这是很有趣的问题，�
 这张 19 世纪的紫罗兰雕刻画背后藏着拿破仑·波拿巴和他的第二任妻子玛丽·露易丝以及他们的儿子。观看这种
 模糊的画像时，你的大脑被迫选择或是看画或是看脸，要同时看到这两样东西是很难的。提示：你可以找到拿破仑的帽子。
 
-![](https://img1.jiemian.com/jiemian/original/20151011/14445479452906300_a700xH.jpg)
+![NP](https://img1.jiemian.com/jiemian/original/20151011/14445479452906300_a700xH.jpg)
 
 在大面积的背景色中，一个灰色点会自然地出现背景色的补色的倾向。
 
@@ -5194,7 +6160,7 @@ Victo Ngai 倪传婧在其 Mastering Color 网课上指出几条最重要的色�
 
 
 
-## 🟡🟠 Environment & Lighting 环境与光照
+## 🟡 Environment & Lighting 环境与光照
 - [Lights and shadow](https://docs.godotengine.org/en/3.5/tutorials/3d/lights_and_shadows.html)
 - [Reflection probes](https://docs.godotengine.org/en/3.5/tutorials/3d/reflection_probes.html)
 - [Global illumination probes](https://docs.godotengine.org/en/3.5/tutorials/3d/gi_probes.html)
@@ -5202,6 +6168,31 @@ Victo Ngai 倪传婧在其 Mastering Color 网课上指出几条最重要的色�
 - [GAMES104-现代游戏引擎：从入门到实践-王希](https://www.bilibili.com/video/BV1J3411n7WT/)
 - [GAMES202：《高质量实时渲染》闫令琪](https://www.bilibili.com/video/BV1YK4y1T7yY/)
 - [实时阴影技术 Real-time Shadows](https://www.cnblogs.com/KillerAery/p/15201310.html)
+- [Introduction to 3D](https://docs.godotengine.org/en/latest/tutorials/3d/introduction_to_3d.html)
+
+Godot 中使用米制单位系统，即属性面板中的 1 单位代表 1 米，物理或其它面积按此伸缩。
+
+坐标系统使用 Y 轴作为 "up" 的指向，而水平轴为 X/Z。使用右手坐标系统，保持食指、中指、拇指相系垂直：
+
+- 并且食指指向上，对应 Y 轴指向；
+- 中指垂直屏幕指向自己，对应 Z 轴指向；
+- 拇指平衡屏幕水平向右，对应 X 轴指向；
+
+场景中默认的相机镜头指向 Z 轴负向，物体的指向 Z 轴方向为前向，简而言之：
+
+- X 轴是两边： right/left
+- Y 轴是上下： up/down
+- Z 轴是前后： front/back
+
+以下是 Freya Holmér 制作的各种软件使用的坐标系统 UP 方向轴的差别对照参考：
+
+![Image by Freya Holmér](https://docs.godotengine.org/en/latest/_images/introduction_to_3d_coordinate_systems.webp)
+
+在 3D 场景视图中，可以使用以下快捷键：
+
+- 按下 Ctrl 配合鼠标操作可以将 moving, scaling or rotating 操作吸附到参考线。
+- 使用 F 可以将视图中选中的对象居中到屏幕。
+
 
 不同于电影行业为了追求高质量的离线渲染 off-line rendering，游戏行业中是实时渲染，这就为硬件提出
 了高度的性能要求，在一定的硬件性能条件下，实时渲染并不能一味为了做最佳图像质量，而是在质量与流畅体验
@@ -5223,7 +6214,7 @@ Victo Ngai 倪传婧在其 Mastering Color 网课上指出几条最重要的色�
 
 
 
-### 🟢🔵 2D lights 二维灯光
+### 🟠🔵 2D lights 二维灯光
 - [2D lights and shadows](https://docs.godotengine.org/en/3.5/tutorials/2d/2d_lights_and_shadows.html)
 - [2D lights and shadows demo](https://github.com/godotengine/godot-demo-projects/tree/master/2d/lights_and_shadows)
 - [Trace Bitmap In Inkscape](https://inkscape.org/doc/tutorials/tracing/tutorial-tracing.html)
@@ -5283,7 +6274,245 @@ Godot 支持 Percentage Closer Filtering (PCF)，这是一种阴影贴图的抗�
 
 
 
-### 🟢🔵 Texture Map 纹理贴图
+### 🟠🔵 SpatialMaterial 空间材质
+- [Material Maker by R0dZill4](https://godotengine.org/showcase/material-maker/)
+- [Standard Material 3D and ORM Material 3D](https://docs.godotengine.org/en/latest/tutorials/3d/standard_material_3d.html)
+
+Godot 3D 几何节点提供了两个设置材质的属性：
+
+- Material Override - The material override for the whole geometry.
+- Material Overlay - The material overlay for the whole geometry.
+
+Override 和 Overlay 两种方式的差别是，前者会覆盖整个几何体，替代所有 matereial slot 中的材质，
+后者则是叠加在一起，在所有曲面的任何其他活动材质之上渲染该材质。例如，在 Sprite3D 上使用 Texture
+可能会覆盖掉 Overlay 的材质，如果纹理图完全不透明。反过来对于 Override，纹理图则可被覆盖掉。
+
+
+Godot 3.x 材质对象不多，只有 4 个类别：
+
+- CanvasItemMaterial
+- ParticlesMaterial
+- ShaderMaterial
+- SpatialMaterial
+
+Godot 4.x 和旧版本的材质对象有些差别，包含名称上的变化和新增的材质。
+
+材质基类 `Material` 下有两套子类型，一套是经由 BaseMaterial3D 衍生的空间材质，包括：
+
+- `ORMMaterial3D` 和标准空间材质基本相同，但是遮挡、粗糙度和金属等通道只使用同一个 ORM 纹理；
+- `StandardMaterial3D` 标准空间材质对应旧版本的 `SpatialMaterial`；
+
+Godot 4 材质新增 `ORMMaterial3D` 材质，它几乎和标准 BaseMaterial3D 材质完全相同，但有一点不同。
+没有为遮挡、粗糙度和金属设置单独的设置和纹理，而使用一个 ORM 纹理，该纹理的不同颜色通道用于每个参数。
+诸如 Substance Painter 和 Armor Paint 之类的程序提供了这种格式导出的选项，这两个程序具有用于
+虚幻引擎的导出预设，该引擎也使用 ORM 纹理。通过 Physically based rendering (PBR) 材质可以将
+ORM 纹理应用于 3D 对象，这也就是 `ORMMaterial3D` 材质对象的功能。
+
+另一套是继承 `Material` 的专用材质：
+
+- `CanvasItemMaterial` 画布对象材质，是应用于 CanvasItem 对象的二维材质，可以使用着色器材质深入自定义。
+- `FogMaterial` 体积雾材质，配合 `FogVolume` 节点使用。
+- `PanoramaSkyMaterial` 对应旧版的 PanoramaSky 资源类型。
+- `ParticleProcessMaterial` 为 GPU 粒子系统处理粒子属性，`GPUParticles3D` 和 `GPUParticles2D`。
+- `PhysicalSkyMaterial` 新增的基于物理的天空材质，光源属性来自场景树中第一个 `DirectionalLight3D` 节点。
+- `PlaceholderMaterial` 材质占位符，并非是真正的材质，而是用于解决材质加载的工具。
+- `ProceduralSkyMaterial` 对应旧版的 ProceduralSky 资源类型。
+- `ShaderMaterial` 着色器材质，可以进行着色器编程开发。
+
+其中，`ShaderMaterial` 着色器材质是比较特殊的一种，它可以进行着色器编程开发，可以定制各种特效。
+
+注意，天空材质中的太阳角度，需要通过 `DirectionalLight3D` 节点的旋转调整太阳高度角。
+
+部分新增的材质对象，在旧版本也有相应的类型，只不过不是材质类型，例如 PanoramaSky 和 ProceduralSky，
+它用于为 `WorldEnvironment` 环境节点提供天空环境材质设置，通过 `Environment` 资源创建天空环境。
+
+当使用 `Material` 子类的项目出现以下两种加载条件时，就可以使用材质占位符：
+
+- 在专用服务器模式下运行导出的项目时，仅保留纹理的尺寸，可用于游戏目的或其他元素的定位，并显著压缩导出的 PCK 文件。
+- 当该子类由于使用不同的引擎版本或构建而丢失时（例如模块禁用）。
+
+
+Material Maker 是基于 Godot 开发的一款程序化材质编辑器，它支持为 Godot、Unity、Unreal 等引擎
+导出编辑好的程序化材质，也可以为 Blender 导出 EXR 格式材质。EXR 是一种多层的富信息图像格式，非常
+方便用于合成、后期处理。EXR 能够存储高动态范围，常规图像文件格式如 JPEG 或 PNG 保存的是低动态范围。
+这意味着 EXR 可以使用高动态范围，从图像的完全白色或完全黑色区域检索信息。
+
+Material Maker 1.2 导出 Godot 材质格式为 `.tres`，是一个配置好的 SpatialMaterial 材质，可以直接
+给 MeshInstance 节点使用。根据 Godot 版本，有三种导出方式：
+
+- Godot 3 Spatial 三维空间材质；
+- Godot 4 ORM 
+- Godot 4 Standard Spatial 标准三维空间材质；
+
+EXR 也是 Blender 默认支持导入、导出的一种图像格式，可以通过 Blender 输出属性面板，设置输出格式为
+OpenEXR 或者 OpenEXR MultiLayer，即可以渲染得到 EXR 图像文件。可以将 EXR 文件拖放到 Shading
+着色器编辑器中，Image Texture 节点会自动生成，Material Maker 导出的三个 EXR 可以做以下连接，
+以自带的 beehive 蜂巢这个程序化材质导出的文件为例：
+
+- beehive_metal.exr 主材质图像，连接到 Principle BSDF 材质节点的 BaseColor 端口；
+- beehive_rough.exr 粗糙度图像，连接到 Principle BSDF 材质节点的 Roughness 端口；
+- beehive_displace.exr 置换贴图，连接到 Material Output 材质输出节点的 Displacement 端口；
+
+使用 Irfanview 工具，安装相应的 Exr.dll 插件即可以查看 EXR 材质图像。
+
+
+
+
+
+### 🟠🔵 Procedural geometry 几何体处理
+- [Procedural geometry](https://docs.godotengine.org/en/latest/tutorials/3d/procedural_geometry/index.html)
+- [3D Voxel Demo](https://godotengine.org/asset-library/asset/676)
+- https://docs.godotengine.org/en/latest/tutorials/3d/procedural_geometry/arraymesh.html
+
+几何 Geometry 是一个数学概念，在 Godot 中使用 Mesh 来表达几何，也就屏幕上看到的各种三维对象。
+几何体包含一系列的顶点 vertices 数据，顶点可以构建成三角面，进而形成 Mesh 网格体并表现几何体。
+
+概括来说，Mesh 包含一组由顶点数据定义的曲面 Surfaces，而每个曲面由一个多维数组定义，组合了顶点坐标、
+法线、UV坐标等等信息。
+
+Godot 提供了多种类型来处理几何体，通过修改几何体的数据可以得到任意结构的几何对象，这些工具包括：
+
+- `ArrayMesh` 资源类型提供顶点数据访问，并通过脚本构建 Mesh 曲面的能力，是最基础的几何处理工具。
+- `MeshDataTool` 引用类型提供将 Mesh 转换为 vertices, faces, edges 并在运行时编辑的能力；
+- `SurfaceTool` 引用类型提供 OpenGL 1.x 立即模式风格的 API 构造网格的能力，类似 `ImmediateMesh` 节点；
+- `ImmediateMesh` 节点类型提供以立即模式风格绘制网格的能力，但只用于原型中，因为每一帧其几何体都会重建；
+
+SurfaceTool 和 ArrayMesh 可以构造不需要每一帧都需要改变的静态网格，后者速度更快，前者 API 更易用，
+MeshDataTool 也不快，但是可以提供边面相关的 API。
+
+SurfaceTool 可以通过直接添加顶点或者使用顶点索引来构造几何体，最后通过 commit() 返回 ArrayMesh：
+
+```py
+    void begin(primitive: PrimitiveType)
+
+    void set_bones(bones: PackedInt32Array)
+    void set_color(color: Color)
+    void set_uv(uv: Vector2)
+
+    void add_index(index: int)
+    void add_vertex(vertex: Vector3)
+    
+    ArrayMesh commit(existing: ArrayMesh = null, flags: int = 0)
+```
+
+Godot 4.x 目前只支持在 CPU 上修改几何体，而不支持 GPU 上的几何修改。
+
+Godot 系统中 Mesh 是资源类型，可以提供几何体的数据，而将数据表达为几何体则通过 MeshInstance3D
+或者 MultiMeshInstance3D 这些节点来实现。
+
+ the Mesh, the ArrayMesh, the MeshInstance3D, the MultiMesh, and the MultiMeshInstance3D. 
+ While they are all related, they have slightly different uses.
+
+- `ArrayMesh` 顶点数组资源，提供顶点级别的几何表面操作。
+- `ImmediateMesh` 对应旧版本的 ImmediateGeometry 节点。
+- `PlaceholderMesh` Godot 4.x 新增的 Mesh 占位节点。
+- `PrimitiveMesh` 常用的基本几何体的网格对象，定义在源代码 scene\resources\primitive_meshes.cpp。
+    - BoxMesh 矩形盒子；
+    - CapsuleMesh 胶囊体；
+    - CylinderMesh 圆柱体；
+    - PlaneMesh 平面；
+    - PointMesh 具有单个点基本体的网格；
+    - PrismMesh 棱镜；
+    - RibbonTrailMesh 带状轨迹；
+    - SphereMesh 球体；
+    - TextMesh 文本网格；
+    - TorusMesh 圆环；
+    - TubeTrailMesh 管道轨迹；
+
+另外，`MultiMesh` 是一种使用 GPU 批量实例化以提供网格的高性能绘图的资源类型。
+
+`ArrayMesh` 中顶点使用的数据类型定义在 Mesh.ArrayType 枚举类型中，对应的数据类型如下：
+
+| Index | Mesh.ArrayType Enum |                               Array type                              |
+|-------|---------------------|-----------------------------------------------------------------------|
+|     0 | ARRAY_VERTEX        | PackedVector3Array or PackedVector2Array                              |
+|     1 | ARRAY_NORMAL        | PackedVector3Array                                                    |
+|     2 | ARRAY_TANGENT       | PackedFloat32Array of groups of 4 floats.                             |
+|     3 | ARRAY_COLOR         | PackedColorArray                                                      |
+|     4 | ARRAY_TEX_UV        | PackedVector2Array or PackedVector3Array                              |
+|     5 | ARRAY_TEX_UV2       | PackedVector2Array or PackedVector3Array                              |
+|    10 | ARRAY_BONES         | PackedFloat32Array or PackedInt32Array of groups of 4 floats or ints. |
+|    11 | ARRAY_WEIGHTS       | PackedFloat32Array of groups of 4 floats.                             |
+|    12 | ARRAY_INDEX         | PackedInt32Array                                                      |
+
+``ARRAY_TANGENT`` 使用 `PackedFloat32Array` 数据类型，每组共 4 个浮点数，前面 3 个浮点值
+决定切换向量，最后一个浮点值为副法线方向，值为 -1 或 1。
+
+``ARRAY_BONES`` 使用 `PackedFloat32Array` 或 `PackedInt32Array` 数据类型，也是 4 个值
+一组，每组包含影响指定顶点的 4 个骨骼的索引。
+
+``ARRAY_WEIGHTS``使用 `PackedFloat32Array` 数据类型，也是 4 个值一组，每个浮点值包含权重，
+对应了``ARRAY_BONES``中与顶点关联的骨骼。
+
+
+例如，通过基本的圆柱体实例的顶点数据，结合 ArrayMesh 重构出另一个圆柱体：
+
+```py
+var c = CylinderMesh.new()
+var arr_mesh = ArrayMesh.new()
+arr_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, c.get_mesh_arrays())
+```
+
+例如，以下代码通过 ArrayMesh 构造几何体，是一个三角形，并添加到场景树中：
+
+```py
+var vertices = PackedVector3Array()
+vertices.push_back(Vector3(0, 1, 0))
+vertices.push_back(Vector3(1, 0, 0))
+vertices.push_back(Vector3(0, 0, 1))
+
+# Initialize the ArrayMesh.
+var arr_mesh = ArrayMesh.new()
+var arrays = []
+arrays.resize(Mesh.ARRAY_MAX)
+arrays[Mesh.ARRAY_VERTEX] = vertices
+
+# Create the Mesh.
+arr_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+var m = MeshInstance3D.new()
+m.mesh = arr_mesh
+```
+
+
+例如，以下使用 SurfaceTool 构造只有一个顶点的三角形，注意事项：
+
+- 顶点属性需要在 add_vertex() 方法执行前添加；
+- 使用 add_uv() 和 add_color() 给后续的顶点设置 UV 坐标和颜色属性；
+- 第一个顶点添加前设置的属性决定了网格数据格式，例如，只添加了 UV 坐标，那么添加顶点后就不能再设置顶点颜色属性了。
+
+```py
+var st = SurfaceTool.new()
+st.begin(Mesh.PRIMITIVE_TRIANGLES)
+st.add_color(Color(1, 0, 0))
+st.add_uv(Vector2(0, 0))
+st.add_vertex(Vector3(0, 0, 0))
+# Commit to a mesh.
+var arr_mesh = st.commit()
+```
+
+Below is an example of how MeshDataTool may be used.
+
+```py
+var mesh = ArrayMesh.new()
+mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, CubeMesh.new().get_mesh_arrays())
+var mdt = MeshDataTool.new()
+mdt.create_from_surface(mesh, 0)
+for i in range(mdt.get_vertex_count()):
+    var vertex = mdt.get_vertex(i)
+    # In this example we extend the mesh by one unit, which results in separated faces as it is flat shaded.
+    vertex += mdt.get_vertex_normal(i)
+    # Save your change.
+    mdt.set_vertex(i, vertex)
+mesh.surface_remove(0)
+mdt.commit_to_surface(mesh)
+var mi = MeshInstance.new()
+mi.mesh = mesh
+add_child(mi)
+```
+
+
+
+### 🟠🔵 Texture Map 纹理贴图
 - [Texture Mapping - GAMES101-现代计算机图形学入门-闫令琪](https://www.bilibili.com/video/BV1X7411F744?p=9)
 - [GAMES101 随堂笔记-Lecture 09 Shading 3 Texture Mapping](https://blog.csdn.net/weixin_44848751/article/details/127887098)
 - [Physically Based Rendering 3rd - 10 Texture](https://www.pbr-book.org/3ed-2018/Texture)
@@ -5464,7 +6693,7 @@ Trilinear Filter 要好了一大截。
 
 
 
-### 🟢🔵 IBL & Skybox 纹理贴图光照
+### 🟠🔵 IBL & Skybox 纹理贴图光照
 - [Poly Haven - The Public 3D Asset Library](https://polyhaven.com/all)
 - [LearnOpenGL - Cubemaps skybox](https://learnopengl.com/Advanced-OpenGL/Cubemaps)
 - [OGLDev Tutorial 25: SkyBox](https://ogldev.org/www/tutorial25/tutorial25.html)
@@ -5476,6 +6705,8 @@ Trilinear Filter 要好了一大截。
 - [Real-Time Rendering 3rd 纹理贴图及相关技术提炼总结](https://zhuanlan.zhihu.com/p/27551369)
 - [Real-Time Rendering 3rd 基于图像的渲染技术提炼总结](https://zhuanlan.zhihu.com/p/30345339)
 - [Real-Time Rendering 3rd 全局光照 GI 技术进化编年史](https://zhuanlan.zhihu.com/p/29418992)
+- [Procedural geometry](https://docs.godotengine.org/en/latest/tutorials/3d/procedural_geometry/index.html)
+- [Using the ArrayMesh](https://docs.godotengine.org/en/3.5/tutorials/3d/procedural_geometry/arraymesh.html)
 
 纹理贴图不仅可以用来给图形着色，它还有各式各样的用法，如下，按技术出现先后序：
 
@@ -5559,7 +6790,25 @@ Cube 与摄像机前进方向相同的一面为 Back，相反方向的一面为 
 Cube 的内表面成像，有三个面的 UV 坐标需要对 U 轴反转，分别是 Top、Front、Right，另外 Buttom
 需要 UV 同时反转。
 
-这种简单通过 Cube 模拟的 Skybox 有缺点，就是摄像机向顶、底方向时，成像会有较明显的矩形边界。
+这种简单通过 Cube 模拟的 Skybox 有缺点，就是摄像机向顶、底方向时，成像会有较明显的矩形边界。更正确
+的做法是使用 ArrayMesh 修改几何结构，并将 Box 表面映射到球体。
+
+```py
+var vertices = PoolVector3Array()
+vertices.push_back(Vector3(0, 1, 0))
+vertices.push_back(Vector3(1, 0, 0))
+vertices.push_back(Vector3(0, 0, 1))
+# Initialize the ArrayMesh.
+var arr_mesh = ArrayMesh.new()
+var arrays = []
+arrays.resize(ArrayMesh.ARRAY_MAX)
+arrays[ArrayMesh.ARRAY_VERTEX] = vertices
+# Create the Mesh.
+arr_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+var m = MeshInstance.new()
+m.mesh = arr_mesh
+```
+
 
 然后，通过 GDScript 加载导出的 Mesh 并设置纹理：
 
@@ -5632,7 +6881,7 @@ func _ready():
 
 
 
-### 🟢🔵 Blinn-Phong 基础光照着色模型
+### 🟠🔵 Blinn-Phong 基础光照着色模型
 - [GAMES101-现代计算机图形学入门-闫令琪](https://www.bilibili.com/video/BV1X7411F744?p=7)
 - [GAMES202 作业 0: WebGL 框架的使用与 Blinn-Phong 着色模型 闫令琪](https://sites.cs.ucsb.edu/~lingqi/teaching/games202.html)
 - [Learn OpenGL - Basic Lighting](https://learnopengl.com/Lighting/Basic-Lighting)
@@ -5739,7 +6988,7 @@ Blinn-Phong 对冯氏光照模型的一个改进，就是观察到了半程向�
 
 
 
-### 🟢🔵 Shadow Map 阴影贴图
+### 🟠🔵 Shadow Map 阴影贴图
 - [GAMES101 现代计算机图形学入门  Geometry - 闫令琪](https://www.bilibili.com/video/BV1X7411F744/?p=12)
 - [GAMES202 高质量实时渲染 - 闫令琪](https://www.bilibili.com/video/BV1YK4y1T7yY)
 - [Optimized StencilShadow Volumes Cass Everitt & Mark J. Kilgard](https://slidetodoc.com/optimized-stencil-shadow-volumes-cass-everitt-mark-j/)
@@ -5844,7 +7093,7 @@ Shadow Map 产生锯齿的普遍原因在于，坐标变换是连续的，但光
 阴影当中时，需要考虑它投影到的 Shadow Map 位置附近的多个像素，使用阴影软化。
 
 
-### 🟢🔵 Ray Trace 光线追踪
+### 🟠🔵 Ray Trace 光线追踪
 - [实时光线追踪技术：业界发展近况与未来挑战](https://zhuanlan.zhihu.com/p/102397700)
 - [RTX Global Illumination (RTXGI)](https://developer.nvidia.com/rtx/ray-tracing/rtxgi)
 - [DLSS 2.0 - 重新定义AI渲染 - 文刀秋二](https://zhuanlan.zhihu.com/p/116211994)
@@ -5938,7 +7187,7 @@ Ray Tracing In One Weekend 教程将光线抽象地表达为一个射线类 ray 
 那么，函数 P(t) 可以表示光子的运动，用代码表示，就是 ray::at(t) 方法使原点发生变化，变化量就是
 沿着前进方向的单位向量与参数 t 的乘积：
 
-```c++
+```c++,ignore
 #ifndef RAY_H
 #define RAY_H
 
@@ -6153,7 +7402,7 @@ KD 树的每层都是对应一个划分维度，取决于使用者如何定义�
 
 
 
-### 🟢🔵 Subsurface Scattering 次表面散射
+### 🟠🔵 Subsurface Scattering 次表面散射
 - Real-Time Rendering - CH9 Physically Based Shading
 - [The Last of Us 2 Wallpapers](https://wallpapercave.com/tlou2-wallpapers)
 - [角色渲染技术——皮肤 - 洛城](https://zhuanlan.zhihu.com/p/27014447)
@@ -6212,7 +7461,7 @@ Jensen 在 2001 年的论文 A Practical Model for Subsurface Light Transport �
 
 
 
-### 🟢🔵 Environment & post-processing 环境与后期处理
+### 🟠🔵 Environment & post-processing 环境与后期处理
 - [Environment and post-processing](https://docs.godotengine.org/en/latest/tutorials/3d/environment_and_post_processing.html)
 - [Environment and post-processing](https://www.bilibili.com/video/BV1Km4y1X765/)
 - [Godot 4.0 gets SDF based real-time global illumination](https://godotengine.org/article/godot-40-gets-sdf-based-real-time-global-illumination)
@@ -6449,7 +7698,8 @@ Godot 可以使用 GIProbe, ReflectionProbe, Sky 或恒定的环境色来模拟�
 
 
 
-## 🟡🟠 Chaos World 混沌世界
+## 🟡 Chaos World 混沌世界
+- [Fast Portable Noise Library](https://github.com/Auburn/FastNoiseLite)
 - [Painting with Maths by Inigo Quilez](https://www.bilibili.com/video/BV1fU4y1273S/)
 - [Raymarching distance fields - 2008 by Inigo Quilez](https://iquilezles.org/articles/raymarchingdf/)
 - [Ray Marching and Signed Distance Functions](https://jamie-wong.com/2016/07/15/ray-marching-signed-distance-functions/)
@@ -6701,7 +7951,7 @@ func _ready():
 ```
 
 
-## 🟡🟠 Shader Programming 着色器 - GPU 编程
+## 🟡 Shader Programming 着色器 - GPU 编程
 - [GAMES101-现代计算机图形学入门-闫令琪](https://www.bilibili.com/video/BV1X7411F744/)
 - [龚大的上帝视角看GPU教程](https://www.bilibili.com/video/BV1P44y1V7bu/)
 - [Real-Time Rendering 3rd 渲染管线优化提炼总结](https://zhuanlan.zhihu.com/p/32928016)
@@ -7043,7 +8293,7 @@ OpenGL 和 Vulkan 的构架对比：
 因为驱动层的部分功能可以由应用层进行配置开发。
 
 
-## 🟡🟠 ShaderMaterial Programming 着色器材质编程
+## 🟡 ShaderMaterial Programming 着色器材质编程
 - [Matlab Help - Mathematical Functions](https://ww2.mathworks.cn/help/symbolic/mathematical-functions.html)
 - [The OpenGL Shading Language](https://www.khronos.org/opengl/wiki/OpenGL_Shading_Language)
 - [The Book of Shaders by Patricio Gonzalez Vivo & Jen Lowe](https://thebookofshaders.com/?lan=ch)
@@ -7259,7 +8509,7 @@ Particle shaders render modes
 +-----------------------+----------------------------------------+
 
 
-### 🟢🔵 OSL 着色器编程
+### 🟠🔵 OSL 着色器编程
 - [Open Shading Language](https://docs.blender.org/manual/en/latest/render/shader_nodes/osl.html)
 - https://github.com/AcademySoftwareFoundation/OpenShadingLanguage/blob/master/src/doc/osl-languagespec.pdf
 - [Real-Time Rendering 3rd 非真实感渲染(NPR)相关技术提炼总结](https://zhuanlan.zhihu.com/p/31194204)
@@ -7316,7 +8566,7 @@ shader BaseToon(
 
 
 
-### 🟢🔵 from GLSL to Godot
+### 🟠🔵 from GLSL to Godot
 
 由于 Shadertoy 这个基于 Web 开发的着色器程序编写、分享平台实在是好用，还有 The Book of Shaders
 站点，所以在 Godot 实现着色器可以考虑它们的一些习惯的变量用法。只需要很小的代码变化，就可以从 GLSL 
@@ -7670,7 +8920,7 @@ Godot 工程环境背景色 Default Clear Color 设置为 77 的灰度值，即�
 ```
 
 
-### 🟢🔵 3D Spatial Shader
+### 🟠🔵 3D Spatial Shader
 - [LenarOpenGL - Coordinate Systems](https://learnopengl.com/Getting-started/Coordinate-Systems)
 - [Spatial shaders](https://docs.godotengine.org/en/3.5/tutorials/shaders/shader_reference/spatial_shader.html)
 - [Your 1st 3D shader](https://docs.godotengine.org/en/latest/tutorials/shaders/your_first_shader/your_first_3d_shader.html)
@@ -7726,7 +8976,7 @@ mesh.material.set_shader_param("normalmap", sometexture)
 最强的，所以是反比例关系。
 
 
-```c
+```c,ignore
 shader_type spatial;
 //render_mode unshaded;
 render_mode diffuse_toon, specular_toon;
@@ -7833,14 +9083,14 @@ Godot 4.x 中，给 3D 着色器引入了多个常量，除了原有的 TIME，�
 +-----------------------------------+----------------------------------------------------+
 
 
-### 🟢🔵 Orbit Shader
+### 🟠🔵 Orbit Shader
 
 以下是一个轨道环绕着色器，只是简单地使用三角函数产生圆形、椭圆形轨道，并将轨道上的点的位置设置到顶点
 着色器的顶点坐标上，使用顶点位置坐标按轨道移动。然后，再根据顶点的坐标变化，以使用顶点坐标在 y 轴方向
 上产生扰动，扰动来源于坐标的 XY 两轴的变化值。所以，顶点无论在其中任意一轴上的移动，扰动都会所反映。
 然后输出给后续的着色器处理，如片段着色器。
 
-```c
+```c,ignore
 shader_type canvas_item;
 // Here are the available types:
 //shader_type spatial;     // - for 3D rendering.
@@ -7860,11 +9110,11 @@ void fragment(){
 }
 ```
 
-### 🟢🔵 Pixlate Shader
+### 🟠🔵 Pixlate Shader
 
 以是一个具有实用功能的着色器 Pixelate Shader，功能说明如下：
 
-Uniform 定义了外部转入参数 amount，它指定了一个像素重采样量。根据 p 坐标计算表达式，amount 先
+Uniform 定义了外部传入参数 amount，它指定了一个像素重采样量。根据 p 坐标计算表达式，amount 先
 会对 UV 进行缩放再取整后除以自身，参数值越大，UV 坐标相对就显得小，即 UV 变化就更精细，输出像素
 就越接近原图。当 amount 等于原图大小时，就等于没有像素化效果。当 amount 越小，UV 的变化影响就显得
 强烈，也就是每扫描下一个像素时，UV 坐标的变化就可以导致更多的原像素被忽略了，并且使用一些重复的像素，
@@ -7885,7 +9135,7 @@ void fragment()
 }
 ```
 
-### 🟢🔵 Circle Art Shader
+### 🟠🔵 Circle Art Shader
 
 以下是一个通过圆点绘画图形的着色器，通过调整风格参数 grid 将整个图形分成方块，再设置圆点半径，使
 图形中位置处理圆内的部分绘画出来，就像一个圆形图章在打点绘画。
@@ -7926,7 +9176,7 @@ vec_type clamp (vec_type x, vec_type min, vec_type max)
 ```
 
 
-### 🟢🔵 Circle SDF Shader
+### 🟠🔵 Circle SDF Shader
 - https://iquilezles.org/articles/distfunctions/
 - https://iquilezles.org/articles/distfunctions2d/
 
@@ -8036,7 +9286,7 @@ void fragment()
 
 
 
-### 🟢🔵 Convolution Shader 卷积边缘检测算法
+### 🟠🔵 Convolution Shader 卷积边缘检测算法
 - [从图(Graph)到图卷积(Graph Convolution)：漫谈图神经网络模型](https://www.cnblogs.com/SivilTaram/p/graph_neural_network_2.html)
 - [卷积变体](https://zhuanlan.zhihu.com/p/393200454)
 - [什么是卷积？But what is a convolution?](https://www.bilibili.com/video/BV1Vd4y1e7pj/)
@@ -8120,14 +9370,14 @@ void fragment()
 
 
 
-## 🟡🟠 2D Animation 平面动画
+## 🟡 2D Animation 平面动画
 - [Animation Retargeting in Godot 4.0](https://godotengine.org/article/animation-retargeting-in-godot-4-0)
 - [Movie Maker mode arrives in Godot 4.0](https://godotengine.org/article/movie-maker-mode-arrives-in-godot-4)
 - [Creating movies](https://docs.godotengine.org/en/latest/tutorials/animation/creating_movies.html)
 - [How to make your bullets look awesome in Godot - Advanced Trails](https://www.bilibili.com/video/BV1iA411A7gz/)
 
 
-### 🟢🔵 TileMap 瓦片地图
+### 🟠🔵 TileMap 瓦片地图
 - [Abstract Platformer](https://kenney.nl/assets/abstract-platformer)
 - [Godot Advanced Trails Examples](https://github.com/RPicster/Godot-Advanced-Trails-Examples)
 - [Using TileMaps](https://docs.godotengine.org/en/3.6/tutorials/2d/using_tilemaps.html)
@@ -8162,6 +9412,9 @@ TileMap 中的图像常采用斜角地图的形式，即 Isometric View，即等
 矩形，或者多边形作为碰撞检测时的参考区。
 
 遮挡、导航形状区域定义用于 AI 寻路导航使用。
+
+CanvasItem 节点通过 y_sort_enabled 可以启用渲染排序，正确解决物体的前后遮挡关系。旧版本中使用
+TileMap.cell_y_sort 属性。
 
 
 除了以上 Single Tile 方式单个地创建瓦片，还可以使用以下两种方式定义瓦片：
@@ -8286,7 +9539,7 @@ TileMap 节点的属性页面板中，弹开 Tile Set 面板，可以在 Terain 
 绘制地形时，就切换到 TileMap 面板，并选择 Terrains 栏目中列出的地形定义。
 
 
-### 🟢🔵 Tween & AnimationPlayer 缓动曲线动画
+### 🟠🔵 Tween & AnimationPlayer 缓动曲线动画
 - [SceneTreeTween](https://docs.godotengine.org/en/stable/classes/class_scenetreetween.html)
 - [Tween](https://docs.godotengine.org/en/stable/classes/class_tween.html)
 - [Canvas layers](https://docs.godotengine.org/en/3.6/tutorials/2d/canvas_layers.html)
@@ -8553,7 +9806,7 @@ func _on_AnimationPlayer_animation_finished(anim_name):
 动画树实现的功能是动画混合技术 Animation Blending，作为独立一小节讲解。
 
 
-## 🟡🟠 Animation Blending 动画混合
+## 🟡 Animation Blending 动画混合
 - [Using AnimationTree](https://docs.godotengine.org/en/3.5/tutorials/animation/animation_tree.html)
 - [Adobe Mixamo](https://www.mixamo.com)
 - [Third Person Shooter demo](https://github.com/godotengine/tps-demo)
@@ -8784,7 +10037,7 @@ animation_tree["parameters/Seek/seek_position"] = 12.0
 
 
 
-## 🟡🟠 Physics 物理系统
+## 🟡 Physics 物理系统
 - https://docs.godotengine.org/en/latest/tutorials/physics/physics_introduction.html
 - [GAMES201-高级物理引擎实战指南 - 胡渊鸣](https://www.bilibili.com/video/BV1ZK411H7Hc)
 - [Godot 平台跳跃游戏教程 - 如何实现攻击判定](https://www.bilibili.com/video/BV1Nt4y1e7yd?p=9)
@@ -8852,7 +10105,7 @@ func _enter_tree():
 
 
 
-### 🟢🔵 Collision & Shape
+### 🟠🔵 Collision & Shape
 - https://docs.godotengine.org/en/latest/tutorials/physics/collision_shapes_2d.html
 - https://docs.godotengine.org/en/latest/tutorials/physics/collision_shapes_3d.html
 - godot-docs\classes\class_collisionshape2d.rst
@@ -8963,7 +10216,7 @@ WorldBoundaryShape 是一个无尽的平面，可以阻挡物理体进入负向�
 
 
 
-### 🟢🔵 Area2D/3D
+### 🟠🔵 Area2D/3D
 - https://docs.godotengine.org/en/latest/tutorials/physics/using_area_2d.html
 - [2D Dodge The Creeps Demo](https://godotengine.org/asset-library/asset/515)
 - [2D Pong Demo](https://godotengine.org/asset-library/asset/121)
@@ -9037,10 +10290,33 @@ Point gravity 点重力场允许创建“吸附器”，启用后 Area 区域的
 
 
 
-### 🟢🔵 RigidBody
+### 🟠🔵 RigidBody & StaticBody
+- https://docs.godotengine.org/en/latest/tutorials/physics/rigid_body.html
+- https://kidscancode.org/godot_recipes/3.x/kyn/rigidbody2d/
 
-对于刚体，提供了 `_integrate_forces()` 回调，这里可以通过 PhysicsDirectBodyState 安全地
-修改物理相关的属性，它会处理好物理引擎的多线程计算同步问题：
+刚体和静态物体是相似的两类，它们都由物理引擎直接控制，只是后者不需要移动，只参考碰撞计算。
+
+Example uses for StaticBody2D/3D:
+
+- Platforms (including moving platforms)
+- Conveyor belts
+- Walls and other obstacles
+
+对于刚体，用户不能直接控制它，物理引擎需要通过不断的计算，实时反映刚体在虚拟世界中的行为。需要通过施加力，
+使用 apply_impulse() 方法，来间接控制：
+
+```py
+void _integrate_forces(state: PhysicsDirectBodyState3D)
+virtual void apply_central_impulse(impulse: Vector3)
+void apply_impulse(impulse: Vector3, position: Vector3 = Vector3(0, 0, 0) ) 
+int get_bone_id()
+const bool get_simulate_physics()
+bool is_simulating_physics()
+```
+
+还可以通过 `_integrate_forces()` 回调，它会在物理处理期间调用。使用 `custom_integrator` 属性
+设置自定义的积分器，允许禁用默认行为，并为实体执行完全自定义的力积分。在力积分回调方法这里，可以通过 
+PhysicsDirectBodyState 安全地修改物理相关的属性，它会处理好物理引擎的多线程计算同步问题：
 
 ```py
 extends RigidBody2D
@@ -9061,25 +10337,61 @@ func _integrate_forces(state):
     state.apply_torque(rotation_direction * torque)
 ```
 
+像 Node3D 中的 ``set_global_transform()`` 或者 ``look_at()`` 都不能直接在刚体中使用，
+以下是一个刚体的 ”look_at" 方法实现，间接通过刚体 ``angular_velocity`` 旋转角速度来实现：
 
-### 🟢🔵 StaticBody
+```py
+extends RigidBody
 
-Example uses for StaticBody2D/3D:
+func look_follow(state, current_transform, target_position):
+    var up_dir = Vector3(0, 1, 0)
+    var cur_dir = current_transform.basis * Vector3(0, 0, 1)
+    var target_dir = (target_position - current_transform.origin).normalized()
+    var rotation_angle = acos(cur_dir.x) - acos(target_dir.x)
 
-- Platforms (including moving platforms)
-- Conveyor belts
-- Walls and other obstacles
+    state.angular_velocity = up_dir * (rotation_angle / state.step)
+
+func _integrate_forces(state):
+    var target_position = $my_target_node3d_node.global_transform.origin
+    look_follow(state, global_transform, target_position)
+```
 
 
-
-### 🟢🔵 CharacterBody
+### 🟠🔵 CharacterBody 运动角角色
+- https://docs.godotengine.org/en/latest/tutorials/physics/kinematic_character_2d.html
 - [Physics Platformer](https://github.com/godotengine/godot-demo-projects/tree/master/2d/physics_platformer)
 - [Platformer 3D](https://github.com/godotengine/godot-demo-projects/tree/master/2d/kinematic_character)
 - [Kinematic Character 3D](https://github.com/godotengine/godot-demo-projects/tree/master/3d/kinematic_character)
 - [RigidBody Character 3D](https://github.com/godotengine/godot-demo-projects/tree/master/3d/rigidbody_character)
 
+物理引擎有两类角色控制方法：
 
-CharacterBody 有两个方法用于执行移动和碰撞的响应：
+- **dynamic character controller** 
+- **kinematic character controller**
+
+一些物理引擎，如 Havok，将动态角色控制器视为最佳选项，而其他物理引擎（PhysX）则更倾向于推广运动学引擎。
+
+动态角色控制器使用具有无限惯性张量的刚体，它是一个不能旋转的刚体。物理引擎总是让物体移动和碰撞，然后
+一起解决它们的碰撞。这使得动态角色控制器能够与其他物理对象无缝交互，如平台演示中所示。然而，这些互动
+并不总是可预测的。碰撞可能需要一帧以上的时间才能解决，因此几次碰撞可能会产生微小的位移。这些问题可以解决，
+但需要一定的技能。
+
+运动学角色控制器始终假设以非碰撞状态开始，并始终移动到非碰撞状态。如果它开始时处于碰撞状态，它会像
+刚体一样试图释进入自由态，但这是例外，而不是规则。这使得它们的控制和运动更加可预测，更易于编程。然而，
+作为一个缺点，它们不能直接与其他物理对象交互，除非通过手工编写代码完成。
+
+使用运动学角色节点时，建议使用 physics process 回调，因为它会在物理引擎开始一轮计算之前调用，在
+些进行的属性修改会被同步到物理引用服务器上，并且以固定的周期调用，即传入的 `delta` 值始终恒定。这也
+使得物理、运动计算工作更可预测。
+
+运动角角色本身支持碰撞，但是需要使用 CollisionShapes 提供检测边界定义，所以 KinematicBody2D
+经常将 CollisionShapes 作为子节点添加到场景中。碰撞中使用到的数据由 KinematicCollision2D/3D
+类型中保存。
+
+![KinematicBody2D](https://docs.godotengine.org/en/latest/_images/kbscene.png)
+
+
+CharacterBody 是 KinematicBody 的新版本称谓，有两个方法用于执行移动和碰撞的响应：
 
 - move_and_collide() 移动并在碰撞时停止，返回一个包含碰撞信息的 KinematicCollision 对象；
 - move_and_slide() 移动并以滑动方式响应碰撞，返回滑动速度，通过 get_slide_collision() 获取碰撞信息。
@@ -9088,6 +10400,9 @@ CharacterBody 有两个方法用于执行移动和碰撞的响应：
 extends PhysicsBody2D
 
 var velocity = Vector2(250, 250)
+
+# Get the gravity from the project settings to be synced with RigidDynamicBody nodes.
+var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 
 func _physics_process(delta):
 
@@ -9099,14 +10414,231 @@ func _physics_process(delta):
         velocity = velocity.bounce(collision_info.normal)
 ```
 
+运动学角色通常是由玩家直接控制的，除了碰撞检测，不能像刚体那样更真实地模拟自然环境中物体的力学表现。
+比如，刚体在落到斜坡时，会旋转心使用其表面紧贴斜坡，而运动角角色就没有这样的物理模拟效果。
 
 
-## 🟡🟠 Godot AI 有思想的精灵
+### 🟠🔵 SoftBody 软件
+- https://docs.godotengine.org/en/latest/tutorials/physics/soft_body.html
+
+
+### 🟠🔵 Ray-casting 射线投射工具
+- https://docs.godotengine.org/en/latest/tutorials/physics/ray-casting.html
+- https://docs.godotengine.org/en/latest/classes/class_physicsserver2d.html
+- https://docs.godotengine.org/en/latest/classes/class_physicsserver3d.html
+- https://docs.godotengine.org/en/stable/classes/class_physics2dserver.html
+- https://docs.godotengine.org/en/stable/classes/class_physicsserver.html
+- https://kidscancode.org/godot_recipes/3.x/kyn/raycast2d/
+
+射线投射是游戏开发的一个常用工具，通过投射进行碰撞检测，可以获取到碰撞物体的信息，包括碰撞点坐标。
+Godot 系统架构中，通过底层的 PhysicsServer 管理物理空间，这个空间记录了所有底层的信息，而场景树
+只是前端可视部分。简单的投射工具 `RayCast2D` 或者 `RayCast3D` 节点，需要查询这个空间提供的底层
+数据来实现碰撞检测，并在每一帧都返回检测结果。
+
+此外，Godot 4 还新增了 ShapeCast2D/3D 形状投射工具。
+
+物理系统的模拟计算是每一帧都在持续进行的，碰撞检测中要使用最新的碰撞信息，可以强制执行更新方法：
+
+- force_raycast_update()
+- force_shapecast_update()
+
+两类投射工具都有强制更新碰撞信息的方法，执行它们就可以在当前帧获取到最新碰撞检测数据，而不必等待
+下一个 physics process 调用。比如，射线的父节点改变了状态，就可以及时获取到这么变化。
+
+物理引擎的运算周期可以在工程配置中设置，Physics Common，指定 Physics FPS
+
+物理空间对象归属于一个 World 对象，通过节点的 get_world 方法可以获取到世界对象，世界对象都有物理
+空间资源的 RID 引用在 space 属性中，可以直接通过 Physics2DServer 或者 PhysicsServer3D 这些
+底层服务器对象的 space_get_direct_state ( RID space ) 方法直接使用物理空间资源。
+
+```py
+    func _physics_process(delta):
+        var space_rid = get_world_2d().space
+
+        var space_state = PhysicsServer.space_get_direct_state(space_rid)
+        var space_state = Physics2DServer.space_get_direct_state(space_rid)
+
+        var space_state = PhysicsServer2D.space_get_direct_state(space_rid)
+        var space_state = PhysicsServer3D.space_get_direct_state(space_rid)
+
+        var space_state = get_world_2d().direct_space_state
+        var space_state = get_world_3d().direct_space_state
+```
+
+Space 对象和射线求交相关的方法是 `intersect_ray()`，射线按线段的方式给出传播方向上的两点坐标，
+通过 QueryParameters 传入查询服务 API，射线在这段行程中碰撞到的对象信息，作为查询结果保存在
+字典对象中返回。
+
+Godot 3.5 中只定义了两个 QueryParameters 类型，射线碰撞检测不需要使用查询参数对象：
+
+- Physics2DShapeQueryParameters
+- PhysicsShapeQueryParameters
+
+Godot 4.x 新增 NavigationPath 和 Point、Ray 三类查询参数类型，射线碰撞需要使用查询参数类型：
+
+- NavigationPathQueryParameters2D
+- NavigationPathQueryParameters3D
+- PhysicsPointQueryParameters2D
+- PhysicsPointQueryParameters3D
+- PhysicsRayQueryParameters2D
+- PhysicsRayQueryParameters3D
+- PhysicsShapeQueryParameters2D
+- PhysicsShapeQueryParameters3D 
+
+物理空间对象根据这些查询参数来执行相应的碰撞测试，并返回相应的数据，它们共通的属性如下，包括碰撞
+对象的区域面积、物体，还有遮罩层。被测试对象的 collision_layer 和正在碰撞检测的对象遮罩层一致时，
+碰撞才可能发生。此外，可以在 exclude 数组中显式指定一个列表，不需进行碰撞测试的对象都可以加入：
+
+```py
+    bool collide_with_areas = false
+    bool collide_with_bodies = true
+    int collision_mask = 0xFFFFFFFF
+    Array[RID] exclude = []
+```
+
+其中，导航路径查询参数比较特别，在导航相关教程中说明。
+
+除了这些共通的属性，根据不同物理类型的碰撞，具体的查询参数还包括一些专用的参数。比如，最简单的点查询
+PhysicsPointQueryParameters2D 只包含一个二维坐标 `position` 参数用于 `intersect_point()
+`进行二维空间的碰撞检测。检测结果返回的字典数据中包含以下内容：
+
+- **collider**: The colliding object.
+- **collider_id**: The colliding object's ID.
+- **rid**: The intersecting object's RID.
+- **shape**: The shape index of the colliding shape.
+
+对于射线碰撞检测，`intersect_ray()` 需要给出 `from` 和 `to` 两个坐标表示线段，在这区间进行
+碰撞检测，另外，还可以指定 hit_from_inside 来检测物体内部的碰撞，这种情况下，返回字典中的法向量
+为零值，表示没有方向。没有发生碰撞时，返回一个空值字典。
+
+- **collider**: The colliding object.
+- **collider_id**: The colliding object's ID.
+- **normal**: The object's surface normal at the intersection point.
+- **position**: The intersection point.
+- **rid**: The intersecting object's RID.
+- **shape**: The shape index of the colliding shape.
+
+用于形状碰撞检测的 PhysicsShapeQueryParameters 是所有查询参数中最多专用参数的类型，这也是最
+常用的碰撞检测查询参数：
+
+```py
+    float margin = 0.0
+    Vector3 motion = Vector2(0, 0)]
+    Resource shape
+    RID shape_rid
+    Transform3D transform = Transform2D(1, 0, 0, 1, 0, 0)
+```
+
+形状碰撞检测返回的是一个字典数组，intersect_shape() 方法的参数 max_results 控制求交结果数量：
+
+- **collider**: The colliding object.
+- **collider_id**: The colliding object's ID.
+- **rid**: The intersecting object's RID.
+- **shape**: The shape index of the colliding shape.
+
+
+物理空间提供碰撞检测方法如下，PhysicsDirectSpaceState2D/3D 定义了类似的 API。其中，前缀为
+intersect 的是碰撞检测方法，大部分方法都与形状碰撞检测或求交相关。
+
+而 `cast_motion()` 检查 Shape3D 在不发生碰撞的情况下可以移动多远。返回的数组表示运动的安全和
+不安全比例，数组元素值介于 0 和 1 之间。安全比例是在没有碰撞的情况下可以进行的运动的最大比例。
+不安全比例是碰撞时必须移动的距离的最小比例。如果未检测到碰撞，返回 [1.0，1.0]。
+
+注意：检测开始前，已经与之发生碰撞的任何 Shape 都将被忽略，例如在内部的碰撞。使用 `collide_shape()`
+方法可以确定已经与之碰撞形状。
+
+`collide_shape()` 方法检查给定的形状与空间的交点，结果数组包含形状与另一形状相交的点列表。返回
+的点是一对接触点的列表。每一对的第一个位于 PhysicsShapeQueryParameters3D 对象中传递的形状中，
+第二个位于物理空间中的碰撞形状中。
+
+`get_rest_info()` 检查指定形状与空间中形状的交点，如果它与多个形状碰撞，将选择最近的一个。返回
+的字典对象包含以下字段：
+
+- **collider_id**: The colliding object's ID.
+- **linear_velocity**: The colliding object's velocity Vector3. If the object is an Area3D, the result is (0, 0, 0).
+- **normal**: The object's surface normal at the intersection point.
+- **point**: The intersection point.
+- **rid**: The intersecting object's RID.
+- **shape**: The shape index of the colliding shape.
+
+注意：`collide_shape()` 和 `get_rest_info()` 两个方法不考虑对象的运动特性。
+
+
+Space 与投射相关 API 参考：
+
+```py
+# Godot 3.5 stable
+
+    # godot-docs\stable\classes\class_canvasitem.rst
+    World2D get_world_2d ( ) const
+
+    # godot-docs\stable\classes\class_spatial.rst
+    World get_world( )  const
+
+    # godot-docs\stable\classes\class_world2d.rst
+    Physics2DDirectSpaceState direct_space_state
+
+    # godot-docs\stable\classes\class_world.rst
+    PhysicsDirectSpaceState direct_space_state
+
+# Godot 4.x beta
+
+    # godot-docs\docs\classes\class_node3d.rst
+    World3D get_world_3d ( ) const
+
+    # godot-docs\docs\classes\class_world2d.rst
+    PhysicsDirectSpaceState2D direct_space_state
+
+    # godot-docs\docs\classes\class_world3d.rst
+    PhysicsDirectSpaceState3D direct_space_state
+
+# Space objects 
+
+    # godot-docs\stable\classes\class_physics2ddirectspacestate.rst
+         Array  cast_motion ( Physics2DShapeQueryParameters shape )
+         Array  collide_shape ( Physics2DShapeQueryParameters shape, int max_results=32 )
+    Dictionary  get_rest_info ( Physics2DShapeQueryParameters shape )
+         Array  intersect_point ( Vector2 point, int max_results=32, Array exclude=[  ], int collision_layer=2147483647, bool collide_with_bodies=true, bool collide_with_areas=false )
+         Array  intersect_point_on_canvas ( Vector2 point, int canvas_instance_id, int max_results=32, Array exclude=[  ], int collision_layer=2147483647, bool collide_with_bodies=true, bool collide_with_areas=false )
+    Dictionary  intersect_ray ( Vector2 from, Vector2 to, Array exclude=[  ], int collision_layer=2147483647, bool collide_with_bodies=true, bool collide_with_areas=false )
+         Array  intersect_shape ( Physics2DShapeQueryParameters shape, int max_results=32 )
+
+    # godot-docs\stable\classes\class_physicsdirectspacestate.rst
+         Array  cast_motion ( PhysicsShapeQueryParameters shape, Vector3 motion )
+         Array  collide_shape ( PhysicsShapeQueryParameters shape, int max_results=32 )
+    Dictionary  get_rest_info ( PhysicsShapeQueryParameters shape )
+         Array  intersect_point ( Vector3 point, int max_results=32, Array exclude=[  ], int collision_layer=2147483647, bool collide_with_bodies=true, bool collide_with_areas=false )
+    Dictionary  intersect_ray ( Vector3 from, Vector3 to, Array exclude=[  ], int collision_mask=2147483647, bool collide_with_bodies=true, bool collide_with_areas=false )
+         Array  intersect_shape ( PhysicsShapeQueryParameters shape, int max_results=32 )
+
+    # godot-docs\docs\classes\class_physicsdirectspacestate2d.rst
+    PackedFloat32Array      cast_motion ( PhysicsShapeQueryParameters2D parameters )
+    PackedVector2Array[]    collide_shape ( PhysicsShapeQueryParameters2D parameters, int max_results=32 )
+            Dictionary      get_rest_info ( PhysicsShapeQueryParameters2D parameters )
+            Dictionary[]    intersect_point ( PhysicsPointQueryParameters2D parameters, int max_results=32 )
+            Dictionary      intersect_ray ( PhysicsRayQueryParameters2D parameters )
+            Dictionary[]    intersect_shape ( PhysicsShapeQueryParameters2D parameters, int max_results=32 )
+
+    # godot-docs\docs\classes\class_physicsdirectspacestate3d.rst
+    PackedFloat32Array      cast_motion ( PhysicsShapeQueryParameters3D parameters )
+    PackedVector2Array[]    collide_shape ( PhysicsShapeQueryParameters3Dint max_results=32 )
+            Dictionary      get_rest_info ( PhysicsShapeQueryParameters3 parameters )
+            Dictionary[]    intersect_point ( PhysicsPointQueryParameters3D parameters, int max_results=32 )
+            Dictionary      intersect_ray ( PhysicsRayQueryParameters3D parameters )
+            Dictionary[]    intersect_shape ( PhysicsShapeQueryParameters3D parameters, int max_results=32 )
+```
+
+
+
+
+## 🟡 Godot AI 有思想的精灵
 - [17.游戏引擎Gameplay玩法系统：高级AI | GAMES104-现代游戏引擎：从入门到实践](https://www.bilibili.com/video/BV1iG4y1i78Q/)
+- [Godot Recipes 3.x AI/Behavior](https://kidscancode.org/godot_recipes/3.x/ai/)
+
+![Steering behavior](https://kidscancode.org/godot_recipes/3.x/img/ai_context_10.gif)
 
 
-
-### 🟢🔵 GridMap 网格关卡地图
+### 🟠🔵 GridMap 网格关卡地图
 - [Using GridMaps](https://docs.godotengine.org/en/latest/tutorials/3d/using_gridmaps.html)
 - [3D Platformer Demo](https://godotengine.org/asset-library/asset/125)
 - [3D Kinematic Character Demo](https://godotengine.org/asset-library/asset/126)
@@ -9134,7 +10666,7 @@ Gridmaps 是用于创建 3D 关卡的节点，相当于 2D 关卡中使用 TileM
 
 
 
-### 🟢🔵 Navigation 多边形导航寻路算法
+### 🟠🔵 Navigation 多边形导航寻路算法
 - https://docs.godotengine.org/en/latest/tutorials/migrating/upgrading_to_godot_4.html
 - https://docs.godotengine.org/en/latest/tutorials/navigation/navigation_introduction_2d.html
 - https://docs.godotengine.org/en/latest/tutorials/navigation/navigation_using_navigationservers.html
@@ -9395,7 +10927,7 @@ func draw_path(path_array):
     im.end()
 ```
 
-### 🟢🔵 Astart 导航寻路算法
+### 🟠🔵 Astart 导航寻路算法
 - https://docs.godotengine.org/en/latest/classes/class_astar3d.html
 - [Grid-based Navigation with Astar](https://github.com/godotengine/godot-demo-projects/tree/master/2d/navigation_astar)
 - [Amit 讲 A* 寻路算法](https://blog.csdn.net/denghecsdn/article/details/78778769)
@@ -9733,14 +11265,24 @@ func _set_path_end_position(value):
         _recalculate_path()
 ```
 
-### 🟢🔵 Behavior Tree 行为树
+### 🟠🔵 Behavior Tree 行为树
+- [Godot State Machine](https://gdscript.com/solutions/godot-state-machine/)
 - [Godot Behavior Tree](https://gdscript.com/solutions/godot-behaviour-tree/)
-- https://docs.unrealengine.com/4.26/zh-CN/InteractiveExperiences/ArtificialIntelligence/BehaviorTrees/
+- [Godot Behavior Tree](https://github.com/andrew-wilkes/godot-behaviour-tree)
 - https://github.com/libgdx/gdx-ai/wiki/Behavior-Trees
 - https://www.behaviortree.dev/docs/Intro
+- https://docs.unrealengine.com/4.26/zh-CN/InteractiveExperiences/ArtificialIntelligence/BehaviorTrees/
+- [Naive Behavior Tree by Raiix](https://github.com/rayxuln/Behavior-Tree-Syntax-Compiler)
+- [Naive Behavior Tree 插件教程](https://www.bilibili.com/video/BV1gv411g7p4/)
+- [Naive Behavior Tree 示范案例](https://github.com/rayxuln/MyDogIsACat)
+- [Naive Behavior Tree 在线演示](http://github.raiix.com/gamelib/feed_it/)
+- [Raiix State Machine](https://github.com/rayxuln/RaiixStateMachinePlugin)
+- [Behavior Tree Editor](https://github.com/rayxuln/behavior_tree_plugin)
+- [Behavior Tree Editor 教程](https://www.bilibili.com/video/BV1KV411k7t9/)
+- [GDScript progress report: Writing a new parser](https://godotengine.org/article/gdscript-progress-report-writing-new-parser/)
 
 行为树 Behaviour Tree 如其名，是一个树状数据结构，是一种流行的 AI (Artificial Intelligence)
-编码方法，常用于游戏中的 NPC (Non Player Controlled) 角色执行不同的动作。
+编码组织方法，常用于游戏中的 NPC (Non Player Controlled) 角色执行不同的动作。
 
 行为树是一种用来表示逻辑决策的方法，主要 Decision Making 方法有以下两种：
 
@@ -9787,48 +11329,1977 @@ func _set_path_end_position(value):
 - Aborted 终止运行。
 - In Progress 正在运行进程中。
 
-
 根据 Behavior Trees in Robotics and AI 一书描述，行为树一般有：
 
 - 4 种控制节点 Sequence, Fallback, Parallel, Decorator。
 - 2 种执行节点，Action 和 Condition，只有执行节点才能成为叶子节点。
 
-装饰节点在行为树系统中起条件设置作用，其功能相当于条件语句。
+装饰节点在行为树系统中起条件设置作用，其功能相当于条件语句。许多行为树实现方案中，都有 Blackboard
+概念，它用来存储行为树的状态数据。
+
+行为树的设计，首先定义一个基类 `BT_Node`：
+
+- BT_Node 作为其它子节点的基类，需要有一个调用子节点任务的方法；
+- 每个节点本身定义一个任务方法 Task()，定义节点本身所拥有的行为、功能，由父节点执行；
+- 可以考虑设置一个 Abort() 方法用于主动结束任务的执行；
+
+定义一个控制节点，`BT_Control` 并派生各种具体控制节点，例如：
+
+- BT_Sequenecer
+- BT_Paralleler
+- BT_Selector
+- BT_Condition
+- BT_Repeater
+- BT_Randomizer
+- BT_Decorator
+    - BT_AlwaysFail
+    - BT_AlwaysSuccess
+    - BT_UntilFail
+    - BT_UntilSuccess
+
+定义一个行为节点，`BT_Action` 并派生各种具体行为节点，这些子类型作为行为树中的叶节点，例如：
+
+- BT_Wait
+- BT_Jump
+- BT_Run
+- BT_Patrol
+- BT_Retarget
+
+行为节点应该根据需要添加，并通过控制节点来组织，最终构造成为一个完整的行为树。
+
+Andrew Wilkes 中提供的行为树实现中，使用 `Task` 作为基类，行为节点类型定义为 Leaf。其设计思路：
+
+- 定义一套 Final methods 修改对应的执行状态，running() success() fail() cancel()；
+- 定义一套抽象方法用于不同的任务执行方式，run() child_running() child_success() child_fail()；
+- 另外两个方法 start() reset() 分别用于配置任务节点和复位；
+
+其中，start() 这个方法其实是行为树节点的初始化方法，名称有点不恰当，而 run() 才是任务启动方法。
+叶子节点 Leaf 只定义了 run()，默认需要用户在继承子类中的具体逻辑中主动调用。
+
+Final methods 方法还会调用抽象方法中和子节点状态相关方法，根据子节点运行状态来设置父节点的状态。
+`Task` 基类中，除了定义 State 枚举表示运任务的状态，还定义了与行为树结构相关的 control、tree
+两个属性。
+
+- `control` 表示控制节点，默认在 start() 方法初始为父节点，它调用和子节点状态相关的三个抽象方法；
+- `tree` 表示行为树本身，所有子节点都有行为树的一个引用，通过它可以枚举所有子节点。
+
+以下代码适用于 Godot 3.5，新版本 Godot 4 中提供了 super 关键字来调用父类，而不是通过一个点号：
+
+```py
+extends Node
+
+class_name Task
+
+# States
+enum {
+    FRESH,
+    RUNNING,
+    FAILED,
+    SUCCEEDED,
+    CANCELLED
+}
+
+var control = null
+var tree = null
+# var guard = null
+var status = FRESH
+
+# Final methods
+func running():
+    status = RUNNING
+    if control != null:
+        control.child_running()
+
+func success():
+    status = SUCCEEDED
+    if control != null:
+        control.child_success()
+
+func fail():
+    status = FAILED
+    if control != null:
+        control.child_fail()
+
+func cancel():
+    if status == RUNNING:
+        status = CANCELLED
+        # Cancel child tasks
+        for child in get_children():
+            child.cancel()
+
+# Abstract methods
+func run():
+    # Process the task and call running(), success(), or fail()
+    pass
+
+func child_success():
+    success()
+
+func child_fail():
+    fail()
+
+func child_running():
+    running()
+
+# Non-final non-abstact methods
+func start():
+    status = FRESH
+    for child in get_children():
+        child.control = self
+        child.tree = self.tree
+        child.start()
+
+func reset():
+    cancel()
+    status = FRESH
+```
+
+AlwaysFail 装饰器节点：它总是返回 FAILED 状态，所以不用管 child_success() child_fail()：
+
+```py
+extends Task
+
+class_name AlwaysFail
+
+func run():
+  if get_child_count() > 0:
+    get_child(0).run()
+  fail()
+
+# Ignore child success
+func child_success():
+  pass
+
+# Ignore child failure
+func child_fail():
+  pass
+```
+
+
+以并行控制节点为例，并行任务额外设置了一个 policy 来控制并行方式。
+
+```py
+extends Task
+
+# Run all child Tasks together in SEQUENCE or SELECTOR policy mode
+
+class_name Parallel, "res://icons/parallel.png"
+
+enum Policy { SEQUENCE, SELECTOR }
+
+#export(bool) var policy = bool(SEQUENCE)
+export(Policy) var policy = Policy.SEQUENCE
+
+var num_results = 0
+
+func run():
+    for child in get_children():
+        child.run()
+    running()
+
+func child_success():
+    num_results += 1
+    #if policy == bool(SEQUENCE):
+    if policy == (Policy.SEQUENCE):
+        if num_results >= get_child_count():
+            num_results = 0
+            success()
+    else:
+        success()
+
+func child_fail():
+    num_results += 1
+    #if policy == bool(SELECTOR):
+    if policy == (Policy.SELECTOR):
+        if num_results >= get_child_count():
+            num_results = 0
+            fail()
+    else:
+        fail()
+
+func cancel():
+    num_results = 0
+    .cancel()
+
+func start():
+    num_results = 0
+    .start()
+```
+
+Andrew Wilkes 提供的代码中包含了一个测试，这里也提供一个简化的版本演示任务运行。注意：在处理任务
+时，使用当前任务节点的 idx 索引来执行当前的任务，run() 之后会修改索引值，在 process 处理时，要
+避免因为 idx 的变化导致 get_child() 引用节点错误。
+
+从状态转换角度来看，控制节点的状态除了直接通过 `Task` 的 Final 方法控制，还同样受到子节点的状态
+通知方法修改，这里就涉及到多个子节点修改父节点状态的可能。以下代码中，添加了一个新状态 FINISHED，
+用来表示一个任务的完成状态，不管它是成功执行还是失败。
+
+另外，因为 Godot 场景树是多线程处理的，为了确保线程安全地执行节点状态的设置，需要使用延后调用方法：
+`call_deferred("finished")` 可以确保其它线程完成计算后，再执行完成状态的设置。如果不通过延后调用，
+那么这个完成状态设置后，就可能被子线程紧接着修改了。
+
+```py
+extends Task
+
+var list
+var idx = 0
+
+func _ready():
+    list = get_node("/root/Test/Results") as ItemList
+    add_result("TEST", "RESULT")
+    tree = self
+    start()
+    status = States.RUNNING
+
+func child_running():
+    status = States.RUNNING
+
+func child_success():
+    status = States.SUCCEEDED
+    log_result()
+
+func child_fail():
+    status = States.FAILED
+    log_result()
+
+func _process(_delta):
+    if status == States.RUNNING and idx < tree.get_children().size():
+        var task = tree.get_child(idx)
+        task.run()
+
+func add_result(description, result):
+    list.add_item(description)
+    list.add_item(result)
+
+func log_result():
+    add_result(get_child(idx).to_string(), enum2str(status))
+    
+    idx += 1
+    if idx == tree.get_children().size():
+        status = States.FINISHED
+        idx = 0
+        call_deferred("finished")
+        add_result("--", enum2str(status))
+    else:
+        status = States.RUNNING
+
+func finished():
+    status = States.FINISHED
+
+enum States {FRESH, RUNNING, FAILED, SUCCEEDED, CANCELLED, FINISHED }
+
+func enum2str(status):
+    # enum like a Dictionary
+    return States.keys()[status].capitalize()
+#   match status:
+#       FRESH:
+#           return "Fresh"
+#       RUNNING:
+#           return "Running"
+#       FAILED:
+#           return "Failed"
+#       SUCCEEDED:
+#           return "Succeeded"
+#       CANCELLED:
+#           return "Cancelled"
+#       FINISHED:
+#           return "Finished"
+```
+
+Godot 中的枚举类型 enum 和字典对象同源，可以使用 keys() 方法获取枚举量的名称来实现到字符串的转换。
+参考 global_constants.cpp 源代码文件，其中注册了全局类型常量。GDScript 解释器也没有专门设置一个
+Token 用于表示枚举类型，而是和字典类型一样，直接通过检测代码中的花括号来识别枚举类型。
 
 
 
-## 🟡🟠 Network Multiplayer 联网游戏
+## 🟡 Network Multiplayer 联网游戏
+- [High-level multiplayer](https://docs.godotengine.org/en/3.5/tutorials/networking/high_level_multiplayer.html)
 - [High-level multiplayer](https://docs.godotengine.org/en/stable/tutorials/networking/high_level_multiplayer.html)
 - [18.网络游戏的架构基础 | GAMES104-现代游戏引擎：从入门到实践](https://www.bilibili.com/video/BV1La411o7kG/)
-- [What Every Programmer Needs To Know About Game Networking](https://gafferongames.com/post/what_every_programmer_needs_to_know_about_game_networking/)
+- [Exporting for dedicated servers](https://docs.godotengine.org/en/latest/tutorials/export/exporting_for_dedicated_servers.html)
 - [Making HTTP requests](https://docs.godotengine.org/en/stable/tutorials/networking/http_request_class.html)
 - [HTML5 and WebSocket](https://docs.godotengine.org/en/stable/tutorials/networking/websocket.html)
 - [HTML5, WebSocket, WebRTC](https://docs.godotengine.org/en/stable/tutorials/networking/webrtc.html)
+- [What Every Programmer Needs To Know About Game Networking](https://gafferongames.com/post/what_every_programmer_needs_to_know_about_game_networking/)
+- [UDP vs. TCP by Glenn Fiedler](https://gafferongames.com/post/udp_vs_tcp/)
+- [GodotSteam tutorials - Initializing](https://godotsteam.com/tutorials/initializing/)
+- [User Datagram Protocol (UDP)](https://www.khanacademy.org/a/transmission-control-protocol--tcp)
+- [Transmission Control Protocol (TCP)](https://www.khanacademy.org/a/user-datagram-protocol-udp)
+- [TCP 图解千百问](https://mp.weixin.qq.com/s/tH8RFmjrveOmgLvk9hmrkw)
+- [Godot 4 MultiplayerSpawner MultiplayerSynchronizer](https://www.bilibili.com/video/BV1he4y1W7cV/)
+- [Multiplayer in Godot 4.0: RPC syntax, channels, ordering](https://godotengine.org/article/multiplayer-changes-godot-4-0-report-2/)
+- [[Net] New @rpc annotation](https://github.com/godotengine/godot/pull/49882)
+- [Add a multiplayer interface and visual nodes for SceneTree replication](https://github.com/godotengine/godot-proposals/issues/3459)
+- [Godot Multiplayer Networking Cheatsheet](https://blog.iancolwell.ca/godot-multiplayer-networking-cheatsheet)
+- [StreamPeerTCP client blocked on STATUS_CONNECTING](https://github.com/godotengine/godot/issues/61197)
+- [gRPC Docs](https://grpc.io/docs/)
+- [Protocol Buffers](https://github.com/protocolbuffers/protobuf)
+- [Protocol Buffers Documentation](https://protobuf.dev)
+- [Protobuf in GDScript](https://github.com/oniksan/godobuf)
+- [Enet实现原理](https://blog.csdn.net/gamekit/article/details/107092176)
+- [ENet v1.3.17 Reliable UDP networking library](http://enet.bespin.org/Features.html)
+- godot\thirdparty\enet\enet\enet.h
+
+![gRPC framework](https://grpc.io/img/landing-2.svg)
+
+连网在线游戏开发需要解决的两个首要问题就是：多个终端的同步问题，网络安全问题，其次是并发性能问题。
+Massive Multiplayer Online Game (MMO) 最能体现这几个问题。
+
+在游戏中加入社交网络需要承担一定的责任，如果程序做错了，会使应用程序很容易受到攻击，并可能导致欺诈，
+甚至是上升为刑事案件。它甚至可能允许攻击者破坏运行应用程序运行的机器，并使用游戏服务器发送垃圾邮件，
+攻击他人或窃取用户数据。
+
+联网同步过程涉及两个基本概念：
+
+- Spawn 生成：本地创建或远程请求创建新对象。
+- Sync 同步：本地更新或远程请求更新对象的状态。
+
+比如，有两个玩家在同一场景下遇到一个随机生成的 NPC，那么假设这个 NPC 是在服务器生成，接下来就需要
+将其状态同步到两个玩家的网络节点上。
+
+程序联网必不可以少要使用互联网络通信协议，又以 TCP/IP 协议栈为最基础：
+
+- UDP (User Datagram Protocol)
+- TCP (Transmission Control Protocol)
+- HTTP (Hypertext Transfer Protocol)`
+- SSL (Secure Sockets Layer)
+
+![Multiplayer](https://godotengine.org/storage/app/uploads/public/610/918/f3e/610918f3ec53b713518837.png)
+
+Godot 始终支持通过 UDP 或 TCP 协议，还有一些更高级别的协议，如 SSL、HTTP，进行标准的低级网络连接。
+这些协议非常灵活，几乎可以用于任何事情。然而，游戏开发中使用它们来手动同步游戏状态可能需要大量的工作，
+因此需要一种 High-level multiplayer 机制简化这部分流程，其中 Remote Procedure Calls (RPC)
+就是流行技术，通过 RPC，可以在本地主机向远程主机发起代码调用。
+
+Godot 定义了 StreamPeer 流式类型，这是一个抽象类，由其子实现具体需求，例如提供 TCP 这类流式数据
+协议的支持，这个类型派生的子类：
+
+- StreamPeerBuffer 
+- StreamPeerExtension 
+- StreamPeerGZIP 
+- StreamPeerTCP 
+- StreamPeerTLS 
+
+在项目导出到 Android 平台运行时，需要启用 INTERNET 授权设置，以允许网络访问。
+
+使用 StreamPeerTCP 建立 TCP 连接时，注意，`StreamPeerTCP` 的 status 需要更新状态再连接，先
+执行 poll() 处理数据阻塞，转换状态后再连接。否则，get_status() 会一直是 `STATUS_CONNECTING`。
+使用 `TCPServer` 对象创建 TCP 服务器并获取数据流：
+
+```py
+      int get_local_port() const
+     bool is_connection_available() const
+     bool is_listening() const
+    Error listen(port: int, bind_address: String = "*")
+     void stop()
+    StreamPeerTCP take_connection()
+```
+
+执行 Listen 动作时，支持绑定 IPv4/IPv6 地址格式：
+
+- `bind_address = "*"` 默认值，服务器会同时侦听 IPv4/IPv6 地址；
+- `bind_address = "0.0.0.0"` IPv4 格式，或者 "::" IPv6 格式；
+- `bind_address` 绑定其它有效地址，如 "192.168.1.101", "::1"，服务器只响应这个地址；
 
 
-## 🟡🟠 GDScript MySprite 精灵类派生演示
+Godot 提供 ENet 支持，基于不可靠 UDP 连接提供一个相对轻量、简单、稳定的网络通信，比 UDP 可靠，
+同时又比基于连接 TCP 协议更快速。UDP 缺少排序，连接管理，带宽管理，包大小限制等。TCP 不能同时
+打开多个套接字故缺少多流的通信，并且由于其缓冲特性，其包管理机制过于复杂。
+
+从数据类型定义的角度来看：
+
+- 每个主机对应 `ENetHost`：An ENet host for communicating with peers.
+- 每个连接端对应的是 `ENetPeer`： An ENet peer which data packets may be sent or received from. 
+- 每个数据包对应 `ENetPacket`：ENet packet structure.
+
+
+Reliable: when the function call arrives, an acknowledgement will be sent back; if the acknowledgement isn't received after a certain amount of time, the function call will be re-transmitted.
+
+Unreliable: the function call is sent only once, without checking to see if it arrived or not, but also without any extra overhead.
+
+基于 ENet 实现的各种 RPC API 有两种调用方式：
+
+- Reliable 可靠：当函数调用到达时，将返回确认；一定时间后没有收到确认，则重新发送函数调用。
+- Unreliable 不可靠：函数调用只发送一次，不检查是否到达，没有额外开销，典型的 UPD 协议风格。
+
+![Client/Server vs. P2P Network](https://cdn.ttgtmedia.com/rms/onlineimages/client_server_vs_p2p_network-f.png)
+
+服务器/客户端网络模型 Peer-to-Peer 是两种常见的网络模型，而 P2P 则是去中心化的网络模型。
+
+根据服务器的设置方式，联网游戏有两种基本的运行方式：
+
+- Server: Use this one for running dedicated servers.
+- Headless (no rendering): This binary contains editor functionality and is intended to be used for exporting projects.
+
+所谓无头显示 Headless 即无渲染功能的服务端，可以通过 --display-driver headless 参数启动。
+专用服务器模式下，服务端程序移除了 Godot 编辑器的功能，只包含游戏逻辑，程序是优化精简的。Godot 
+目前只提供 Linux 平台下的专用服务端以及 Headless 服务器。
+
+开发者可以使用低级网络 API 来实现最大限度的控制，并在完全裸露的网络协议之上实现所有功能, 或者使用
+基于 SceneTree 实现的高级网络同步 API, 后者以一种优化的方式在后台完成大部分繁重的工作，从而大大
+减少开发者的工作量。
+
+Godot 支持的大多数平台都提供所有或大部分上述的高、低网络功能。但是，由于网络在很大程度上依赖于硬件
+和操作系统，在某些目标平台上一些特性可能会改变或者不可用。注意，HTML5 平台目前只提供 WebSocket
+和 WebRTC 两种协议支持，缺乏一些高级功能，以及对 TCP 和 UDP 等低级协议的原始访问。
+
+Godot 3.5 的关键字列表中提供了以下这组用于标注 RPC 方法的关键字，后缀 sync 表示同步。API 调用
+方式对应关键字如下：
+
+- `remote` 由远程端而不是本地调用的方法或更改的属性，无论它们是节点的主节点还是傀儡。
+- `master` 仅接受来自傀儡网络节点的调用或属性更改，请参见 node.set_network_master()。
+- `puppet` 仅接受来自主控网络节点的调用或属性更改，请参见 node.set_network_master()。
+- `remotesync` 本地同步调用版本的 `remote`，比如双人对战中一方发出攻击动作，双方都同步看到效果。
+- `mastersync` 本地同步调用版本的 `master`。
+- `puppetsync` 本地同步调用版本的 `puppet`。
+
+Defining Node Functions
+
+RPCs can’t just execute any function on another instance that has a matching node path. 
+This section explains how to define functions to allow them to be executed from 
+other instances.
+
+- master = Node which is the network master.
+- puppet = Node which is not the network master.
+
+- func = Only executable from the same game instance.
+
+- remote func = Only executable from another connected instance of the game. Callable from any connected instance.
+- remotesync func = Executes on all connected instances including the instance that called the function via RPC. Callable from all instances.
+
+- master func = Only executes on the instance that is the network master of the node. Only callable from puppets.
+- mastersync func = Executes on the instance that is the network master, and the instance that called the function via RPC. Only callable from puppets.
+
+- puppet func = Only executes on puppets. Only callable from masters.
+- puppetsync func = Executes on all connected puppets, and locally. Only callable from masters.
+
+
+Defining Node Variables
+
+The same keywords apply to member variables.
+
+- var = Regular variable, can not be changed remotely.
+
+- remote var = Only changed by another connected instance of the game. Changeable from any connected instance.
+- remotesync var = Changes both the local variable and all connected variables. Changeable from any connected instance.
+
+- master var = Only changes the variable on the network master. Only changeable from puppets.
+- mastersync var = Changes the variable on the network master and locally. Only changeable from puppets.
+
+- puppet var = Only changes the variable on puppet instances. Only changeable from masters.
+- puppetsync var = Changes the variable on puppet instances and locally. Only changeable from masters.
+
+
+除了这些标注 API 用法关键字外，联网游戏中还使用 peer ID 用于标识对等网络中的节点，每个玩家对应
+一个 ID，服务端 ID = 1。可以通过向游戏传递参数来启动服务器功能，通过 OS.get_cmdline_args()
+获取命令行参数，比如 --server 用于启动服务器。
+
+一个联网游戏的 API 调用，发生的场所：服务器、主控节点（master）、任意傀儡节点（slave/puppet）。
+对于双人联网游戏，其中一方将充当服务器即主控节点，那么另一方就是傀儡节点。对于当前玩家来说，自己当前
+控制的主机就是 network master 主控节点。
+
+场景中的节点可以使用 set_network_master() 方法指定其归属 master 的 ID，通过比较 peer ID，
+使用节点的 is_network_master()，就可以确定程序逻辑中是否应该修改节点数据。如下图所示，假设当前
+玩家作为服务器端运行，显示在左侧节点列表中。其中归属于对手的节点使用红色表示，对于主控节点来说，这个
+红色节点属于网络中的傀儡节点，当前玩家的程序逻辑不应主动修改这节点的数据。
+
+![Network multiplayers](https://docs.godotengine.org/en/latest/_images/nmms.png)
+
+主控节点的概念在 Godot 4 中更新为多端授权 multiplayer authority，编程中依然可以使用对等网络
+节点的 ID 来做判断。默认状态下，场景树中的的节点都为服务器端授权。即不调用 set_network_master 或
+set_multiplayer_authority 的条件下，获取 Node 的授权 peer ID 值都是 1，子节点继承父节点的值。
+
+这个 ID 在 peer 连接到服务器端时自动生成，连接信号或 multiplayer.get_unique_id() 都可以获取。
+
+以上 RPC 关键字与 MultiplayerAPI.RPCMode 指示的状态相对应：
+
+|       RPCMode       | Value |                            Notes                            |  Keywords  |
+|---------------------|-------|-------------------------------------------------------------|------------|
+| RPC_MODE_DISABLED   |     0 | to disable a method or property for all RPC calls.          |            |
+| RPC_MODE_REMOTE     |     1 | method/property only on the remote end, not locally.        | remote     |
+| RPC_MODE_MASTER     |     2 | method/property only on the network master.                 | master     |
+| RPC_MODE_PUPPET     |     3 | method/property only on puppets for this node.              | puppet     |
+| RPC_MODE_REMOTESYNC |     4 | RPC_MODE_REMOTE + make the call or property change locally. | remotesync |
+| RPC_MODE_MASTERSYNC |     5 | RPC_MODE_MASTER + make the call or property change locally. | mastersync |
+| RPC_MODE_PUPPETSYNC |     6 | RPC_MODE_PUPPET + make the call or property change locally. | puppetsync |
+| RPC_MODE_SLAVE      |     3 | Deprecated. Use RPC_MODE_PUPPET instead.                    | slave      |
+| RPC_MODE_SYNC       |     4 | Deprecated. Use RPC_MODE_REMOTESYNC instead.                | sync       |
+
+
+升级到 Godot 4.x 后，RPC 机制精简并引用标注，这些关键字不再使用，MultiplayerAPI.RPCMode 模式
+也只剩下 3 种，统一使用同一个 rpc_config() 配置方法进行配置：
+
+- *RPC_MODE_DISABLED* = 0，所有方法的默认 RPC 模式。
+- *RPC_MODE_ANY_PEER* = 1，供一切远端调用，不管是否授权，`@rpc("any_peer")` 标注，相当于 `remotesync`。
+- *RPC_MODE_AUTHORITY* = 2，Multiplayer authority 授权远程调用，默认情况下为服务器，`@rpc("authority")` 标注，相当于 `master` 或 `mastersync`。
+
+Godot 4.x RPC 配置方法 Node.rpc_config() 参数包括四个属性与 @rpc 标注一致：
+
+```py
+{
+    rpc_mode = MultiplayerAPI.RPCMode,
+    transfer_mode = MultiplayerPeer.TranferMode,
+    call_local = false,
+    channel = 0,
+}
+```
+
+新版本中 @rpc 参数说明：
+
+    @rpc(mode: String = "", sync: String = "", transfer_mode: String = "", transfer_channel: int = 0, ...) vararg
+
+- `mode` - RPC mode ("any_peer", "authority").
+- `sync` - calls the function locally too when RPCing ("call_local", "call_remote").
+- `transfer_mode` - Transfer mode (one of reliable, unreliable, unreliable_ordered).
+- `transfer_channel` - Transfer channel (not used by the MultiplayerAPI for now, need implementation).
+
+解释一下其中前两个参数：
+
+- RPCMode 指示 RPC 方法能不能被调用，标注为 "any_peer" 在所有对等端都会调用，"authority" 则是在主控端调用；
+- call_local 指示 RPC 方法的同步方式，"call_local" 本地和远端一并同步，"call_remote" 只同步远端；
+
+另外，unreliable 这类控制网络协议的注解参数对应 Godot 3.5 中的 rpc_unreliable() 等方法。
+旧版本中，master 和 remote 不能同时用来注解一个 RPC 方法，不像 Godot 4.x 可以通过 @rpc 标注
+所有 RPC 方法的配置参数。
+
+使用 Node.set_multiplayer_authority() 方法给节点授权，指定 ID 对等端作为主控授权，多端授权
+是对网络上的拥有有节点权限的对等方。结合 rpc_config() 和 MultiplayerAPI 结合使用非常有用。默认
+情况下从父节点继承，最终默认为对等端 ID 1 为服务器。如果是递归的，则将给定的对等端递归地设置为该
+节点的所有子节点的权限。
+
+
+Godot 3 关键字与 Godot 4 标注的等价关系参考：
+
+|      Godot 3.5 keywords     |                 Godot 4 @rpc annotations                |
+|-----------------------------|---------------------------------------------------------|
+| remote                      | @rpc("any_peer", "call_remote")                         |
+| remotesync                  | @rpc("any_peer", "call_local")                          |
+| master                      | @rpc("authority", "call_remote")                        |
+| mastersync                  | @rpc("authority", "call_local")                         |
+| rpc_unreliable()            | @rpc("unreliable")                                      |
+| rpc_unreliable(master func) | @rpc or @rpc("authority", "call_remote", "reliable", 1) |
+
+这个表可以作为 Godot 3.5 与 Godot 4.x Multiplayer RPC 开发参考。
+
+标注使用示范如下，假设通过一个 Area3D 的输入事件触发 RPC 调用：
+
+- shake_me() 方法使用默认标注，即在主控执行远端同步，等同旧版本的 `master` 关键字；
+- shake_all() 方法所有对等端都执行，并且执行远端同步，等同旧版本的 `remote` 关键字；
+- clicked_all() 方法在所有对等端执行，并且执行本地与远端同步，等同旧版本的 `remotesync` 关键字。
+
+```py
+@rpc
+#@rpc("authority", "call_remote", "reliable", 1)
+func shake_me():
+    $Message.text = "Shake me!"
+
+@rpc("any_peer", "call_remote", "reliable", 1)
+func shake_all():
+    $Message.text = "Shake all!"
+
+@rpc("any_peer", "call_local", "reliable", 1)
+func clicked_all():
+    $Message.text = "%d clicked on me!" % [multiplayer.get_remote_sender_id()]
+
+
+func _on_Area3D_input_event(camera, event, position, normal, shape_idx):
+    if not event is InputEventMouseButton:
+        return
+    match event.button_index:
+        MOUSE_BUTTON_LEFT:
+            rpc("clicked_by_player")
+        MOUSE_BUTTON_RIGHT:
+            rpc("shake_me")
+        MOUSE_BUTTON_MIDDLE:
+            rpc("shake_all")
+```
+
+总结来看，network master 也好，multiplayer authority 也好，就是一个主控概念。场景树中所有
+节点都可以归属给对等网络连接中的一个对等端，而默认归属为服务器端。比如，创建一个节点 Player，默认
+状态下就归属于服务器，在所有联网主机中它应该都有一个同样的副本，那么：这个节点定义为 "authority"
+的方法，在服务器执行时，通过查询当下 MultiplayerPeer 所关联的 ID，即可以知道当下的 peer ID 
+与 Player 归属一致，所以方法可以执行。在其它客户端，同一 Player 方法就会因为主机所分配的 peer ID
+值与 Player 节点归属不一致，而不会被执行。
+
+而对于标注为 "any_peer" 的方法，相当于广播方法，假设在某一个客户中执行，会向所有连网主机通报：
+现在要执行这个 "any_peer" 标注过的方法。如果还配合 "call_local"，那么主动发起调用的这个客户机
+上也会执行这个方法，而不是单纯向其它连网主机发出 RPC 调用。
+
+具体参数使用可以参考源代码 GDScriptParser::rpc_annotation() 方法中的定义：
+
+```cpp
+    // godot\master\modules\gdscript\gdscript_parser.cpp:3905
+    for (int i = last; i >= 0; i--) {
+        String mode = p_annotation->resolved_arguments[i].operator String();
+        if (mode == "any_peer") {
+            rpc_config["rpc_mode"] = MultiplayerAPI::RPC_MODE_ANY_PEER;
+        } else if (mode == "authority") {
+            rpc_config["rpc_mode"] = MultiplayerAPI::RPC_MODE_AUTHORITY;
+        } else if (mode == "call_local") {
+            rpc_config["call_local"] = true;
+        } else if (mode == "call_remote") {
+            rpc_config["call_local"] = false;
+        } else if (mode == "reliable") {
+            rpc_config["transfer_mode"] = MultiplayerPeer::TRANSFER_MODE_RELIABLE;
+        } else if (mode == "unreliable") {
+            rpc_config["transfer_mode"] = MultiplayerPeer::TRANSFER_MODE_UNRELIABLE;
+        } else if (mode == "unreliable_ordered") {
+            rpc_config["transfer_mode"] = MultiplayerPeer::TRANSFER_MODE_UNRELIABLE_ORDERED;
+        } else {
+            push_error(R"(Invalid RPC argument. Must be one of: 'call_local'/'call_remote' (local calls), 'any_peer'/'authority' (permission), 'reliable'/'unreliable'/'unreliable_ordered' (transfer mode).)", p_annotation);
+        }
+    }
+```
+
+不同 Godot 版本下的 SceneTree 连网相关方法及属性，Godot 3 与新版本最大的差别在于，场景树包装了
+完整的 MultiplayerAPI 信号，并且直接引用 MultiplayerPeer。为了同步游戏开始，可以使用场景树的
+set_pause() 方法。
+
+```py
+# Godot 3
+# https://docs.godotengine.org/en/3.5/classes/class_scenetree.html
+MultiplayerAPI multiplayer
+    Setter set_multiplayer(value)
+    Getter get_multiplayer()
+
+NetworkedMultiplayerPeer network_peer
+    Setter set_network_peer(value)
+    Getter get_network_peer()
+
+bool multiplayer_poll = true
+    Setter set_multiplayer_poll_enabled(value)
+    Getter is_multiplayer_poll_enabled()
+
+bool refuse_new_network_connections = false
+    Setter set_refuse_new_network_connections(value)
+    Getter is_refusing_new_network_connections()
+
+PoolIntArray get_network_connected_peers ( ) const
+int get_network_unique_id ( ) const
+int get_rpc_sender_id ( ) const
+bool has_network_peer ( ) const
+bool is_network_server ( ) const
+
+# Godot 4
+# https://docs.godotengine.org/en/latest/classes/class_scenetree.html
+bool multiplayer_poll [default: true]
+    set_multiplayer_poll_enabled(value) setter
+    is_multiplayer_poll_enabled() getter
+
+MultiplayerAPI get_multiplayer ( NodePath for_path=NodePath("") ) const
+void set_multiplayer ( MultiplayerAPI multiplayer, NodePath root_path=NodePath("") )
+```
+
+
+不同 Godot 版本下的 Node 节点和 RPC 相关的属性、方法定义如下：
+
+```py
+# Godot 3
+# https://docs.godotengine.org/en/3.5/classes/class_node.html
+MultiplayerAPI custom_multiplayer
+    Setter set_custom_multiplayer(value)
+    Getter get_custom_multiplayer()
+
+MultiplayerAPI multiplayer
+    Getter get_multiplayer()
+
+int get_network_master() const
+bool is_network_master() const
+void set_network_master(id: int, recursive: bool = true)
+
+
+void rpc_config(method: String, mode: RPCMode 和 call_local 方式的用途：)
+void rset_config(property: String, mode: RPCMode)
+
+Variant rpc(method: String, ...) vararg
+Variant rpc_unreliable(method: String, ...) vararg
+Variant rpc_id(peer_id: int, method: String, ...) vararg
+Variant rpc_unreliable_id(peer_id: int, method: String, ...) vararg
+
+void rset(property: String, value: Variant)
+void rset_id(peer_id: int, property: String, value: Variant)
+void rset_unreliable(property: String, value: Variant)
+void rset_unreliable_id(peer_id: int, property: String, value: Variant)
+
+# Godot 4
+# https://docs.godotengine.org/en/latest/classes/class_node.html
+MultiplayerAPI multiplayer
+    Getter get_multiplayer()
+
+Error rpc ( StringName method, ... ) vararg
+void  rpc_config ( StringName method, Variant config )
+Error rpc_id ( int peer_id, StringName method, ... ) vararg
+
+void  set_multiplayer_authority ( int id, bool recursive=true )
+int get_multiplayer_authority() const
+bool is_multiplayer_authority() const
+```
+
+Godot 3.5 中提供的 remote, master, puppet, remotesync, mastersync, puppetsync 这些
+关键字用于标注 RPC 方法，可以当作 rpc_config() 或 reset_config() 方法使用。默认地，所有属性
+都不向 RPC 网络公开。总的来说，这套 API 有三类：以 rpc 为前缀的与方法设置相关，以 rset 为前缀的
+与属性同步相关，带有 unreliable 名称的基于 UDP 协议。或者从另一个角度分类：一类 RPC API 执行
+配置，和使用 remote 这些关键字一样；另外一类 RPC API 用于执行节点方法；最后一类修改节点属性值。
+
+- `rpc_config()` 执行 RPC 服务配置，设置指定 method 的 RPCMode 模式。
+- `rset_config()` 执行 RPC 服务配置，设置指定 property 的 RPCMode 模式。
+- `rpc()` 向远程主机发送 RPC 调用，只由远程主机上运行的程序中相同 NodePath 节点响应，并严格匹配节点名称。
+- `rpc_id()` 向指定远程端 ID 的主机发送 RPC 调用。
+- `rset()` 远程更改其他对等方（和本地）上的属性值，remotely set。
+- `rset_id()` 远程更改指定远程端 ID 的主机的属性值，remotely set by peer ID。
+- `rpc_unreliable()` 使用 UDP 协议的 `rpc()`。
+- `rpc_unreliable_id()` 使用 UDP 协议的 `rpc_id()`。
+- `rset_unreliable()` 使用 UDP 协议的 `rset()`。
+- `rset_unreliable_id()` 使用 UDP 协议的 `rset_id()`。
+
+Godot 4 精简了 RPC API，移除了属性设置的 RPC API。
+
+Godot 联网中间层抽象为 `MultiplayerPeer`，对应 Godot 3 的类型 NetworkedMultiplayerPeer，
+继承自 `PacketPeer`，这是从端点数据包传输的角度进行抽象。
+
+|          Godot 3.5           |         Godot 4.0          |
+|------------------------------|----------------------------|
+|                              | ENetPacketPeer             |
+| PacketPeerDTLS               | PacketPeerDTLS             |
+| PacketPeerGDNative           | PacketPeerExtension        |
+| PacketPeerStream             | PacketPeerStream           |
+| PacketPeerUDP                | PacketPeerUDP              |
+| WebRTCDataChannel            | WebRTCDataChannel          |
+| WebSocketPeer                | WebSocketPeer              |
+| NetworkedMultiplayerPeer     | MultiplayerPeer            |
+| - MultiplayerPeerGDNative    | - MultiplayerPeerExtension |
+| - NetworkedMultiplayerCustom | - OfflineMultiplayerPeer   |
+| - NetworkedMultiplayerENet   | - ENetMultiplayerPeer      |
+| - WebRTCMultiplayer          | - WebRTCMultiplayerPeer    |
+| - WebSocketMultiplayerPeer   | - WebSocketMultiplayerPeer |
+
+MultiplayerAPI 类型是 High-level multiplayer API 接口的实现者，通过 Node 节点相应方法提供服务，
+默认地，SceneTree 包含了 MultiplayerAPI 的引用，通过 `get_multiplayer()` 方法获取。
+
+Godot 4 中细化了 MultiplayerAPI，新增子 `SceneMultiplayer` 是这套 API 的默认实现，为节点
+Node.rpc() 或 Node.rpc_id() 等方法提供支持，它们都需要 MultiplayerAPI.rpc() 方法。通过
+另一个子类 `MultiplayerAPIExtension` 可以进行 API 扩展。
+
+MultiplayerAPI 提供了联网相关的信号，在不同 Godot 版本下名称有所差别。信号参数中的 id 标记了
+新连接或断开连接的 multiplayer_peer，服务端 ID 值为 1。建立连接或断开连接会向所有 clients 
+发出信号，通过 id 判断发生连接或断开连接的对等端。
+
+|              Godot 3               |          Godot 4           |          Notes           |
+|------------------------------------|----------------------------|--------------------------|
+| connected_to_server()              | connected_to_server()      | Only emitted on clients. |
+| connection_failed()                | connection_failed()        | Only emitted on clients. |
+| server_disconnected()              | server_disconnected()      | Only emitted on clients. |
+| network_peer_connected(id: int)    | peer_connected(id: int)    | Emiited on any peer.     |
+| network_peer_disconnected(id: int) | peer_disconnected(id: int) | Emiited on any peer.     |
+
+还有一个数据接收时触发的信号，新版本中类结构有调整，这个信号整合到的新增的 SceneMultiplayer 类型上。
+对方通过 MultiplayerAPI 或 SceneMultiplayer 接口 send_bytes() 发送数据，id 为其标识符。
+
+- MultiplayerAPI: network_peer_packet(id: int, packet: PoolByteArray)
+- SceneMultiplayer: peer_packet(id: int, packet: PackedByteArray)
+
+另外，NetworkedMultiplayerPeer，对应新版本的 MultiplayerPeer 只保留了两个连接信号：
+
+|          Godot 3.4           |          Godot 4.x          |
+|------------------------------|-----------------------------|
+| NetworkedMultiplayerPeer     | MultiplayerPeer             |
+| - connection_failed()        |                             |
+| - connection_succeeded()     |                             |
+| - peer_connected(id: int)    | -peer_connected(id: int)    |
+| - peer_disconnected(id: int) | -peer_disconnected(id: int) |
+| - server_disconnected()      |                             |
+
+在旧版本文档中，只是说 peer_connected(id: int) 在服务端触发，但在客户端也一样会触发，只有断开
+连接时 peer_disconnected(id: int) 才只发生在服务器。另外，在 Goodt 3.5.1 中，服务器断开连接
+信号可以通过 NetworkedMultiplayerENet 触发，但是 MultiplayerAPI.server_disconnected()
+并不会触发。
+
+在这些信号中，主要关心的是 peer 的连接与断开信号，另外三个信号只会在客户端触发，可以反映网络的状态。
+而 peer 相关的两信号才是游戏联网中重点处理的。在接收到连接信号时，才可以安全地进行 RPC 操作，需要
+随时跟踪与服务器的连接状态，或者 server_disconnected 信号：
+
+```py
+    # Godot 3
+    SceneTree.network_peer.get_connection_status() == CONNECTION_CONNECTED ...
+    Node.is_network_master()
+    MultiplayerAPI.is_network_server()
+
+    # Godot 4
+    MultiplayerAPI mp_api = SceneTree.get_multiplayer()
+    MultiplayerPeer mp_peer = mpapi.get_multiplayer_peer()
+    if mp_pert.get_connection_status() == CONNECTION_CONNECTED ...
+    MultiplayerAPI.is_server()
+```
+
+以下是一些常见错误信息，因为 client/server 端场景树节点结构不一致导致的：
+
+    get_node: Node not found: "Main/1" (relative to "/root").
+    process_simplify_path: Condition "node == nullptr" is true.
+    _process_get_node: Failed to get path from RPC: Main/1.
+    process_rpc: Invalid packet received. Requested node was not found.
+
+服务器断开连接后还在调用 is_multiplayer_authority() 这些 RPC API 产生的错误：
+
+    The multiplayer instance isn't currently active.
+    No multiplayer peer is assigned. Unable to get unique ID.
+
+因为节点关闭后再对其调用 RPC API 导致的错误：
+
+    ERROR: Condition "peer == nullptr" is true. Returning: -1
+    at: send (modules/enet/enet_packet_peer.cpp:60)
+
+服务器在接收到 peer_disconnected 信号时，应该等待一下再发送广播式调用，避免对已经断开连接的客户
+客户端进行调用：
+
+```py
+func peer_disconnected(peer_id):
+    print_debug("peer disconnected: %d." % [peer_id])
+    # Disconnect peer specific from host.
+    # multiplayer_peer.disconnect_peer(peer_id)
+    # 
+    # Wait ENet for less seconds to keep clean
+    # Destroy player node on other clients peers
+    call_deferred("rpc", "destroy_peer_broadcast", peer_id)
+    #rpc("destroy_peer_broadcast", peer_id)
+```
+
+
+
+### 🟠🔵 Multiplayer: Scene Replication
+- [Mitchell Reid - MitchMakesThings](https://github.com/MitchMakesThings/Godot-Things/tree/main/Networking)
+- [Godot 4 Multiplayer - RPC 教程](https://www.bilibili.com/video/BV17P411c75s/)
+- [Godot 4 Multiplayer - RPC](https://github.com/TheGodojo/Godot-4-Networking-Demonstration-Complete)
+- [Godot 4 Multiplayer - Spawner/Synchronizer 教程](https://www.bilibili.com/video/BV1VY411o793/)
+- [Godot 4 Multiplayer - Spawner/Synchronizer](https://github.com/TheGodojo/Multiplayer-Nodes-Complete)
+- [Multiplayer in Godot 4.0: Scene Replication (part 1)](https://godotengine.org/article/multiplayer-changes-godot-4-0-report-4/)
+- [Add a multiplayer interface and visual nodes for SceneTree replication](https://github.com/godotengine/godot-proposals/issues/3459)
+- godot\master\modules\multiplayer\multiplayer_synchronizer.h
+- godot\master\modules\multiplayer\multiplayer_synchronizer.cpp
+
+使用 Godot 4 新增两个联网专用节点可能是最简单的联网游戏开发工具了：
+
+- MultiplayerSpawner 节点自动同步复制节点，自动从授权端将 spawn 节点复制到其 multiplayer peers。
+- MultiplayerSynchronizer 数据自动同步复制节点，自动将本地节点的属性同步到远端。
+- SceneReplicationConfig 数据自动同步复制节点的配置对象。
+
+Godot 4 最新提供的这套 Scene Replication API 设计目的就是开箱即用，能快速地开发原型：
+
+- Provide an out-of-the-box solution for scene state replication across the network.
+- Allow for (almost) no-code prototyping.
+- Be extensible with game-specific behaviours (custom reconciliation, interpolation, interest management, etc).
+- Allow ex-post (incremental) optimizations of network code.
+- Be easy to use for game developers, of course :)
+
+设置同步属性中会遇到两个选项配置：
+
+- Spawn: Creating, or requesting remotely to create a new Object.
+- Sync: Updating, or requesting remotely to update the state of an Object.
+
+在场景中添加 `MultiplayerSpawner` 节点，并设置属性：
+
+- Spawn Path 指定要检测的节点路径，这个节点路径下可能包含要自动同步复制的场景节点实例；
+- Auto Spawn List 列表中和 Spawn Path 节点下匹配的场景节点会被同步复制；
+
+假设这样一个场景：玩家控制 Player.tscn 场景节点，服务器端接收到客户端的连接请求时，就实例化一个
+新的 Player 节点。而这个新的节点当下只在服务器端生成，还没有在刚刚建立连接的客户端创建。Spawner
+节点的作用就是在检测到新增的 Player 场景节点时，自动同步复制到客户端。为了方便管理同步复制的节点，
+就需要给 Spawner 设置一个 Spawn Path 路径，在这个节点路径下挂载新创建的 Player 场景节点。
+
+玩家节点同步复制成功后，所有网络节点上都会拥有相同的场景树结构，而不同的玩家控制着不同的 Player。
+在游戏的过程中，会产生新的 Player 状态数据，而这些数据又需要向其它对等端广播，以实现全场的玩家
+观看到的游戏画面是一致的，这就是 Synchronizer 节点的作用。
+
+SceneMultiplayer 作为 MultiplayerAPI 的子类，其中一个功能就是通过以上 Scene Replication
+相关节点提供无代码化的同步复制功能。在选中 `MultiplayerSynchronizer` 节点时，底部面板区会出现
+Replication 面板，这里用来配置需要自动同步复制的属性。
+
+配置 replication_interval 属性可以改变同步频率，默认值为 0.0 表示在每个网络处理帧都会同步。
+根节点路径用于 RPC 和 Scene Replication API，使用相对路径来查找应该在其上执行 RPC 的节点。
+数据同步节点可以通过修改配置来改变自动同步的行为，通常由 SceneTree 内部配置 MultiplayerAPI。
+在属性面板中，提供了一个 Root Path 属性，指示 Synchronizer 要同步的数据来源节点相对于此路径。
+
+数据同步的逻辑比节点同步要复杂一点，假设当前有 3 个玩家，那么其中一个玩家 Player 节点有更新，那么
+Synchronizer 就要负责责将最新的节点数据同步到其它两个玩家的网络节点上。Scene Replication API
+设计目的就是开箱即用，无代码化，所以配置好要同步的节点根路径，和要同步的属性后，Synchronizer 就会
+根据 `replication_interval` 属性设置同步频率，以最快速度将节点属性数据发送出去。
+
+而开发者要做的事情就是，按正常逻辑修改同步中的属性，Synchronizer 会负责读取并在网络上广播。
+
+
+```py
+Error object_configuration_add(object: Object, configuration: Variant)
+Error object_configuration_remove(object: Object, configuration: Variant)
+```
+
+
+
+### 🟠🔵 Multiplayer RPC 实例演示
+- [Multiplayer Bomber Demo](https://godotengine.org/asset-library/asset/139)
+- [Pong Multiplayer](https://godotengine.org/asset-library/asset/138)
+- [Pong Non-Multiplayer](https://github.com/godotengine/godot-demo-projects/tree/master/2d/pong)
+- [Godot Multiplayer Networking Cheatsheet](https://blog.iancolwell.ca/godot-multiplayer-networking-cheatsheet)
+- [Godot Multiplayer RPC](https://github.com/jeangowhy/godot-tour/tree/4.x/multiplayer_rpc)
+
+使用 Godot 4.x RPC API 进行网络游戏开发的工作流程概要：
+
+- 配置 MultiplayerPeer 启动相应的服务器/客户端；
+- 建立连接，记录 peer ID 并给相应的节点设置主控端 ID；
+- 配置 RPC API，根据需要设置 RPC 的调用方式，主要是：any_peer authority call_local call_remote；
+- 通过 is_network_master() 或 is_multiplayer_authority() 主动判断当前节点是否归属于主控；
+- 执行 rpc() 或 rpc_id() 等方法执行 RPC 调用远程方法，进行数据同步；
+- 处理网络连接，以下结束连接；
+
+使用 RPC API 涉及到的数据同步，需要通过定义各种 RPC 方法来实现，比如，以下例子中用于记录所有客户
+连接标志的 connected_peer_ids，在服务器端总能记录到所有客户端的 ID。但是新加入的客户端，只知道
+自己与服务器的连接，其它客户端的连接需要通过查询（同步）服务器中的数据。所以，每当有新客户端发出连接
+请求时，服务端都需要执行一个 new_peer_broadcast 广播，远程调用所有客户端的方法，以创建相应的新
+玩家节点。同时，对于原有玩家，需要通过 rpc_id() 指定 ID 调用新玩家主机上的 API，同步创建与服务
+场景树一致的节点结构：
+
+```py
+var connected_peer_ids = []
+
+func new_peer_connected(peer_id):
+    await get_tree().create_timer(0.5).timeout
+    # create player on all clients side.
+    rpc("new_peer_broadcast", peer_id)
+    rpc_id(peer_id, "old_peer_replication", connected_peer_ids)
+    # create player on server side for client.
+    create_player(peer_id)
+
+func create_player(peer_id = 1):
+    connected_peer_ids.append(peer_id)
+    var player = preload("res://player.tscn").instantiate()
+    player.set_multiplayer_authority(peer_id)
+    add_child(player)
+    rpc("refresh_peer_node_inf")
+    if peer_id == multiplayer.get_unique_id():
+        local_player = player
+
+@rpc 
+#@rpc("authority", "call_remote", "reliable", 1)
+func new_peer_broadcast(new_peer_id):
+    create_player(new_peer_id)
+
+@rpc
+#@rpc("authority", "call_remote", "reliable", 1)
+func old_peer_replication(peer_ids):
+    for peer_id in peer_ids:
+        create_player(peer_id)
+```
+
+注意，默认的 @rpc 标注是 call_remote 方式调用，不会在主控端运行，只在其它所有远程端执行数据同步。
+因为连接信号是服务器端的行为，所以 @rpc 方式调用就是在所有客户端执行，由服务器发起 RPC 调用，但是
+不包括服务器。
+
+使用 RPC API 最后阶段包含结束连接处理，当客户端或服务器端断开连接，就应该做相当的处理。客户端结束，
+整个连网系统还在运行，只是其中一个对等端的退出，需要将其占用的资源清理掉。而对于服务器结束，所以客户
+端都会失去连网功能，要么等待服务器重新启动再尝试连接，要么清理所有客户端相关资源。MultiplayerPeer
+需要关闭，并且释放 multiplayer_peer = null，同时场景中也不能再调用相关的 RPC API。
+
+通过 MultiplayerAPI.has_multiplayer_peer() 可以查询当前的连接状态，作为执行 RPC 的依据。
+
+服务器端开启后就会进行侦听，等待客户端的连接请求。而客户端连接服务器则需要根据网络状态而定，有时可能
+因为网络不稳定，需要越长时间的才能建立连接。更坏的情况是，根本不能正常建立连接，经过一段时间尝试还
+不能建立连接，就会因为连接超时，进而触发 connetion_failed 信号。可以说，connected_to_server
+是最不重要的连接信号之一。
+
+工程设置 Network Limits 可以配置 TCP 连接超时秒数 connect_timeout_seconds，默认值 30。
+
+服务器信号使用不恰当可能会导致服务器端在首个客户端连接时，重复出现 ID = 1 的 peer 连接。一般只
+需要将客户端的信号，与服务器端的信号分开连接使用。
+
+|              Godot 3               |          Godot 4           |          Notes           |
+|------------------------------------|----------------------------|--------------------------|
+| connected_to_server()              | connected_to_server()      | Only emitted on clients. |
+| connection_failed()                | connection_failed()        | Only emitted on clients. |
+| server_disconnected()              | server_disconnected()      | Only emitted on clients. |
+| network_peer_connected(id: int)    | peer_connected(id: int)    | Emiited on any peer.     |
+| network_peer_disconnected(id: int) | peer_disconnected(id: int) | Emiited on any peer.     |
+
+注意，虽然文档中表示客户端也会触发 peer_disconnected 信号，但测试中发现 peer_connected 才会
+在客户端触发，需要通过 server_disconnected 来检测服务器是否断开。
+
+在旧版本文档中，只是说 peer_connected(id: int) 在服务端触发，但在客户端也一样会触发，只有断开
+连接时 peer_disconnected(id: int) 才只发生在服务器。另外，在 Goodt 3.5.1 中，服务器断开连接
+信号可以通过 NetworkedMultiplayerENet 触发，但是 MultiplayerAPI.server_disconnected()
+并不会触发。
+
+以下示范工程为 Godot 4.x 版本，只包含两个场景：
+
+- player.tscn 玩家场景节点，提供玩家的基本角色行为和外观；
+- main.tscn 主场景，提供连接类型选择界面，和连接信号的管理；
+
+Godot 3.5 的一些 API 差别，另外 Godot 4.x 新增了 Signl 类型，Object 原有的信息相关 API 保留：
+
+|               Godot 3.5               |           Godot 4.x           |
+|---------------------------------------|-------------------------------|
+| ENetMultiplayerPeer                   | MultiplayerPeer               |
+| - -                                   | - close()                     |
+| NetworkedMultiplayerENet              | ENetMultiplayerPeer           |
+| - close_connection()                  | - -                           |
+| MultiplayerAPI                        | MultiplayerAPI                |
+| - network_peer                        | - multiplayer_peer            |
+| - get_rpc_sender_id()                 | - get_remote_sender_id()      |
+| - set_network_peer()                  | - set_multiplayer_peer()      |
+| - get_network_unique_id()             | - get_unique_id()             |
+|---------------------------------------|-------------------------------|
+| Array                                 |                               |
+| - remove(position: int)               | - remove_at()                 |
+|---------------------------------------|-------------------------------|
+| LineEdit                              |                               |
+| - text_entered                        | - text_submitted              |
+|---------------------------------------|-------------------------------|
+| Spatial                               | Node3D                        |
+| - global_translation                  | - global_position             |
+|---------------------------------------|-------------------------------|
+| Node                                  |                               |
+| - is_network_master()                 | - is_multiplayer_authority()  |
+| - set_network_master()                | - set_multiplayer_authority() |
+|---------------------------------------|-------------------------------|
+| InputEventMouseButton                 |                               |
+| - doubleclick                         | - double_click                |
+|---------------------------------------|-------------------------------|
+| InputEventKey                         |                               |
+| - scancode                            | - key_code                    |
+|---------------------------------------|-------------------------------|
+| Signal                                |                               |
+| - Object.get_signal_connection_list() | - Signal.get_connections()    |
+| - Object.disconnect()                 | - Signal.disconnect()         |
+|---------------------------------------|-------------------------------|
+| yield                                 | await                         |
+| - yield( object, "completed" )        | - await object                |
+| - yield( object, "signal" )           | - await object.signal         |
+
+
+Godot 3.5 中，MultiplayerAPI 还绑定了默认的信号处理函数，并且获取信号绑定列表返回的字典包含的
+字段比 Godot 4.x 中的更多：
+
+```py
+    object.get_signal_connection_list("signal"):
+    return array of dictionary:
+    { 
+        binds:[], flags:0, 
+        method:_server_disconnected, 
+        signal:server_disconnected, 
+        source:[MultiplayerAPI:1249], 
+        target:[SceneTree:1242]
+    }
+
+    signal.get_connections() 
+    return array of dict: {signal, callable}
+```
+
+
+以下示范工程为 Godot 4.x 版本，只包含两个场景：
+
+- player.tscn 玩家场景节点，提供玩家的基本角色行为和外观；
+- main.tscn 主场景，提供连接类型选择界面，和连接信号的管理；
+
+主场景使用的 main_rpc.gd 脚本参考如下：
+
+```py
+    extends Node3D
+
+
+    const PORT = 4567
+    const HOST = "127.0.0.1"
+
+    var multiplayer_peer = ENetMultiplayerPeer.new()
+    var connected_peer_ids = []
+    var local_player
+
+    @onready var message_input = $MessageInput
+    @onready var menu = $Menu
+    @onready var host = $Menu/bg/vbox/Host
+    @onready var join = $Menu/bg/vbox/Join
+    @onready var network_side = $NetworkInfo/NetworkSide
+    @onready var peer_node_inf = $NetworkInfo/PeerNodeInfo
+
+
+    func _ready():
+        # Start the server/client by pass "--server" or "--client" argument.
+        if "--server" in OS.get_cmdline_args():
+            start_server()
+        elif "--client" in OS.get_cmdline_args():
+            start_client()
+        else:
+            menu.visible = true
+
+        host.pressed.connect(start_server)
+        join.pressed.connect(start_client)
+
+
+    func _unhandled_input(event):
+        if not event is InputEventKey:
+            return
+        if event.is_pressed() and event.keycode == KEY_ESCAPE:
+            close_connection()
+
+    func reset_signals(is_server = true):
+        clear_signal(multiplayer_peer.peer_disconnected)
+        clear_signal(multiplayer_peer.peer_connected)
+        clear_signal(multiplayer.server_disconnected)
+        clear_signal(multiplayer.connected_to_server)
+        clear_signal(multiplayer.connection_failed)
+        if is_server:
+            # Signals for server
+            multiplayer_peer.peer_disconnected.connect(peer_disconnected)
+            multiplayer_peer.peer_connected.connect(new_peer_connected)
+        else:
+            # Signals for clietns
+            multiplayer.server_disconnected.connect(func(): destroy_peer(get_multiplayer_authority()))
+            multiplayer.connected_to_server.connect(func(): print_debug("Connected to server: %s:%d" % [HOST, PORT]))
+            multiplayer.connection_failed.connect(connection_failed)
+
+    func clear_signal(sgl: Signal):
+        for conn in sgl.get_connections():
+            print_debug("disconnect observer: ", conn["signal"])
+            conn["signal"].disconnect(conn.callable)
+
+
+    func start_server():
+        reset_signals(true)
+        message_input.text = "Starting a new server ..."
+        var err = multiplayer_peer.create_server(PORT)
+        if OK != err:
+            print_debug("Can't create an ENet server on %s:%s" % [HOST, PORT])
+            return
+            
+        multiplayer.multiplayer_peer = multiplayer_peer
+        menu.visible = false
+        network_side.text = "Server"
+        message_input.text = ""
+        print_debug("Start ENet Server on %s:%d." % [HOST, PORT])
+        
+        # create server side player
+        create_player()
+
+
+    func start_client():
+        reset_signals(false)
+        message_input.text = "Starting a new client ..."
+        var err = multiplayer_peer.create_client(HOST, PORT)
+        if OK != err:
+            print_debug("Can't create an ENet client on %s:%s" % [HOST, PORT])
+            return
+            
+        multiplayer.multiplayer_peer = multiplayer_peer
+        menu.visible = false
+        network_side.text = "Client"
+        message_input.text = ""
+        print_debug("Start ENet Client on %s:%d." % [HOST, PORT])
+
+
+    func connection_failed():
+        message_input.text = "Connection failed: %s:%d" % [HOST, PORT]
+        await get_tree().create_timer(3).timeout
+        menu.visible = true
+
+
+    func new_peer_connected(peer_id):
+        print_debug("new peer connected: %d." % [peer_id])
+        message_input.text = "new peer connected: %d." % [peer_id]
+        await get_tree().create_timer(0.5).timeout
+        message_input.text = ""
+        # create player on all clients side.
+        rpc("new_peer_broadcast", peer_id)
+        rpc_id(peer_id, "old_peer_replication", connected_peer_ids)
+        # create player on server side for client.
+        create_player(peer_id)
+
+
+    func create_player(peer_id = 1):
+        connected_peer_ids.append(peer_id)
+        var player = preload("res://player.tscn").instantiate()
+        player.set_multiplayer_authority(peer_id)
+        add_child(player)
+        rpc("refresh_peer_node_inf")
+        if peer_id == multiplayer.get_unique_id():
+            local_player = player
+
+
+    func peer_disconnected(peer_id):
+        print_debug("peer disconnected: %d." % [peer_id])
+        # Disconnect peer specific from host.
+        # multiplayer_peer.disconnect_peer(peer_id)
+        
+        # Wait ENet for less seconds to keep clean
+        # Destroy player node on other clients peers
+        call_deferred("rpc", "destroy_peer_broadcast", peer_id)
+        #rpc("destroy_peer_broadcast", peer_id)
+
+
+    func close_connection():
+        multiplayer_peer.close()
+        multiplayer.multiplayer_peer = null
+        #get_tree().set_multiplayer_poll_enabled(false)
+        #get_tree().multiplayer_poll = false
+        clear_players()
+        menu.visible = true
+
+    func destroy_peer(peer_id):
+        if peer_id == 1:
+            print_debug("Server closed!")
+            close_connection()
+            return
+        get_node(str(peer_id)).queue_free()
+        connected_peer_ids.remove_at(connected_peer_ids.find(peer_id))
+        refresh_peer_node_inf()
+
+    func clear_players():
+        for id in connected_peer_ids:
+            get_node(str(id)).queue_free()
+        connected_peer_ids.clear()
+
+    @rpc 
+    #@rpc("authority", "call_remote", "reliable", 1)
+    func new_peer_broadcast(new_peer_id):
+        create_player(new_peer_id)
+
+    @rpc("authority", "call_local", "reliable", 1)
+    func destroy_peer_broadcast(peer_id):
+        destroy_peer(peer_id)
+
+
+    @rpc("any_peer", "call_local")
+    func refresh_peer_node_inf():
+        peer_node_inf.text = "#%d / %d" % [multiplayer.get_unique_id(), len(connected_peer_ids)]
+
+    @rpc("any_peer")
+    func old_peer_replication(peer_ids):
+        for peer_id in peer_ids:
+            create_player(peer_id)
+
+    func _on_message_input_text_submitted(new_text):
+        local_player.rpc("display_message", new_text)
+        message_input.text = ""
+        message_input.release_focus()
+        message_input.accept_event();
+```
+
+玩家场景使用的脚本参考：
+
+```py
+    extends MeshInstance3D
+
+    var speed = 10
+
+    @onready var message = $Message
+    @onready var myname = $Name
+
+    func _ready():
+        name = str(get_multiplayer_authority())
+        myname.text = str(name)
+
+    func _physics_process(delta):
+        if multiplayer.has_multiplayer_peer() and is_multiplayer_authority():
+            var axis_x = int(Input.is_key_pressed(KEY_A)) - int(Input.is_key_pressed(KEY_D))
+            var axis_z = int(Input.is_key_pressed(KEY_W)) - int(Input.is_key_pressed(KEY_S))
+            var direction:Vector3 = Vector3(-axis_x, 0, -axis_z)
+            
+            if direction.length():
+                # update my position by myself.
+                global_position += direction.normalized() * delta * speed
+               # refresh my position of all clients by RPC API.
+                rpc("remote_set_position", global_position)
+
+    func _unhandled_input(event):
+        if not event is InputEventMouseButton:
+            return
+        match [event.button_index, event.double_click, event.pressed]:
+            [MOUSE_BUTTON_LEFT, true, true]:
+                set_my_message("I'm myself!")
+
+    func set_my_message(msg):
+        # This api works just for me
+        #if not name != str(get_multiplayer_authority()):
+        if not is_multiplayer_authority():
+            return
+        message.text = msg
+
+
+    @rpc("unreliable")
+    func remote_set_position(pos):
+        print_debug("authority call remote: #%d - %s - " % [get_multiplayer_authority(), pos])
+        global_position = pos
+
+    @rpc
+    #@rpc("authority", "call_remote", "reliable", 1)
+    func display_message(meg):
+        message.text = str(message)
+
+    @rpc("authority", "call_remote", "reliable", 1)
+    func shake_me():
+        message.text = "Shake me!"
+
+    @rpc("any_peer", "call_remote", "reliable", 1)
+    func shake_all():
+        message.text = "Shake all!"
+
+    @rpc("any_peer", "call_local", "reliable", 1)
+    func clicked_by_player():
+        message.text = str(multiplayer.get_remote_sender_id()) + " hit me!"
+
+
+    func _on_mouse_click_area_input_event(camera, event, position, normal, shape_idx):
+        if not event is InputEventMouseButton:
+            return
+        match event.button_index:
+            MOUSE_BUTTON_LEFT:
+                rpc("clicked_by_player")
+            MOUSE_BUTTON_RIGHT:
+                rpc("shake_me")
+            MOUSE_BUTTON_MIDDLE:
+                rpc("shake_all")
+```
+
+## 🟡 GDScript 
 - [GDScript Basics](https://docs.godotengine.org/en/3.5/tutorials/scripting/gdscript/gdscript_basics.html)
-- [GDScript grammar](https://docs.godotengine.org/en/stable/development/file_formats/gdscript_grammar.html)
+- [GDScript Advanced](https://docs.godotengine.org/en/3.5/tutorials/scripting/gdscript/gdscript_advanced.html)
 - [GDScript exports](https://docs.godotengine.org/en/3.5/tutorials/scripting/gdscript/gdscript_exports.html)
-- [Using multiple threads](https://docs.godotengine.org/en/stable/tutorials/performance/threads/using_multiple_threads.html)
 - [Singletons (AutoLoad)](https://docs.godotengine.org/en/3.5/tutorials/scripting/singletons_autoload.html)
 - [When you should use an Autoload](https://docs.godotengine.org/en/3.5/tutorials/best_practices/autoloads_versus_internal_nodes.html)
+- [GDScript grammar](https://docs.godotengine.org/en/stable/development/file_formats/gdscript_grammar.html)
 - [Import process](https://docs.godotengine.org/en/stable/tutorials/assets_pipeline/import_process.html)
 - [GDScript 2.0 reference](https://docs.godotengine.org/en/latest/tutorials/scripting/gdscript/gdscript_basics.html)
 - [Godot 4 GDScript Features - GDScript 2.0](https://gdscript.com/articles/godot-4-gdscript/)
 - [Data preferences](https://docs.godotengine.org/en/3.5/tutorials/best_practices/data_preferences.html)
-- [Using multiple threads](https://docs.godotengine.org/en/stable/tutorials/performance/threads/using_multiple_threads.html)
+- [Optimizing GDScript Code](https://www.gdquest.com/tutorial/godot/gdscript/optimization-code/)
+- https://gdscript.com/tutorials/classes/
 
 Godot 4 GDScript 2.0 Features:
 
 - first-class functions
 - lambdas
 - new property syntax
-- await keyword
-- super keyword
+- `await` keyword
+- `super` keyword
 - typed arrays
 - built-in annotations
 - automatically generate documentation
+
+Godot 诞生于 2007 年，GDScript 之父 Juan Linietsky 为了简化解释实现的复杂度，许多语法与其它
+流行语言不太一样。他与另一名开发者 Ariel Manzur 共同合作开发了 Godot，由于当时阿根廷的政治与经济
+一直不太稳定，影响 Godot 的开发进度，在 2014 年才发布了 1.0 版本，但当时的 2D 引擎有很多限制，
+无法使用 3D，直到 2016 年推出的 2.0 版本才改进了可用性方面的问题。
+
+GDScript 是面向对象编程脚本，它专门为 Godot 游戏编程做了优化，比如向量定义、及相关运算方面的支持，
+还 match 模式匹配功能，方便做分支选择，有 6 种 pattern types，满足大多数应用场景。匹配数组时，
+数组元素顺序也需要对应。而匹配字典则不需要顺序，并且不指定值时，只需要 keys 匹配：
+
+
+```py
+# 1. Constant pattern - Matches constant primitives, like numbers and strings.
+     match x:
+         1:
+             print("We are number one!")
+         2:
+             print("Two are better than one!")
+         "test":
+                print("Oh snap! It's a string!")
+# 2. Variable pattern - Matches the contents of a variable/enum.
+        match typeof(x):
+            TYPE_REAL:
+                print("float")
+            TYPE_STRING:
+                print("text")
+            TYPE_ARRAY:
+                print("array")
+# 3. Wildcard pattern - This pattern matches everything. 
+        match x:
+            1:
+                print("It's one!")
+            2:
+                print("It's one times two!")
+            _:
+                print("It's not 1 or 2. I don't care to be honest.")
+# 4. Binding pattern - A binding pattern introduces a new variable. 
+        match x:
+            1:
+                print("It's one!")
+            2:
+                print("It's one times two!")
+            var new_var:
+                print("It's not 1 or 2, it's ", new_var)
+# 5. Array pattern - Matches an array.
+        match x:
+            []:
+                print("Empty array")
+            [1, 3, "test", null]:
+                print("Very specific array")
+            [var start, _, "test"]:
+                print("First element is ", start, ", and the last is \"test\"")
+            [42, ..]:
+                print("Open ended array")
+# 6. Dictionary pattern - Works in the same way as the array pattern.
+        match x:
+            {}:
+                print("Empty dict")
+            {"name": "Dennis"}:
+                print("The name is Dennis")
+            {"name": "Dennis", "age": var age}:
+                print("Dennis is ", age, " years old.")
+            {"name", "age"}:
+                print("Has a name and an age, but it's not Dennis :(")
+            {"key": "godotisawesome", ..}:
+                print("I only checked for one entry and ignored the rest")
+# 7. Multiple patterns - Matches 
+        match x:
+            1, 2, 3:
+                print("It's 1 - 3")
+            "Sword", "Splash potion", "Fist":
+                print("Yep, you've taken damage")
+```
+
+脚本资源在引擎内部都使用 `GDScript` 类型表示，使用``load`` 或者 ``preload``方法加载脚本即
+可以获取到脚本资源对象。每一个新创建的 gd 脚本文件都是一个匿名类，可以：
+
+- 使用 **extends** 关键字指定继承一个父类，使用 `super` 调用父类构造器或方法；
+- 使用 **class_name** 关键字注册为一个全局类，还可以指定一个图标，注册后类会添加到节点列表；
+- 构造函数是 ``_init``，实例化一般使用 `ClassName.new()` 方法调用构造器；
+
+通过注册类型和静态函数，工具函数可以全局空间中组织，方便调用，不必使用 Singletons (AutoLoad)：
+
+```py
+class_name Utils
+
+static func dbg(msg):
+    print_debug(msg)
+```
+
+Singletons 还有一定用途，因为 static 只能定义静态函数，不能定义静态成员属性。每个单态对象都会在
+/root/MySingleton 这个路径中产生一个节点，假设单态类名设置为 MySingleton。
+
+
+Godot 没有提供直接初始化大数组的方法，使用 range() 和 resize() 函数间接获取大数组需要的内存，
+或者通过 C++ 底层进行内存动态分配。
+
+关于数组的注意事项：
+
+使用 append_array() 附加新数据到数组中，避免因使用 += 操作产生新数组，并且进行数据拷贝。如果，
+确定需要新的数据副本，使用 duplicate() 方法，并且可以指定 deep copy 或者 shallow copy。
+
+- Note: Concatenating with the += operator will create a new array, which has a cost.
+- Note: Arrays are always passed by reference.
+- Note: Erasing elements while iterating over arrays is not supported and will result in unpredictable behavior.
+
+注意文档说： const 声明数组只会阻止常量元素初化后再赋不同值，数组本身仍可修改，通过在单个索引或 
+pushing/removing 元素来改变数组本身。
+
+常量不能修改是显然的，但是 const 修饰的数组怎么可以改变呢？应该是文档搞错了。
+
+```py
+func _test_const():
+    # Not allow reassign const value.
+    const ca = [1,2,3]
+    var ca2 = ca # ca2 reference to ca, it is const now. 
+
+    # Parse Error: Cannot assign a new value to a constant.
+    # ca = [4,5,6]
+
+    # Parse Error: Cannot get index "3" from "[1, 2, 3]".
+    # Parse Error: Cannot assign a new value to a constant.
+    # ca[3] = 4
+
+    # Invalid set index '3' (on base: 'Array') with value of type 'int'
+    # ca2[3] = 5
+    
+    # ERROR: Array is in read-only state.
+    # ca.resize(1000)
+    # ca2.remove_at(0)
+    # ca2.push_back(6)
+    # ca2.insert(-1,7)
+
+    ca2 = [4,5,6] # It's OK
+
+    print_debug("const array: %s %s" % [ca, ca2])
+    assert(ca[0] == 1, "Const 1D Array, passed by reference.")
+
+
+func _test_copy():
+    var a2d = [[1,2,3],[4,5,6]]
+    var a2d2 = a2d.duplicate()     # shallow copy
+    var a2d3 = a2d.duplicate(true) # deep copy
+    a2d[1][0] = 6
+    assert(a2d2[1][0] == 6, "Shallow copy, sub-array passed by reference.")
+    assert(a2d3[1][0] == 4, "Deep copy, sub-array passed by value.")
+
+func _test_array():
+    var arr1d = [1,2,3]
+    var arr1d2 = arr1d
+    arr1d2[0] = arr1d[2]
+    assert(arr1d[0] == 3, "1D Array, passed by reference.")
+
+    var arr2d = [[1,2,3],[4,5,6],[7,8,9]]
+    var arr2d2 = arr2d
+    arr2d2[0] = arr2d[2]
+    arr2d[2][0] = 9
+    assert(arr2d[0] == [9,8,9], "2D Array, passed by reference.")
+    print_debug("1D Array: %s \n2D Array: %s" % [arr1d, arr2d])
+```
+
+Godot 3.x 没有 `super` 不能主动调用父类构造，但可以通过 `func _init(args).(parent_args)` 
+这种方式来向父类构造器传递参数，调用基类成员方法使用 `.base_method()` 方式调用，Godot 4.x 改进
+后就不再需要这样奇怪的语法了。并且，旧版本中，也不能直接继承同文件下的类，Godot 4.x 则可以。
+
+此外，在方法中直接使用 `super()` 还可以调用父类中的同名方法，而不仅仅是调用构造器。
+
+```py
+    #!/usr/bin/env -S godot -s
+    extends SceneTree
+    class_name MyScene
+
+    func _init():
+        print_debug("bool to int false: %d, true: %d " % [int(false), int(true)])
+        Derived.new().test()
+        
+        quit()
+
+    class Base:
+
+        #default extends to RefCounted
+
+        func _init():
+            print_debug("Base init ", self)
+
+        func test():
+            print_debug("Base test!")
+
+    class Derived:
+
+        extends Base
+
+        func _init():
+            super() # call Base._init()
+            print_debug("Derived init ", self)
+
+        func test():
+            super() # call Base.test()
+            print_debug("Derived test!")
+```
+
+每个类可以使用两种基本继承方式：通过全局类名或通过脚本路径：
+
+```py
+    # Inherit/extend a globally available class.
+    extends SomeClass
+
+    # Inherit/extend a named class file.
+    extends "somefile.gd"
+
+    # Inherit/extend an inner class in another file.
+    extends "somefile.gd".SomeInnerClass
+    
+    extends "../MyNode.gd"
+    extends "res://src/MyNode.gd"
+    extends "user://src/MyNode.gd"
+
+    # extends Node
+    # class_name Item, "res://interface/icons/item.png"
+```
+
+如果继承中使用脚本路径，那么路径可以使用相对路径或者协议路径，res:// 和 user:// 都可以。注意，
+相对路径这种表达只在 extends 中使用，加载资源时不能使用相对路径，如 load() 或 preload()。
+在编程插件时，相对路径非常有用，并且插件中注册好的类型可以在工程中使用。
+
+注意，如果在用户目录中保存脚本，这些脚本即使使用 class_name 注册了名字，也不会出现在节点列表中，
+也不能直接在 extends 中使用类名作为扩展的基类，Godot 不会去主动解释它们，除非使用 load() 这类
+函数主动加载它们。
+
+另外，使用相对路径继承得到的子类，也不能通过 class_name 进行注册。
+
+使用 ``is`` 关键字可以进行类型判断，类型可以是通过 preload() 方法加载的 GDScript 对象，这种
+方式加载的类型为 Constant names，但是不能是 load() 方式加载的。使用 print() 函数打印自定类实例，
+会打印 Godot 系统内置的父类。如果，没使用显式继承父类，那么默认父类为 `Reference`，Godot 4.x
+更名为 `RefCounted`。
+
+所有类型都有一个枚举值对应，Variant.Type 定义在 @GlobalScope 全局空间，使用 ``typeof`` 函数
+可以获取类型的枚举值，例如，typeof("abc") 是字符串类型的枚举值 TYPE_STRING。
+
+每个 Variant 实例至少占用内存为 20 bytes，使用 float 作为浮点数类型，如果使用 double 则
+占用 30 bytes。另外像 PoolVector，aabb，metrix 这些数组或专用类型的额外内存占用另计。
+
+```py
+    # Cache the enemy class.
+    const Enemy = preload("enemy.gd")
+
+    # Use 'is' to check inheritance.
+    if entity is Enemy:
+        entity.apply_damage()
+```
+
+GDSCript 类型系统包含以下几种分类：
+
+- Built-in types (Array, Vector2, int, String, etc.).
+- Engine classes (Node, Resource, Reference, etc.).
+- Constant names (``const MyScript = preload("res://my_script.gd")``).
+- Other classes in the same script, respecting scope (``InnerClass.NestedClass`` if you declared ``class NestedClass`` inside the ``class InnerClass`` in the same scope).
+- Script classes declared with the ``class_name`` keyword.
+- Autoloads registered as singletons.
+
+
+Godot 4.x Beta 16 中基类构造方法不会主动执行，除非使用 super() 显式调用，Godot 3.5.1 则会
+自动调用父类构造器，但是旧版本不支持继承同一脚本文件中的类，没有解决循环引用问题：
+
+```py
+extends MyClass.InnerClass.NestedClass
+# Default extends: RefCounted in Godot 4.x or Reference in Godot 3.x
+
+class_name MyClass
+
+# MyClass' constructor
+func _init(seq):
+    #super(seq+1)
+    print("MyClass init: %s" % seq)
+
+# Inner class
+class InnerClass:
+    extends MyClass.InnerClass.NestedClass
+    # InnerClass' constructor
+    func _init(seq):
+        super(seq + 1)
+        print("InnerClass init: %s" % seq)
+
+    class NestedClass:
+        extends Object
+        func _init(seq):
+            # Calls the method on the object during idle time. 
+            self.call_deferred("_delay_4_idle", "call deferred not for RefCounted!")
+            print("NestedClass init: %s" % seq)
+        
+        func _delay_4_idle(seq):
+            print("NestedClass _delay_4_idle: %s" % seq)
+```
+
+与活动场景树交互需要考虑线程安全问题，因为场景树使用了多线程进行计算处理。为了正确处理场景树中的节点，
+使用延后调用 `Object.call_deferred()` 会在场景计算完成时执行指定的方法，这是线程安全方法。但是，
+对资源引用无效，基类 Object 或 Node 类型都可以。
+
+使用 Expression 可以运行时解析 GDScript 表达式：
+
+```py
+onready var expression = Expression.new()
+
+func _ready():
+    $LineEdit.connect("text_entered", self, "_on_text_entered")
+
+func _on_text_entered(command):
+    var error = expression.parse(command, [])
+    if error != OK:
+        print(expression.get_error_text())
+        return
+    var result = expression.execute([], null, true)
+    if not expression.has_execute_failed():
+        $LineEdit.text = str(result)
+```
+
+但是，Expression 类型只能解析表达式，不能用来处理函数、类等复杂脚本。可以使用 `GDScript` 类型
+来解析全功能的脚本，通过 `load()` 等资源加载方法加载脚本文件，返回的就是脚本对象，通过附加到场景
+树上实例化执行。也可以手动设置 GDScript 源代码赋值给 source_code 属性，并调用 reload() 之后
+附加到场景树上执行。
+
+可以借助 ClassDB 调用 C++ 底层实现的解析器工具类型对脚本进行处理：
+
+```py
+const PARSE_WRAPPER_CLASS := "GDScriptParserWrap"
+
+# Array[ScriptError]
+var errors := []
+
+
+func _init(new_script_text: String).(new_script_text) -> void:
+    pass
+
+
+func test() -> void:
+    if ClassDB.class_exists(PARSE_WRAPPER_CLASS):
+        var wrap: Reference = ClassDB.instance(PARSE_WRAPPER_CLASS)
+        wrap.parse_script(_new_script_text)
+        if wrap.has_error():
+            var error_line: int = wrap.get_error_line() - 1
+            var line_text := _new_script_text.split("\n")[error_line]
+            var error_data := make_error_from_data(
+                1,
+                wrap.get_error(),
+                "gdscript",
+                -1,
+                error_line,
+                line_text.length() - line_text.strip_edges(true, false).length(),
+                line_text.strip_edges(false).length()
+            )
+            errors = [error_data]
+        else:
+            errors = []
+    else:
+        push_error("Script Parser Wrapper class is missing!")
+        var error := make_error_no_parser_wrapper_class()
+        errors = [error]
+        return
+```
+
+
+Godot 全局空间 @GDScript 和 @GlobalScope 包含所有脚本中可以直接使用的函数，用户要向全局空间
+添加对象，可以使用工程设置自动加载，Singletons (AutoLoad)，自动加载得到位于全局空间的单态对象。
+
+例如，将以下脚本保存到 Global.gd，并设置工程的 AutoLoad 加载它，即可以实现自动剧中窗口。运行程序
+时，引擎将加载并附着 GlobalNS 到场景树上，初始化方法会被调用：
+
+```py
+extends Node
+
+class_name GlobalNS
+
+func _init():
+    print("Global.gd _init")
+    # Center window on screen
+    var screen_size = OS.get_screen_size(OS.get_current_screen())
+    var window_size = OS.get_window_size()
+    var centered_pos = (screen_size - window_size) / 2
+    OS.set_window_position(centered_pos)
+```
+
+从编译器原理的角度看，GDScript grammar 是一种 EBNF 范式，所以范式就是一种语法书写格式。
+GDScript 脚本解析器根据这种语法来处理脚本，按规则解析后再执行脚本。
+
+看懂 GDScript EBNF grammar 规范后也就相当于掌握了 Godot 脚本编程，来看开头部分：
+
+    (* GDScript EBNF grammar.
+       Uppercase words are terminals generated by the tokenizer.
+       INDENT/DEDENT are not generated by the tokenizer yet, but they are added
+       here for reading convenience.
+       Naturally, this only cover syntax. Semantics can't be inferred from this
+       description.
+    *)
+
+    program = [ inheritance NEWLINE ] [ className ] { topLevelDecl } ;
+
+    inheritance = "extends" ( IDENTIFIER | STRING ) { "." IDENTIFIER } ;
+    className = "class_name" IDENTIFIER [ "," STRING ] NEWLINE ;
+
+    topLevelDecl
+        = classVarDecl
+        | constDecl
+        | signalDecl
+        | enumDecl
+        | methodDecl
+        | constructorDecl
+        | innerClass
+        | "tool"
+        ;
+
+这个部分是说，一个脚本程序 program 应该包含三个部分的内容，方括号表示可选项，花括号表示必选项：
+
+- [ inheritance NEWLINE ] 可选的继承关系定义，独占一行，使用 **extends** 关键字；
+- [ className ] 可选的类名定义，使用 **class_name** 关键字，后面可以指定一个图标；
+- { topLevelDecl } 必选的顶级声明，包含类成员、常量、用户信号、枚举、方法、构造、内部类、编辑器工具等等；
+
+
+
+### 🟠🔵 Threads & Coroutines
+- https://docs.godotengine.org/en/stable/classes/class_@gdscript.html
+- https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/gdscript_basics.html
+- https://docs.godotengine.org/en/latest/tutorials/scripting/gdscript/gdscript_basics.html
+- https://docs.godotengine.org/en/latest/tutorials/scripting/c_sharp/c_sharp_differences.html#await-keyword
+- [Using multiple threads](https://docs.godotengine.org/en/stable/tutorials/performance/threads/using_multiple_threads.html)
+- [Add 'await' operator to GDScript](https://github.com/godotengine/godot/pull/32034)
+
+操作系统以进程 Process 作为资源分配和管理的基本单位，以线程 Thread 为代码执行的基本单位。而协程
+Coroutines 是线程内模拟多线程的并发处理问题能力的一种并发技术。
+
+Godot 3 全局函数 `yield()` 有两大用途，它和协程是一体的概念，因为需要通过 yield 支持协程。版本
+升级后，yield 全局函数被替换为 Godot 4 的 await 关键字。
+
+升级到 Godot 4 后，`yield()` 全局函数已经移除，只是增加了一个 yield 关键字作为版本变化的过度。
+代码中使用到 yield 关键字时，就会被提示应该使用 await 关键字替代。
+
+与早期的 `yield()` 不同，为了确保类型安全，无法通过 await 获得函数状态对象。有了这种类型安全性，
+一个函数就不能说它在运行时返回一个 int，而实际上它在运行期间返回一个函数状态对象。
+
+```py
+GDScriptFunctionState yield ( Object object=null, String signal="" )
+```
+
+文档中展示了两种 yield 用法：传递数据和等待信号，其中最后一种等待协程 completed 完成信号是最普遍，
+另外，等待定时器 timeout 信号也是最常见的用法：
+
+- Coroutines with yield, to pass values between ``yield()`` and ``resume()``
+- Coroutines & signals, yield(node, "signal")
+- Coroutines & signals, yield(coroutine, "completed")
+
+```py
+func wait_confirmation():
+    print("Prompting user")
+    await $Button.button_up # Waits for the button_up signal from Button node.
+    print("User confirmed")
+    return true
+
+func request_confirmation():
+    await get_tree().process_frame
+    var confirmed = await wait_confirmation()
+    if confirmed:
+        print("User confirmed")
+    else:
+        print("User cancelled")
+```
+
+函数中使用 yield 或 await 就是在定义一个协程函数，"调用协程函数"其实并不是在调用函数，而是在执行
+协程！认清这个概念很重要，协程执行到 `yield()` 调用这里，就放弃 CPU 时间进入等待，直到其它协程执行
+`resume()` 恢复这个协程继续运行：
+
+```py
+func my_func():
+    var world = yield()
+    print("Hello ", world)
+    return "cheers!"
+
+func _ready():
+    var y = my_func() # return GDScriptFunctionState
+    var cheers = y.resume("world")
+    # 'y' resumed and is now an invalid state.
+    print(cheers)
+
+# Output:
+# Hello world
+# cheers!
+```
+
+引入 wait 作为关键字的动机是简化 yield() 全局函数的使用，满足 Godot 社区的诉求，语法上有些差别。
+假设 could_yield() 是一个可等待的函数，yield 和 await 两种操作等价关系如下：
+
+```py
+    var x = could_yield()
+    if x is GDScriptFunctionState:
+        x = yield(x, "completed")
+
+    # This PR introduces an await operator to clear away this friction.
+    var x = await could_yield()
+```
+
+使用 `await` 显然是简洁的，相对使用函数状态对象的 yield 方式因为潜函数内部没有使用 yield 的可能，
+所以需要进行判断。而使用 await 就不用考虑这种可能，因为在 `could_yield()` 不是协程的情况下，就相当
+于没有使用 `await` 这个关键字，同样可以获得函数的返回值。另一个差别就是 `await` 方式中，x 只计算一次，
+无法像旧式那样可以使用 resume() 方法传递数据。await 可看作最高优先级的一元运算符，其他表达式中可用。
+
+This await operator would have a couple of benefits:
+
+01. Saves a lot of typing for one of the most common use cases of GDScript coroutines
+02. Accomplishes what is otherwise syntactically impossible without introducing a local variable
+03. Doesn't affect GDScript's bytecode format
+04. await is still a valid identifier for non-local variables, so APIs using this name will not break
+05. Fulfills a common request from the community (#21039, #22947, #30328 )
+
+Godot 社区的普遍诉求是，使用 "completed" 信号作为 yield() 的默认参数，引入 await 关键字，以及 
+希望添加 fluent syntax。在引入 await 之前，社区对 yield 可能的各种表达方式的观点如下，特别是在
+嵌套使用 yield 的情况下，代码相当臃肿：
+
+```py
+# yield() calls are nested.
+yield(yield(foo(), "completed").bar(), "completed")
+
+# "fluent" yielding with signals that looks like subject.yield(signal).
+foo().yield("completed").bar().yield("completed")
+
+# to wait on the "completed" signal of a GDScriptFunctionState (a very common use case),
+# the argument between the parenthesis can be omitted.
+foo().yield().bar().yield()
+```
+
+新版本改用 await 关键字后，使用方式上有些差别。首先，它已经不是函数了，不需要使用圆括号。其次，调用
+协程时，需要使用 await 前置在协程名称前面。最后就是，不能使用像 yield() 这样的空等待。另外，也没有
+resume() 这样方法来传递数据，需要结合信号重新设计代码，协程本身只有一个返回值可以通过 await 获取：
+
+```py
+#!/usr/bin/env -S godot -s
+# class_name MyScene
+# extends SceneTree
+
+# func _init():
+#     assert(Engine.get_version_info().major == 4)
+#     root.title = "MyScene 4.x" # root is Window in Godot 4
+#     root.set("theme_override_colors/title_color", Color.YELLOW)
+#     co_test()
+#     # quit()
+
+
+func co_func():
+    for i in range(1, 5):
+        await create_timer(.1).timeout # wait for a timeout signal.
+        await process_frame            # wait for next idle_frame.
+        print("Turn %d" % i)
+
+
+func co_test():
+    var co = await co_func()
+    assert(typeof(co) == TYPE_NIL) # nothing return from co_func()
+    print_debug("co_test done with %s" % [co])
+```
+
+执行协程时，返回一个函数状态对象，通过这个状态对象来改变协程的运行状态，参数可以通过 yield() 和
+resume() 进行传递。
+
+如果协程中还有更多多的 yield() 调用，那么 resume() 恢复协程后又继续获得更多的 FunctionState，
+直到获取到协程 return 返回的值。返回的函数状态代表 suspended state。
+
+如果给 yield() 传入参数，那么这时就是在使用另一个功能：等待信号，直到信号触发才继续执行，相当于
+一个匿名协程，等待中的信号负责恢复协程的执行。
+
+```py
+# Resume execution the next frame.
+yield(get_tree(), "idle_frame")
+
+# Resume execution when animation is done playing.
+yield(get_node("AnimationPlayer"), "animation_finished")
+
+# Wait 5 seconds, then resume execution.
+yield(get_tree().create_timer(5.0), "timeout")
+
+if armor <= 0:
+    create_explosion()
+    yield(get_tree().create_timer(.5), "timeout")
+    queue_free()
+```
+
+协程本身转换到 invalid 状态时使用的是 `completed` 信号，即协程已经运行完成，变成无效状态。
+在不知道该不该用 yield() 或者该用多少次时，就可以直接使用这个信号，等待协程结束。例如，以下示范
+代码，就会等待所有按钮都触发 `pressed` 信号，即都被按下后，`button_func()` 协程就执行完毕，
+并且恢复 `my_func()` 协程的运行：
+
+```py
+func my_func():
+    yield(button_func(), "completed")
+    print("All buttons were pressed, hurray!")
+
+
+func button_func():
+    yield($Button0, "pressed")
+    yield($Button1, "pressed")
+```
+
+可以通过循环处理批量的 GDScriptFunctionState：
+
+```py
+func co_func():
+    for i in range(1, 5):
+        print("Turn %d" % i)
+        yield();
+
+
+func _ready():
+    var co = co_func();
+    while co is GDScriptFunctionState && co.is_valid():
+        co = co.resume();
+```
+
+如果使用 C#，因为它本身有 await 机制，使用 GodotObject.ToSignal 可以将 Godot 信号转换为
+C# 中的可等待对象：
+
+```C#
+    await ToSignal(timer, "timeout");
+    GD.Print("After timeout");
+```
+
+
 
 Godot 自带的 GDScript 脚本和 Python 语法非常相似，但是在多线程支持上要好很多。例如，以下使用
 Thread 类创建一个线程对象，然后，执行 **start()** 就会在另一个线程种执行 GDScript 函数，调用
@@ -9935,62 +13406,565 @@ Godot 提供了两种线程同步工具：
         print("Counter is: ", counter)
 ```
 
-Godot 全局空间 @GDScript 和 @GlobalScope 包含所有脚本中可以直接使用的函数，用户要向全局空间
-添加对象，可以使用工程设置自动加载，Singletons (AutoLoad)，自动加载得到位于全局空间的单态对象。
 
-例如，将以下脚本保存到 Global.gd，并设置工程的 AutoLoad 加载它，即可以实现自动剧中窗口。运行程序
-时，引擎将加载并附着 GlobalNS 到场景树上，初始化方法会被调用：
+### 🟠🔵 GodotObject is Base
+- https://docs.godotengine.org/en/stable/development/cpp/object_class.html
+- https://docs.godotengine.org/en/stable/development/cpp/variant_class.html
+- https://docs.godotengine.org/en/stable/development/cpp/inheritance_class_tree.html
+- https://docs.godotengine.org/en/latest/tutorials/best_practices/data_preferences.html
+- https://docs.godotengine.org/en/latest/contributing/development/core_and_modules/godot_architecture_diagram.html
+- https://docs.godotengine.org/en/latest/contributing/development/core_and_modules/common_engine_methods_and_macros.html
+- https://docs.godotengine.org/en/latest/contributing/development/core_and_modules/core_types.html
+- https://docs.godotengine.org/en/latest/contributing/development/core_and_modules/object_class.html
+- https://docs.godotengine.org/en/latest/tutorials/best_practices/godot_notifications.html
+- https://docs.godotengine.org/en/latest/tutorials/best_practices/node_alternatives.html
+- https://docs.godotengine.org/en/latest/classes/class_object.html
+- https://docs.godotengine.org/en/latest/classes/class_signal.html
+- godot-docs\classes\class_object.rst
+- godot\modules\gdscript\gdscript.cpp
+- godot\3.5.1-stable\core\object.h
+- godot\3.5.1-stable\core\class_db.h
+- godot\3.5.1-stable\core\variant.h
+- godot\master\core\object\object.h
+- godot\master\core\object\class_db.h
+- godot\master\core\variant\variant.h
+- godot-docs\classes\class_signal.rst
 
-```py
-extends Node
+<!-- ![Inheritance class tree](https://docs.godotengine.org/en/stable/_images/Object.png) -->
+![Godot's architecture diagram](https://docs.godotengine.org/en/latest/_images/architecture_diagram.jpg)
 
-class_name GlobalNS
+Godot 4.x C# 基础类更名为 `Godot.GodotObject`，旧版本 `Godot.Object` 为所有类型的基类。
+基类是 GDScript 与 C++ 之间的桥梁，当然还有 ClassDB 这个类型注册中心，Object 基础类实现的
+重要机制如下：
 
-func _init():
-    print("Global.gd _init")
-    # Center window on screen
-    var screen_size = OS.get_screen_size(OS.get_current_screen())
-    var window_size = OS.get_window_size()
-    var centered_pos = (screen_size - window_size) / 2
-    OS.set_window_position(centered_pos)
+- Object.new()/init/free 生命周期管理机制；
+- properties 属性读写、导出机制；
+- notify 通知机制；
+- signal 信号机制；
+- script 脚本附加扩展机制；
+- reflection 反射调用机制；
+- deferred 延后调用机制；
+- Localization using gettext 国际化/本地化机制；
+- meta 元数据；
+
+在不同语言中使用不同的方法实例化：
+
+- GDScript: Object.new()
+- C#: new Object
+- VisualScript: Construct Object
+
+注意：因为逻辑问题，Object 本身不能通过 Object.new() 实例化，这个 bug 只出现在 Object 这里。
+可以使用  ClassDB.instance("Object") 来实例化基础类。只有 Godot 引擎内部定义的类型才需要使用
+new() 方法进行实例化，像 Vector 这类基础数据结构不需要。
+
+```C++
+GDScriptNativeClass::GDScriptNativeClass(const StringName &p_name) {
+    name = p_name;
+}
+
+void GDScriptNativeClass::_bind_methods() {
+    ClassDB::bind_method(D_METHOD("new"), &GDScriptNativeClass::_new);
+}
+
+Variant GDScriptNativeClass::_new() {
+    Object *o = instance();
+    ERR_FAIL_COND_V_MSG(!o, Variant(), "Class type: '" + String(name) + "' is not instantiable.");
+
+    Reference *ref = Object::cast_to<Reference>(o);
+    if (ref) {
+        return REF(ref);
+    } else {
+        return o;
+    }
+}
+
+Object *GDScriptNativeClass::instance() {
+    return ClassDB::instance(name);
+}
 ```
 
-从编译器原理的角度看，GDScript grammar 是一种 EBNF 范式，所以范式就是一种语法书写格式。
-GDScript 脚本解析器根据这种语法来处理脚本，按规则解析后再执行脚本。
+ClassDB 类型注册中心相关 API，在 ClassInfo 定义了 creation_func 来引用构造器：
 
-看懂 GDScript EBNF grammar 规范后也就相当于掌握了 Godot 脚本编程，来看开头部分：
+```C++
+static HashMap<StringName, ClassInfo> classes;
+static HashMap<StringName, StringName> resource_base_extensions;
+static HashMap<StringName, StringName> compat_classes;
 
-    (* GDScript EBNF grammar.
-       Uppercase words are terminals generated by the tokenizer.
-       INDENT/DEDENT are not generated by the tokenizer yet, but they are added
-       here for reading convenience.
-       Naturally, this only cover syntax. Semantics can't be inferred from this
-       description.
-    *)
+Object *ClassDB::instance(const StringName &p_class) {
+    ClassInfo *ti;
+    {
+        OBJTYPE_RLOCK;
+        ti = classes.getptr(p_class);
+        if (!ti || ti->disabled || !ti->creation_func) {
+            if (compat_classes.has(p_class)) {
+                ti = classes.getptr(compat_classes[p_class]);
+            }
+        }
+        ERR_FAIL_COND_V_MSG(!ti, nullptr, "Cannot get class '" + String(p_class) + "'.");
+        ERR_FAIL_COND_V_MSG(ti->disabled, nullptr, "Class '" + String(p_class) + "' is disabled.");
+        ERR_FAIL_COND_V_MSG(!ti->creation_func, nullptr, "Class '" + String(p_class) + "' or its base class cannot be instantiated.");
+    }
+#ifdef TOOLS_ENABLED
+    if (ti->api == API_EDITOR && !Engine::get_singleton()->is_editor_hint()) {
+        ERR_PRINT("Class '" + String(p_class) + "' can only be instantiated by editor.");
+        return nullptr;
+    }
+#endif
+    return ti->creation_func();
+}
+bool ClassDB::can_instance(const StringName &p_class) {
+    OBJTYPE_RLOCK;
 
-    program = [ inheritance NEWLINE ] [ className ] { topLevelDecl } ;
+    ClassInfo *ti = classes.getptr(p_class);
+    ERR_FAIL_COND_V_MSG(!ti, false, "Cannot get class '" + String(p_class) + "'.");
+#ifdef TOOLS_ENABLED
+    if (ti->api == API_EDITOR && !Engine::get_singleton()->is_editor_hint()) {
+        return false;
+    }
+#endif
+    return (!ti->disabled && ti->creation_func != nullptr);
+}
+```
 
-    inheritance = "extends" ( IDENTIFIER | STRING ) { "." IDENTIFIER } ;
-    className = "class_name" IDENTIFIER [ "," STRING ] NEWLINE ;
+可能是出于 Godot 4 开发者的个人喜好，实例化的相关方法名称更改为 instantiate，这是一个纯动词：
 
-    topLevelDecl
-        = classVarDecl
-        | constDecl
-        | signalDecl
-        | enumDecl
-        | methodDecl
-        | constructorDecl
-        | innerClass
-        | "tool"
-        ;
+```C++
+Variant instantiate(class: StringName) const
+bool can_instantiate(class: StringName) const
+```
 
-这个部分是说，一个脚本程序 program 应该包含三个部分的内容，方括号表示可选项，花括号表示必选项：
+以下示范动态加载并执行脚本：
 
-- [ inheritance NEWLINE ] 可选的继承关系定义，独占一行，使用 **extends** 关键字；
-- [ className ] 可选的类名定义，使用 **class_name** 关键字，后面可以指定一个图标；
-- { topLevelDecl } 必选的顶级声明，包含类成员、常量、用户信号、枚举、方法、构造、内部类、编辑器工具等等；
+```py
+#!/usr/bin/env -S godot -s
+extends SceneTree
+class_name MyScene
 
-工具脚本是会 Godot IDE 中运行的脚本，在开头使用 **tool** 关键字，通过 Engine.editor_hint 全局
+var script_text = """
+extends Node2D
+func _init():
+    print_debug("script_text")
+"""
+
+func _init():
+    script_test()
+    assert(Engine.get_version_info().major == 4)
+    root.title = "MyScene 4.x" # root is Window in Godot 4
+    root.set("theme_override_colors/title_color", Color.YELLOW)
+    # quit()
+
+func script_test():
+    var script = GDScript.new()
+    # script = preload("path/to/script.gd")
+    script.source_code = script_text
+    var is_valid = script.reload()
+    if is_valid != OK:
+        print_debug("Script error: %d" % is_valid)
+    # ClassDB.can_instance("Node2D") in Godot 3.x
+    elif ClassDB.can_instantiate("Node2D"):
+        var object = ClassDB.instantiate("Node2D")
+        object.set_script(script)
+        root.add_child(object)
+        # Parse Error: Function "new()" not found in base Object.
+        # var object = Object.new()
+```
+
+Object 本身没有内存管理，需要手动执行 free 或调用 C++ 方法清理实例所占用的内存。子类 `Reference`，
+即新版本中的 `RefCounted` 类型使用引用计数算法进行内存管理，当引用计数值为 0 即回收节点或其它基础
+类所占用的内存。
+
+
+Godot 定义了一个 Variant 变体类型，可以称之为数据类型之母。它用于表达所有基础的数据类型，遵循 C99
+类型规范标准，Godot 文档称之为 Core types，包括：
+
+- ``uint8_t``,``uint32_t``,``int64_t``等等常规数值类型；
+- Vector  List  Set  Map 等等容器类型；
+- String
+- StringName
+- Math types 线性代数使用的各种向量类型
+- NodePath 节点路径
+- RID 资源标识符
+
+每个 Variant 实例至少占用内存为 20 bytes，使用 real_t 作为浮点数类型，如果使用 double 则
+占用 30 bytes。另外像 PoolVector，aabb，metrix 这些数组或专用类型的额外内存占用另计。
+
+Variant 定义了相当多的与各种数据类型相关的方法，但数据成员不多：
+
+```C++
+    // Variant takes 20 bytes when real_t is float, and 36 if double
+    // it only allocates extra memory for aabb/matrix.
+
+    Type type;
+
+    struct ObjData {
+        ObjectID id;
+        Object *obj = nullptr;
+    };
+
+    union {
+           bool  _bool;
+        int64_t  _int;
+         double  _real;
+    Transform2D *_transform2d;
+         ::AABB *_aabb;
+          Basis *_basis;
+      Transform *_transform;
+           void *_ptr; //generic pointer
+         uint8_t _mem[sizeof(ObjData) > (sizeof(real_t) * 4) ? sizeof(ObjData) : (sizeof(real_t) * 4)];
+    } _data GCC_ALIGNED_8;
+```
+
+Variant 的作用也非常大：
+
+- Store almost any datatype
+- Perform operations between many variants (GDScript uses Variant as its atomic/native datatype).
+- Be hashed, so it can be compared quickly to other variants
+- Be used to convert safely between datatypes
+- Be used to abstract calling methods and their arguments (Godot exports all its functions through variants)
+- Be used to defer calls or move data between threads.
+- Be serialized as binary and stored to disk, or transferred via network.
+- Be serialized to text and use it for printing values and editable settings.
+- Work as an exported property, so the editor can edit it universally.
+- Be used for dictionaries, arrays, parsers, etc.
+
+Variant 实例至少占用内存为 20 bytes，以 10000 方形二维数组为例，使用默认的变体类型大小就占用
+2GB = 10000 * 10000 * 20 内存，这是相当占用内存！
+
+分段式的内存管理对于大多数常见小内存分配来说，会缓慢地创建的漏洞，从而浪费内存。关于堆和分段的文献
+有很多。现代操作系统使用分页内存，这有助于缓解分段问题，但无法解决。
+
+然而，在许多研究和测试中表明，如果给定足够的内存，如果最大分配大小低于给定的阈值，与最大堆大小和
+未使用内存的比例成比例，分段将不会随着时间的推移而成为问题，因为它将保持不变。换句话说，保持 10-20%
+的内存空闲，并执行所有小的分配，就没问题。
+
+Godot 确保所有可以动态分配的对象都很小，几个 kb。但如果分配太大，如图像或网格几何体或大型阵列，
+Godot 可以选择使用动态内存池。该内存需要被锁定才能访问，分配的内存用完时，再根据需要重新排列和压缩。
+根据游戏的需要，程序员可以配置动态内存池大小。
+
+
+Godot 通知回调实现了引擎中最基本节点处理、渲染流程事件，以及与程序窗口的交互：
+
+- `_ready()` : NOTIFICATION_READY
+- `_enter_tree()` : NOTIFICATION_ENTER_TREE
+- `_exit_tree()` : NOTIFICATION_EXIT_TREE
+- `_process(delta)` : NOTIFICATION_PROCESS (`_idle` in Godot 3.5)
+- `_physics_process(delta)` : NOTIFICATION_PHYSICS_PROCESS (`_iteration` in Godot 3.5)
+- `_draw()` : NOTIFICATION_DRAW
+
+对象属性读写和导出是非常有用的机制，它和 Godot 编辑器紧密结合，可以通过编辑属性界面修改属性值：
+
+- Serializing and deserializing the object.
+- Creating a list of editable values for the Object derived class.
+
+在 C++ 底层，属性导出通过 `PropertyInfo` 结体体实现：
+
+```C++
+// PropertyInfo(type, name, hint, hint_string, usage_flags)
+// For example:
+PropertyInfo(Variant::INT, "amount", PROPERTY_HINT_RANGE, "0,49,1", PROPERTY_USAGE_EDITOR)
+```
+
+另外，还有更底层的属性绑定方法，它们在 GDScript 中使用下划线前缀表示，它们不是虚函数，子类继承
+覆盖后，在上层子依然有效，可以被多级调用，DO NOT make them virtual：
+
+```C++
+protected:
+     void _get_property_list(List<PropertyInfo> *r_props) const;      // return list of properties
+     bool _get(const StringName &p_property, Variant &r_value) const; // return true if property was found
+     bool _set(const StringName &p_property, const Variant &p_value); // return true if property was found
+
+```
+
+Godot Object 的 API 分类参考，在源代码的 `Object::_bind_methods()` 中注册：
+
+```py
+Variant _get(property: String) virtual
+  Array _get_property_list() virtual
+   bool _set(property: String, value: Variant) virtual
+Variant  get(property: String) const
+  Array  get_property_list() const
+   void  set(property: String, value: Variant)
+Variant  get_indexed ( NodePath property ) const
+   void  set_indexed ( NodePath property, Variant value )
+
+
+   void _init() virtual
+   void  free ( )
+    int  get_instance_id ( ) const
+   bool  is_class ( String class ) const
+   bool  is_queued_for_deletion ( ) const
+
+
+   void _notification(what: int) virtual
+   void  notification ( int what, bool reversed=false )
+   void  property_list_changed_notify ( )
+
+
+   void  add_user_signal ( String signal, Array arguments=[ ] )
+  Error  connect ( String signal, Object target, String method, Array binds=[ ], int flags=0 )
+   void  disconnect ( String signal, Object target, String method )
+   void  emit_signal ( String signal, ... ) vararg
+  Array  get_incoming_connections ( ) const
+  Array  get_signal_connection_list ( String signal ) const
+   Arra  get_signal_list ( ) const
+   bool  has_signal ( String signal ) const
+   bool  has_user_signal ( String signal ) const
+   bool  is_connected ( String signal, Object target, String method ) const
+   bool  is_blocking_signals ( ) const
+   void  set_block_signals ( bool enable )
+
+
+Reference  get_script ( ) const
+     void  set_script ( Reference script )
+
+
+Variant  call ( String method, ... ) vararg
+   void  call_deferred ( String method, ... ) vararg
+Variant  callv ( String method, Array arg_array )
+  Array  get_method_list ( ) const
+  Array  get_property_list ( ) const
+   bool  has_method ( String method ) const
+   void  set_deferred ( String property, Variant value )
+
+
+Variant  get_meta ( String name, Variant default=null ) const
+PoolStringArray get_meta_list ( ) const
+   bool  has_meta ( String name ) const
+   void  remove_meta ( String name )
+   void  set_meta ( String name, Variant value )
+
+
+
+ String _to_string() virtual
+   bool  can_translate_messages() const
+   void  set_message_translation ( bool enable )
+ String  to_string ( )
+ String  tr ( String message ) const
+```
+
+Godot 4 的变化，一个通知方法更名，另外新增 5 个 API，还有消息机制 API 的使用方式变更，返回数组的
+API 基本者改变为返回 Dictionary[]，等等：
+
+```py
+# void  property_list_changed_notify ( )
+  void  notify_property_list_changed()
+
+String  tr_n(message: StringName, plural_message: StringName, n: int, context: StringName = "") const
+
+   bool _property_can_revert(property: StringName) virtual
+Variant _property_get_revert(property: StringName) virtual
+   bool  property_can_revert(property: StringName) const
+Variant  property_get_revert(property: StringName) const
+```
+
+Godot 4 引入信号类型，以 Signal 类型重新组织信号相关的 API，Objec 原有的信号 API 保留。另外
+注意代码中 `signl` 是关键字，`Signal` 是类型：
+
+```py
+# Constructors
+    Signal Signal ( )
+    Signal Signal ( Signal from )
+    Signal Signal ( Object object, StringName signal )
+
+# Methods
+       int connect ( Callable callable, int flags=0 )
+      void disconnect ( Callable callable )
+      void emit ( ... ) vararg const
+     Array get_connections ( ) const
+StringName get_name ( ) const
+    Object get_object ( ) const
+       int get_object_id ( ) const
+      bool is_connected ( Callable callable ) const
+      bool is_null ( ) const
+```
+
+Godot 3.5 中，MultiplayerAPI 还绑定了默认的信号处理函数，并且获取信号绑定列表返回的字典包含的
+字段比 Godot 4.x 中的更多：
+
+```py
+    object.get_signal_connection_list("signal"):
+    return array of dictionary:
+    { 
+        binds:[], flags:0, 
+        method:_server_disconnected, 
+        signal:server_disconnected, 
+        source:[MultiplayerAPI:1249], 
+        target:[SceneTree:1242]
+    }
+
+    signal.get_connections() 
+    return array of dict: {signal, callable}
+```
+
+
+### 🟠🔵 enum is a Dictionary
+- [GraphViz](http://www.graphviz.org/Download.php)
+- [CodeViz](http://www.csn.ul.ie/~mel/projects/codeviz/)
+- [GDScript progress report: Writing a tokenizer](https://godotengine.org/article/gdscript-progress-report-writing-tokenizer/)
+
+CodeViz 是 Understanding The Linux Virtual Memory Manager 一书的作者 Mel Gorman 编写
+的一款分析 C/C++ 源代码中函数调用关系的开源工具，类似软件有 egypt、ncc 等。在编译源文件时，它会导出
+其中函数的 call graph，然后用 Perl 脚本收集并整理调用关系，转交给 Graphviz 绘制图形。
+
+CodeViz 现在已经基本支持 C++ 语言，最新的 1.0.9 版能在 Windows + Cygwin 下顺利地编译使用。
+
+
+Godot 中的枚举类型 enum 和字典对象同源，可以使用 keys() 方法获取枚举量的名称来实现到字符串的转换。
+参考 global_constants.cpp 源代码文件，其中注册了全局类型常量。GDScript 解释器也没有专门设置一个
+Token 用于表示枚举类型，而是和字典类型一样，直接通过检测代码中的花括号来识别枚举类型。
+
+Godot 3.5 中的 GDScript 解析器定义了一个 parse_class 方法，它包揽了脚本的解析工作，整个方法
+非常臃肿。Godot 4.x 后，重新编写了解析器，这个方法也被拆解成各个分工方法。
+
+GDScriptTokenizer 定义了脚本中的 `Token` 类型，名字中的科室符号含义如下：
+
+- TK 前缀简写为 Token；
+- OP 表示 Operation code 操作码；
+- CF 表示 Control flow 流程控制；
+- PR 表示 Keywords，可能是缩写 Propose，但绝不 GitHub 中 PR(pull request)；
+
+Godot 3.5 Token 类定义如下，其中 TK_PR_SLAVE 由 TK_PR_PUPPET 取代，TK_CURSOR 用自动完成功能，
+可以看到 ++ 或 -- 这样的运算符号还未提供实现，共有 99 个 Token：
+
+|  Control Flow  |      Operation Code      |        PR        |     miscellaneous      |
+|----------------|--------------------------|------------------|------------------------|
+| TK_CF_IF       | TK_OP_IN                 | TK_PR_FUNCTION   | TK_BRACKET_CLOSE       |
+| TK_CF_ELIF     | TK_OP_EQUAL              | TK_PR_CLASS      | TK_BRACKET_OPEN        |
+| TK_CF_ELSE     | TK_OP_NOT_EQUAL          | TK_PR_CLASS_NAME | TK_BUILT_IN_FUNC       |
+| TK_CF_FOR      | TK_OP_LESS               | TK_PR_EXTENDS    | TK_BUILT_IN_TYPE       |
+| TK_CF_WHILE    | TK_OP_LESS_EQUAL         | TK_PR_IS         | TK_COLON               |
+| TK_CF_BREAK    | TK_OP_GREATER            | TK_PR_ONREADY    | TK_COMMA               |
+| TK_CF_CONTINUE | TK_OP_GREATER_EQUAL      | TK_PR_TOOL       | TK_CONSTANT            |
+| TK_CF_PASS     | TK_OP_AND                | TK_PR_STATIC     | TK_CONST_INF           |
+| TK_CF_RETURN   | TK_OP_OR                 | TK_PR_EXPORT     | TK_CONST_NAN           |
+| TK_CF_MATCH    | TK_OP_NOT                | TK_PR_SETGET     | TK_CONST_PI            |
+|                | TK_OP_ADD                | TK_PR_CONST      | TK_CONST_TAU           |
+|                | TK_OP_SUB                | TK_PR_VAR        | TK_CURLY_BRACKET_CLOSE |
+|                | TK_OP_MUL                | TK_PR_AS         | TK_CURLY_BRACKET_OPEN  |
+|                | TK_OP_DIV                | TK_PR_VOID       | TK_CURSOR (completion) |
+|                | TK_OP_MOD                | TK_PR_ENUM       | TK_DOLLAR              |
+|                | TK_OP_SHIFT_LEFT         | TK_PR_PRELOAD    | TK_EMPTY               |
+|                | TK_OP_SHIFT_RIGHT        | TK_PR_ASSERT     | TK_EOF                 |
+|                | TK_OP_ASSIGN             | TK_PR_YIELD      | TK_ERROR               |
+|                | TK_OP_ASSIGN_ADD         | TK_PR_SIGNAL     | TK_FORWARD_ARROW       |
+|                | TK_OP_ASSIGN_SUB         | TK_PR_BREAKPOINT | TK_IDENTIFIER          |
+|                | TK_OP_ASSIGN_MUL         | TK_PR_REMOTE     | TK_MAX                 |
+|                | TK_OP_ASSIGN_DIV         | TK_PR_SYNC       | TK_NEWLINE             |
+|                | TK_OP_ASSIGN_MOD         | TK_PR_MASTER     | TK_PARENTHESIS_CLOSE   |
+|                | TK_OP_ASSIGN_SHIFT_LEFT  | TK_PR_SLAVE      | TK_PARENTHESIS_OPEN    |
+|                | TK_OP_ASSIGN_SHIFT_RIGHT | TK_PR_PUPPET     | TK_PERIOD              |
+|                | TK_OP_ASSIGN_BIT_AND     | TK_PR_REMOTESYNC | TK_QUESTION_MARK       |
+|                | TK_OP_ASSIGN_BIT_OR      | TK_PR_MASTERSYNC | TK_SELF                |
+|                | TK_OP_ASSIGN_BIT_XOR     | TK_PR_PUPPETSYNC | TK_SEMICOLON           |
+|                | TK_OP_BIT_AND            |                  | TK_WILDCARD            |
+|                | TK_OP_BIT_OR             |                  |                        |
+|                | TK_OP_BIT_XOR            |                  |                        |
+|                | TK_OP_BIT_INVERT         |                  |                        |
+|                | //TK_OP_PLUS_PLUS        |                  |                        |
+|                | //TK_OP_MINUS_MINUS      |                  |                        |
+
+Godot 4.x 引入的多个关键字，或关键字功能的提升：
+
+- in 作为关键字定义，对应旧版本的 TK_OP_IN，用于决断元素是否在 string, list, range, 字典或者节点中，也用于 for 循环；
+- super 用于调用父类构造函数或成员，不用像旧版本中那样使用 . 运算符号来调用父类；
+- await 替代旧版本的 TK_PR_YIELD，虽然 yield 这个关键字还在，但使用它只会得到错误提示；
+- tool、icon、onready、export 等等变更为标注，由 GDScriptParser 提供实现，不同作为关键字使用；
+- @warning_ignore 和 @rpc 是新增的两个功能标注；
+
+此外，还有引入了以下有符号定义但未提供实现的关键字：
+
+- namespace 虽然在代码中已经有个关键字，是是还没有具体实现命名空间的功能；
+- trait 是混合编程模式概念，是代码复用方法；
+
+解析器方法 get_rule() 可以查询 Token 类型与具体实现的规则。
+
+
+```cpp ,ignore
+    // godot-4.0-beta6\modules\gdscript\gdscript_parser.cpp
+    static HashMap<StringName, Variant::Type> builtin_types;
+    Variant::Type GDScriptParser::get_builtin_type(const StringName &p_type) {
+        if (builtin_types.is_empty()) {
+            // ...
+            builtin_types["Dictionary"] = Variant::DICTIONARY;
+
+
+    GDScriptParser::PatternNode *GDScriptParser::parse_match_pattern(PatternNode *p_root_pattern) {
+        // ...
+            case GDScriptTokenizer::Token::BRACE_OPEN: {
+                // Dictionary.
+
+
+    //  godot-3.5.1-stable\core\global_constants.cpp
+    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_DICTIONARY", Variant::DICTIONARY); // 20
+
+
+    // godot-3.5.1-stable\modules\gdscript\gdscript_parser.cpp
+    void GDScriptParser::_parse_class(ClassNode *p_class) {
+        // ...
+        while (true) {
+            GDScriptTokenizer::Token token = tokenizer->get_token();
+            // ...
+            switch (token) {
+
+            case GDScriptTokenizer::TK_CURSOR:  { /*...*/ } break;
+            case GDScriptTokenizer::TK_EOF:     { /*...*/ } break;
+            case GDScriptTokenizer::TK_ERROR:   { /*...*/ } break;
+            case GDScriptTokenizer::TK_NEWLINE:     { /*...*/ } break;
+            case GDScriptTokenizer::TK_PR_EXTENDS:  { /*...*/ } break;
+            case GDScriptTokenizer::TK_PR_CLASS_NAME:   { /*...*/ } break;
+            case GDScriptTokenizer::TK_PR_TOOL:     { /*...*/ } break;
+            case GDScriptTokenizer::TK_PR_CLASS:    { /*...*/ } break;
+            case GDScriptTokenizer::TK_CF_PASS:     { /*...*/ } break;
+            case GDScriptTokenizer::TK_PR_STATIC:   { /*...*/ } break;
+            case GDScriptTokenizer::TK_PR_FUNCTION: { /*...*/ } break;
+            case GDScriptTokenizer::TK_PR_SIGNAL:   { /*...*/ } break;
+            case GDScriptTokenizer::TK_PR_EXPORT: { 
+                    // ...
+                    if (tokenizer->get_token() == GDScriptTokenizer::TK_BUILT_IN_TYPE) {
+                        Variant::Type type = tokenizer->get_token_type();
+                        // ...
+                            switch (type) {
+                                case Variant::INT:  { /*...*/ } break;
+                                case Variant::REAL:     { /*...*/ } break;
+                                case Variant::STRING:   { /*...*/ } break;
+                                case Variant::COLOR:    { /*...*/ } break;
+                                default: {
+                                    current_export = PropertyInfo();
+                                    _set_error("Type \"" + Variant::get_type_name(type) + "\" can't take hints.");
+                                    return;
+                                } break;
+
+                        Variant constant = static_cast<ConstantNode *>(subexpr)->value;
+                    } else {
+                        // ...
+                        if (constant.get_type() == Variant::OBJECT) {
+                            // ...
+                        } else if (constant.get_type() == Variant::DICTIONARY) {
+                            // Enumeration
+                            // ...
+            } break;
+            case GDScriptTokenizer::TK_PR_ONREADY:  { /*...*/ } break;
+            case GDScriptTokenizer::TK_PR_REMOTE:   { /*...*/ } break;
+            case GDScriptTokenizer::TK_PR_MASTER:   { /*...*/ } break;
+            case GDScriptTokenizer::TK_PR_SLAVE:    { /*...*/ } break;
+            case GDScriptTokenizer::TK_PR_PUPPET:   { /*...*/ } break;
+            case GDScriptTokenizer::TK_PR_REMOTESYNC:   { /*...*/ } break;
+            case GDScriptTokenizer::TK_PR_SYNC:     { /*...*/ } break;
+            case GDScriptTokenizer::TK_PR_MASTERSYNC:   { /*...*/ } break;
+            case GDScriptTokenizer::TK_PR_PUPPETSYNC:   { /*...*/ } break;
+            case GDScriptTokenizer::TK_PR_VAR:      { /*...*/ } break;
+            case GDScriptTokenizer::TK_PR_CONST:    { /*...*/ } break;
+            case GDScriptTokenizer::TK_PR_ENUM:     { /*...*/ } break;
+            case GDScriptTokenizer::TK_CONSTANT:    { /*...*/ } break;
+            case GDScriptTokenizer::TK_CF_PASS:     { /*...*/ } break;
+```
+
+
+
+
+### 🟠🔵 MySprite 精灵类派生演示
+
+工具脚本是会在 Godot IDE 中运行的脚本，在开头使用 **tool** 关键字，通过 Engine.editor_hint 全局
 状态判断当前运行环境是否是编辑器环境。另外，继承 **EditorScript** 的脚本可以直接在脚本编器中运行。
 而要为编辑器提供更多功能，可以编写编辑器插件，继承 **EditorPlugin** 类型。Asset Library 提供了
 现有的插件，在 Godot IDE 中可以直接搜索、安装各种插件。也可以手动下载插件，安装到项目的 addons 目录下。
@@ -10091,6 +14065,8 @@ Resource load(path: String)
 Resource preload(path: String)
 ```
 
+注意，preload 不是函数，是关键字，在解析器提供的方法，load() 是全局函数，它们的功能不太一样。
+
 GDScript 对象生命周期主要有两个，一般使用 new() 方法进行实例化，并执行类型中的 `_init()` 方法，
 参数可以在此传递，另外一个就是 **free()** 销毁实例回收内存。在场景中设置好的所有属性数据，构造过程
 中会自动加载，在初始化方法 **_init()** 执行前就设置好。
@@ -10104,8 +14080,7 @@ func _init(arg):
 ```
 
 
-
-## 🟡🟠 Godot 3.x to 4.x 版本差异
+### 🟠🔵 Godot 3.x to 4.x 版本差异
 - godot-docs\development\file_formats\gdscript_grammar.rst
 - godot-docs\tutorials\scripting\gdscript\gdscript_exports.rst
 - godot-docs\tutorials\scripting\gdscript\gdscript_basics.rst
@@ -10113,7 +14088,14 @@ func _init(arg):
 - godot-docs/tutorials/editor/upgrading_to_godot_4.rst
 - [GDScript documentation comments](https://docs.godotengine.org/en/latest/tutorials/scripting/gdscript/gdscript_documentation_comments.html)
 - [Add a Godot 3 to Godot 4 upgrade guide #6393](https://github.com/godotengine/godot-docs/pull/6393/files)
-- https://docs.godotengine.org/en/latest/tutorials/migrating/upgrading_to_godot_4.html
+- [Upgrading to Godot 4](https://docs.godotengine.org/en/latest/tutorials/migrating/upgrading_to_godot_4.html)
+- [GDScript progress report: Feature-complete for 4.0](https://godotengine.org/article/gdscript-progress-report-feature-complete-40/)
+- [双因素认证（2FA）教程 - TOTP](https://ruanyifeng.com/blog/2017/11/2fa-tutorial.html)
+
+
+低版本中的项目升级为高版本项目时，Godot 4 会按已经的名称替换规则修改代码及注解，但不一定义能正确
+处理程序逻辑。脚本文件可能引用丢失，需要重连在工程中导入。并且可能导致场景无法运行，甚至可能出现闪退，
+连初始化函数都不会执行，这种情况就需要考虑重新构造场景节点结构。
 
 新版本引入了两种新的字面量表达，StringName 和 % ^ 节点路径表达
 
@@ -10130,6 +14112,32 @@ func _init(arg):
 | ``^"Node/Label"``        | :ref:`NodePath <class_NodePath>`       |
 | ``$NodePath``            | Shorthand for ``get_node("NodePath")`` |
 +--------------------------+----------------------------------------+
+
+
+新版本支持 Typed Arrays：
+
+```py
+    var my_array: Array[int] = [1, 2, 3]
+    var inferred_array := [1, 2, 3] # This is Array[int].
+```
+
+支持 Lambda 函数，增加了 `Callable` 类型：
+
+```py
+func _ready():
+    var my_lambda = func(x):
+        print(x)
+    my_lambda.call("hello") # Callable.call()
+    my_lambda.bind("hello").call() # Callable.bind(args).call()
+```
+
+信号可以直接绑定一个方法，比旧式的调用 connect() 绑定信号更直观：
+
+```py
+func _init():
+    self.tree_entered.connect(func(): print("tree entered"))
+```
+
 
 内存管理上，一般使用 free() 或 queue_free() 来释放节点及其子节点，另外，使用弱引用 weakref()
 可以避免循环引用而导致的内存泄露问题。
@@ -10148,7 +14156,164 @@ func _init(arg):
             my_node.do_something()
 ```
 
-类形继承上，引入了 `super` 关键字用于访问父类构造函数，或者成员。
+Godot 4.x 引入的多个关键字，或关键字功能的提升：
+
+- in 作为关键字定义，对应旧版本的 TK_OP_IN，用于决断元素是否在 string, list, range, 字典或者节点中，也用于 for 循环；
+- super 用于调用父类构造函数或成员，不用像旧版本中那样使用 . 运算符号来调用父类；
+- await 替代旧版本的 TK_PR_YIELD，虽然 yield 这个关键字还在，但使用它只会得到错误提示；
+- tool、icon、onready、export 等等变更为标注，由 GDScriptParser 提供实现，不同作为关键字使用；
+- @warning_ignore 和 @rpc 是新增的两个功能标注；
+
+类形继承上，引入了 `super` 关键字用于访问父类构造函数，或者成员方法，在旧版本调用父类构造器：
+
+    func _init(args).(parent_args): ...
+
+新增的 @warning_ignore 和 @rpc 两个功能标注由于文档更新可能不及时，其使用方法可以参考源代码；
+
+| RPCMode | 
+| "any_peer"  | "call_local"  | "reliable"           |
+| "authority" | "call_remote" | "unreliable"         |
+|             |               | "unreliable_ordered" |
+
+
+新版本中 @rpc 参数说明：
+
+    @rpc(mode: String = "", sync: String = "", transfer_mode: String = "", transfer_channel: int = 0, ...) vararg
+
+- `mode` - MultiplayerAPI.RPCMode ("any_peer", "authority").
+- `sync` - calls the function locally too when RPCing ("call_local", "call_remote").
+- `transfer_mode` - MultiplayerPeer.TranferMode (one of reliable, unreliable, unreliable_ordered).
+- `transfer_channel` - Transfer channel (not used by the MultiplayerAPI for now, need implementation).
+
+
+```cpp
+# godot\master\modules\gdscript\gdscript_parser.cpp:3884
+bool GDScriptParser::rpc_annotation(const AnnotationNode *p_annotation, Node *p_node) {
+    ERR_FAIL_COND_V_MSG(p_node->type != Node::FUNCTION, false, vformat(R"("%s" annotation can only be applied to functions.)", p_annotation->name));
+
+    FunctionNode *function = static_cast<FunctionNode *>(p_node);
+    if (function->rpc_config.get_type() != Variant::NIL) {
+        push_error(R"(RPC annotations can only be used once per function.)", p_annotation);
+        return false;
+    }
+
+    Dictionary rpc_config;
+    rpc_config["rpc_mode"] = MultiplayerAPI::RPC_MODE_AUTHORITY;
+    if (!p_annotation->resolved_arguments.is_empty()) {
+        int last = p_annotation->resolved_arguments.size() - 1;
+        if (p_annotation->resolved_arguments[last].get_type() == Variant::INT) {
+            rpc_config["channel"] = p_annotation->resolved_arguments[last].operator int();
+            last -= 1;
+        }
+        if (last > 3) {
+            push_error(R"(Invalid RPC arguments. At most 4 arguments are allowed, where only the last argument can be an integer to specify the channel.')", p_annotation);
+            return false;
+        }
+        for (int i = last; i >= 0; i--) {
+            String mode = p_annotation->resolved_arguments[i].operator String();
+            if (mode == "any_peer") {
+                rpc_config["rpc_mode"] = MultiplayerAPI::RPC_MODE_ANY_PEER;
+            } else if (mode == "authority") {
+                rpc_config["rpc_mode"] = MultiplayerAPI::RPC_MODE_AUTHORITY;
+            } else if (mode == "call_local") {
+                rpc_config["call_local"] = true;
+            } else if (mode == "call_remote") {
+                rpc_config["call_local"] = false;
+            } else if (mode == "reliable") {
+                rpc_config["transfer_mode"] = MultiplayerPeer::TRANSFER_MODE_RELIABLE;
+            } else if (mode == "unreliable") {
+                rpc_config["transfer_mode"] = MultiplayerPeer::TRANSFER_MODE_UNRELIABLE;
+            } else if (mode == "unreliable_ordered") {
+                rpc_config["transfer_mode"] = MultiplayerPeer::TRANSFER_MODE_UNRELIABLE_ORDERED;
+            } else {
+                push_error(R"(Invalid RPC argument. Must be one of: 'call_local'/'call_remote' (local calls), 'any_peer'/'authority' (permission), 'reliable'/'unreliable'/'unreliable_ordered' (transfer mode).)", p_annotation);
+            }
+        }
+    }
+    function->rpc_config = rpc_config;
+    return true;
+}
+
+# godot\master\modules\gdscript\gdscript_parser.cpp:3863
+bool GDScriptParser::warning_annotations(const AnnotationNode *p_annotation, Node *p_node) {
+#ifdef DEBUG_ENABLED
+    bool has_error = false;
+    for (const Variant &warning_name : p_annotation->resolved_arguments) {
+        GDScriptWarning::Code warning = GDScriptWarning::get_code_from_name(String(warning_name).to_upper());
+        if (warning == GDScriptWarning::WARNING_MAX) {
+            push_error(vformat(R"(Invalid warning name: "%s".)", warning_name), p_annotation);
+            has_error = true;
+        } else {
+            p_node->ignored_warnings.push_back(warning);
+        }
+    }
+
+    return !has_error;
+
+#else // ! DEBUG_ENABLED
+    // Only available in debug builds.
+    return true;
+#endif // DEBUG_ENABLED
+}
+
+# godot\master\modules\gdscript\gdscript_warning.cpp
+String GDScriptWarning::get_name_from_code(Code p_code) {
+    ERR_FAIL_COND_V(p_code < 0 || p_code >= WARNING_MAX, String());
+
+    static const char *names[] = {
+        "UNASSIGNED_VARIABLE",
+        "UNASSIGNED_VARIABLE_OP_ASSIGN",
+        "UNUSED_VARIABLE",
+        "UNUSED_LOCAL_CONSTANT",
+        "SHADOWED_VARIABLE",
+        "SHADOWED_VARIABLE_BASE_CLASS",
+        "UNUSED_PRIVATE_CLASS_VARIABLE",
+        "UNUSED_PARAMETER",
+        "UNREACHABLE_CODE",
+        "UNREACHABLE_PATTERN",
+        "STANDALONE_EXPRESSION",
+        "NARROWING_CONVERSION",
+        "INCOMPATIBLE_TERNARY",
+        "UNUSED_SIGNAL",
+        "RETURN_VALUE_DISCARDED",
+        "PROPERTY_USED_AS_FUNCTION",
+        "CONSTANT_USED_AS_FUNCTION",
+        "FUNCTION_USED_AS_PROPERTY",
+        "INTEGER_DIVISION",
+        "UNSAFE_PROPERTY_ACCESS",
+        "UNSAFE_METHOD_ACCESS",
+        "UNSAFE_CAST",
+        "UNSAFE_CALL_ARGUMENT",
+        "UNSAFE_VOID_RETURN",
+        "DEPRECATED_KEYWORD",
+        "STANDALONE_TERNARY",
+        "ASSERT_ALWAYS_TRUE",
+        "ASSERT_ALWAYS_FALSE",
+        "REDUNDANT_AWAIT",
+        "EMPTY_FILE",
+        "SHADOWED_GLOBAL_IDENTIFIER",
+        "INT_AS_ENUM_WITHOUT_CAST",
+        "INT_AS_ENUM_WITHOUT_MATCH",
+        "STATIC_CALLED_ON_INSTANCE",
+        "CONFUSABLE_IDENTIFIER",
+        "RENAMED_IN_GODOT_4_HINT"
+    };
+
+    static_assert((sizeof(names) / sizeof(*names)) == WARNING_MAX, "Amount of warning types don't match the amount of warning names.");
+
+    return names[(int)p_code];
+}
+
+GDScriptWarning::Code GDScriptWarning::get_code_from_name(const String &p_name) {
+    for (int i = 0; i < WARNING_MAX; i++) {
+        if (get_name_from_code((Code)i) == p_name) {
+            return (Code)i;
+        }
+    }
+
+    return WARNING_MAX;
+}
+```
 
 变量导出 @export 语法变化，旧版使用圆括号指示导出类型及参数，新版导出类型自动识别，或者关键字后缀表明。
 
@@ -10455,10 +14620,12 @@ GDScriptFunctionStateyield(object: Object = null, signal: String = "")
 | Engine          | editor_hint                         | is_editor_hint()                         |
 | Sprite          | Sprite.rotation_degrees             | Sprite2D.rotation                        |
 |-----------------|-------------------------------------|------------------------------------------|
-| Node            | find_node()                         | find_child                               |   
+| Node            | find_node()                         | find_child                               |
 |-----------------|-------------------------------------|------------------------------------------|
-| TileMap         | cell_size                           | tile_set.tile_size                       |   
-|                 | local_to_map/map_to_local           | world_to_map/map_to_world                |   
+| Spatial         | global_translation                  | Node3D.global_position                   |
+|-----------------|-------------------------------------|------------------------------------------|
+| TileMap         | cell_size                           | tile_set.tile_size                       |
+|                 | local_to_map/map_to_local           | world_to_map/map_to_world                |
 |-----------------|-------------------------------------|------------------------------------------|
 | Theme Overrides | custom_colors/font_color            | theme_override_colors/font_color         |
 |                 | custom_colors/font_color_shadow     | theme_override_colors/font_shadow_color  |
@@ -10477,12 +14644,171 @@ GDScriptFunctionStateyield(object: Object = null, signal: String = "")
 |                 |                                     |                                          |
 
 
+### 🟠🔵 Godot Editor Layout 编辑器布局
+- [Documentation Writing guidelines](https://docs.godotengine.org/en/latest/contributing/documentation/docs_writing_guidelines.html)
 
-## 🟡🟠 GDScript Plugins 插件扩展
+根据官方文档 Writing guidelines 所展示的 Godot 用户界面结构：
+
+![Overview of the interface](https://docs.godotengine.org/en/latest/_images/editor-vocabulary-overview.png)
+
+Godot 用户界面包含以下几个布局结构：
+
+- Main Menu 主菜单栏；
+- 主工作视图区切换工具栏，包括 2D, 3D, Script, AssetLib 按钮，对应 `CONTAINER_TOOLBAR`；
+- Workspace 主工作视图区，包含 Main Viewport 和 Toolbar；
+- Scene Tree Dock 工程中的场景树面板；
+- FileSystem Dock 文件资源目录面板；
+- Inspector Dock 属性探测器面板；
+- Bottom Panel 底部面板区；
+- Toolbar 右上角工具按钮区，包括常用的场景运行测试按钮等等；
+
+主工作视图区中的视口用于容纳各种专用编辑器，默认有 2D, 3D, Script, AssetLib，其中 2D/3D 编辑器
+又划分为：菜单区、SIDE_LEFT、SIDE_RIGHT 和 BOTTOM 区域。
+
+使用 EditorPlugin 的信号可以监测到主工作区视图类型的切换：
+
+- *main_screen_changed(screen_name: String)* 视图名称为 2D, 3D, Script, AssetLib，也可以由用户插件定义。
+- *project_settings_changed()* 修改工程配置，即配置改变即触发此信号。
+- *resource_saved(resource: Resource)* 保存文件资源时触发。
+- *scene_changed(scene_root: Node)* 主工作视图中切换场景时触发，如果关闭了所有场景或只有新场景，参数值为 null。
+- *scene_closed(filepath: String)* 关闭场景时触发，文件路径为已关闭的场景。
+
+停靠坞设置了 8 个槽位用于停放各种面板，左右两侧各 4 个槽位，通过面板右上角的三点图标按钮弹出菜单，
+可以调整面板的停靠位。这些槽位使用 `DockSlot` 枚举类型定义。
+
+Godot 编辑器中的各种面板就是一个个容器，`CustomControlContainer` 枚举标记这些容器，对各个容器
+进行修改时需要通过它来指定要操作的容器。
+
+通过 EditorPlugin 来引用以下这些枚举值：
+
+|     CustomControlContainer Enum     | Value |                             Note                            |
+|-------------------------------------|-------|-------------------------------------------------------------|
+| CONTAINER_TOOLBAR                   |     0 | Main editor toolbar, next to play buttons.                  |
+| CONTAINER_SPATIAL_EDITOR_MENU       |     1 | The toolbar that appears when 3D editor is active.          |
+| CONTAINER_SPATIAL_EDITOR_SIDE_LEFT  |     2 | Left sidebar of the 3D editor.                              |
+| CONTAINER_SPATIAL_EDITOR_SIDE_RIGHT |     3 | Right sidebar of the 3D editor.                             |
+| CONTAINER_SPATIAL_EDITOR_BOTTOM     |     4 | Bottom panel of the 3D editor.                              |
+| CONTAINER_CANVAS_EDITOR_MENU        |     5 | The toolbar that appears when 2D editor is active.          |
+| CONTAINER_CANVAS_EDITOR_SIDE_LEFT   |     6 | Left sidebar of the 2D editor.                              |
+| CONTAINER_CANVAS_EDITOR_SIDE_RIGHT  |     7 | Right sidebar of the 2D editor.                             |
+| CONTAINER_CANVAS_EDITOR_BOTTOM      |     8 | Bottom panel of the 2D editor.                              |
+| CONTAINER_INSPECTOR_BOTTOM          |     9 | Bottom section of the inspector.                            |
+| CONTAINER_PROJECT_SETTING_TAB_LEFT  |    10 | Tab of Project Settings dialog, to the left of other tabs.  |
+| CONTAINER_PROJECT_SETTING_TAB_RIGHT |    11 | Tab of Project Settings dialog, to the right of other tabs. |
+
+|   DockSlot Enum    | Value |                                                Note                                                |
+|--------------------|-------|----------------------------------------------------------------------------------------------------|
+| DOCK_SLOT_LEFT_UL  |     0 | Dock slot, left side, upper-left (empty in default layout).                                        |
+| DOCK_SLOT_LEFT_BL  |     1 | Dock slot, left side, bottom-left (empty in default layout).                                       |
+| DOCK_SLOT_LEFT_UR  |     2 | Dock slot, left side, upper-right (in default layout includes Scene and Import docks).             |
+| DOCK_SLOT_LEFT_BR  |     3 | Dock slot, left side, bottom-right (in default layout includes FileSystem dock).                   |
+| DOCK_SLOT_RIGHT_UL |     4 | Dock slot, right side, upper-left (empty in default layout).                                       |
+| DOCK_SLOT_RIGHT_BL |     5 | Dock slot, right side, bottom-left (empty in default layout).                                      |
+| DOCK_SLOT_RIGHT_UR |     6 | Dock slot, right side, upper-right (in default layout includes Inspector, Node and History docks). |
+| DOCK_SLOT_RIGHT_BR |     7 | Dock slot, right side, bottom-right (empty in default layout).                                     |
+
+
+通过插件对象 `EditorPlugin` 提供的方法，get_editor_interface()，可以获取到 `EditorInterface`，
+这个编辑器接口对象代表整个 Godot 编辑器。
+
+编辑器接口提供了多个方法，用于获取 Godot IDE 界面的各个功能区，使用 **get_editor_viewport()**
+获取到的是当前界面的 Main Viewport，它包含 2D/3D，Script, AssetLib 等编辑器视图。这个顶层视口
+下包含一个 **EditorNode**，可以通过源代码观察其节点组织层次。Main Screen 插件就是将自己的场景通过
+add_child(MainPanel) 添加到 Main Viewport 下实现主屏幕的定制。
+
+新旧版本 Main Screen 节点获取方法：
+```py
+ Control get_editor_viewport() # Godot 3.x
+VBoxContainer get_editor_main_screen() # Godot 4.x
+```
+
+通过接口的“添加”方法可以了解到，Godot 编辑器的各个区域都可以进行定制：
+
+```py
+void add_autoload_singleton(name: String, path: String)
+Button add_control_to_bottom_panel(control: Control, title: String)
+void add_control_to_container(container: CustomControlContainer, control: Control)
+void add_control_to_dock(slot: DockSlot, control: Control)
+void add_custom_type(type: String, base: String, script: Script, icon: Texture2D)
+void add_debugger_plugin(script: EditorDebuggerPlugin)
+void add_export_plugin(plugin: EditorExportPlugin)
+void add_import_plugin(importer: EditorImportPlugin, first_priority: bool = false)
+void add_inspector_plugin(plugin: EditorInspectorPlugin)
+void add_node_3d_gizmo_plugin(plugin: EditorNode3DGizmoPlugin)
+void add_resource_conversion_plugin(plugin: EditorResourceConversionPlugin)
+void add_scene_format_importer_plugin(scene_format_importer: EditorSceneFormatImporter, first_priority: bool = false)
+void add_scene_post_import_plugin(scene_import_plugin: EditorScenePostImportPlugin, first_priority: bool = false)
+void add_tool_menu_item(name: String, callable: Callable)
+void add_tool_submenu_item(name: String, submenu: PopupMenu)
+void add_translation_parser_plugin(parser: EditorTranslationParserPlugin)
+void add_undo_redo_inspector_hook_callback(callable: Callable)
+```
+
+部分 API 说明：
+
+- *add_autoload_singleton()* 对应 Project → Project Settings... → Autoload 的全局加载功能；
+- *add_control_to_bottom_panel()* 给底部面板区域添加节点，自定义面板，title 会作为切换按钮的标题；
+- *add_control_to_container()* 给指定容器添加节点，自定义面板；
+- *add_control_to_dock()* 给指定 DockSlot 插槽添加节点，自定义面板；
+- *add_custom_type()* 向 Godot 注册自定义节点；
+- *add_tool_menu_iteme()* 向 Project > Tools 菜单添加菜单项；
+- *add_tool_submenu_iteme()* 向 Project > Tools 菜单添加子菜单；
+
+所有自定义面板有对应的方法添加到指定区域，也有对应的 remove 方法来解除，需要在适当的时间，如插件
+禁用时，移除这些自定义面板。
+
+虽然，可以通过节点的 get_parent() 检测节点是否附加到界面，但是并不能直接通过 remove_child() 方法
+直接移除节点，必需调用专用方法。加载场景时需要注意，使用 `preload` 关键字重复加载同一资源可能导致循环加载，
+出错导致场景中的脚本无法被执行。
+
+默认添加新面板的位置在后，对于 CONTAINER_TOOLBAR 来说，新加入的按钮就在右侧，可以通过父级节点
+的 move_child() 方法来调整新增按钮的位置：
+
+```py
+    add_control_to_container(CONTAINER_TOOLBAR, container)
+    # We are 100% sure that there are 2 items to the left.
+    container.get_parent().move_child(container, container.get_index() - 2)
+```
+
+EditorInterface 还可以获取其它一些对象或场景信息，这些对象通常不应该直接实例化：
+
+```py
+EditorSettings get_editor_settings()
+FileSystemDock get_file_system_dock()
+EditorInspector get_inspector() const
+EditorFileSystem get_resource_filesystem()
+EditorResourcePreview get_resource_previewer()
+ScriptEditor get_script_editor()
+```
+
+
+### 🟠🔵 GDScript Plugins 插件扩展
 - [Editor plugins](https://docs.godotengine.org/en/stable/tutorials/plugins/editor/index.html)
 - [Conditionally Export Properties in Godot](http://kehomsforge.com/tutorials/single/gdConditionalProperty)
 - [Plugin Demos](https://github.com/godotengine/godot-demo-projects/tree/master/plugins)
 - [2.5D Demo Project with GDScript](https://godotengine.github.io/godot-demo-projects/misc/2.5d/)
+- [Ridiculous Coding](https://github.com/jotson/ridiculous_coding)
+- [Heightmap terrain 1.6.1](https://godotengine.org/asset-library/asset/231)
+- [Heightmap terrain 地形制作](https://www.bilibili.com/video/BV1uf4y1k7LF/)
+- [Shell Fur 0.3.0 by Arnklit](https://godotengine.org/asset-library/asset/752)
+- [Material Maker by R0dZill4](https://godotengine.org/showcase/material-maker/)
+- [Irfanview Plugins](https://www.irfanview.com/plugins.htm#UpdatedPlugins)
+- [How and why to use EXR in Blender](https://artisticrender.com/how-and-why-to-use-exr-in-blender/)
+- [Standard Material 3D and ORM Material 3D](https://docs.godotengine.org/en/latest/tutorials/3d/standard_material_3d.html)
+- [Learn GDScript from ZERO online](https://gdquest.github.io/learn-gdscript/)
+- [Learn GDScript from ZERO](https://github.com/GDQuest/learn-gdscript)
+- [Editor Highlighter](https://github.com/GDQuest/godot-plugin-highlighter)
+- [Godot 2D Visual Novel](https://github.com/GDQuest/godot-2d-visual-novel)
+- [GDQuest Godot Demos](https://github.com/GDQuest/godot-demos)
+- [GDQuest Godot Shaders](https://github.com/GDQuest/godot-shaders)
+- [GDQuest Godot Plugin Tour](https://github.com/GDQuest/godot-plugin-tour)
+- [Godot Steering AI motion](https://github.com/GDQuest/godot-steering-ai-framework-submodule)
+- [GDQuest Godot Design Patterns](https://github.com/GDQuest/godot-design-patterns)
+
+Ridiculous Coding 插件为 Godot 编辑器提供编写代码时的打字特效，这个插件值得学习，他已经将 Godot
+本身就是游戏这个概念玩透了，插件就是基于游戏构架本身定义的一种节点，同时 Godot 编辑器也是由同一套节点
+按指定的布局编排得到的。
+
 
 工具脚本和插件是扩展 Godot IDE 能力的两种上基本方法。
 
@@ -10503,7 +14829,6 @@ Godot Plugins 有多种类型：
 一样，从整体上改变编辑器界面。因为 Godot IDE 界面就是使用引擎自身实现的，程序逻辑类似开发一个游戏。
 
 另外，可视化着色器插件主要是通过 GDScript 脚本为 VisualShader 添加节点。
-
 
 将脚本作为 Godot IDE 工具，在开发环境下就可以运行脚本进行自动化工作的处理，配合符号导出，与属性
 探测器紧密结合。例如，以下实现一个 MyTitle 标签控件，在场景树中添加控件时，就会运行脚本完成控件的
@@ -10584,10 +14909,6 @@ MyTitle 标签在新创建时，text 为空，这时可以提供一个默认标�
 就不能再使用 get_tree() 来获取场景树的引用，EditorPlugin 则总是可以通过 **get_tree()** 获取到。
 要清楚，场景树在整个工程中只有一个，最顶层始终是 root 属性引用的 Viewport。场景却不断地切换，场景
 根节点也不断变更，插件的 **get_edited_scene_root()** 方法获取当前处于编辑中的场景根节点。
-
-插件接口提供了多个方法，用于获取 Godot IDE 界面的各个功能区，其中 **get_editor_viewport()**
-获取到的是主编辑器界面，它包含 2D/3D，Script, AssetLib 乖乖。顶层视口下包含一个 **EditorNode**，
-可以通过源代码观察其节点组织层次，
 
 注意，EditorPlugin 只有在编辑器模式下才被实例化，在游戏运行模式执行实例化时返回空引用。另外，通过
 get_selection() 返回的节点选择对象不能持久引用，在切换编辑场景时会失效。
@@ -10725,68 +15046,77 @@ void edit(object: Object) virtual
 
 以下是一个 Main Screen 插件的实现，可以根据需要创建插件的面板所使用的场景文件，注意使用 tool 关键字
 以使脚本在编辑器中可以被执行。使用 add_autoload_singleton() 等方法可以加载全局的 Singleton 对象，
-但是这种方法加载的对象，在插件禁用后再激活时会出现不稳定问题：
+但是这种方法加载的对象，在插件禁用后再激活时会出现不稳定问题。注意，挂载在 MainScrren 场景中的脚本
+一定要添加 tool 关键字标记工具脚本，否则不会被执行，只能通过插件脚本来处理 MainScreen 场景。
+
+添加 MainScreen 时，一般使用 make_visible() 方法中调整其可见属性，但初次添加节点到场景中时，
+需要默认地隐藏它，否则激活插件时，会和其它 MainScreen 共用 Main Viewport。例如，通过 AssetLib
+视图的 Plugins 按键打开插件时，就会看到两个 MainScreen 同屏。
+
+以下是 Godot 4.x 中实现的一个 MainScreen 插件：
 
 ```py
-tool
+@tool
 extends EditorPlugin
 
-var MainPanel = preload("res://addons/main_screen/main.tscn").instance()
-
-# Replace this value with a PascalCase autoload name, as per the GDScript style guide.
-const AUTOLOAD_NAME = "MyPluginAutoload"
+const Main = preload("res://addons/MyMainScreen/Main.tscn")
+var mainscreen = Main.instantiate()
+var label = mainscreen.get_node("Label")
+var container = get_editor_interface().get_editor_main_screen()
 
 
 func _enter_tree():
-    
-    # Add the main panel to the editor's main viewport.
-    get_editor_interface().get_editor_viewport().add_child(MainPanel)
+    _make_visible(false)
+    container.add_child(mainscreen)
 
-    # Hide the main panel. Very much required.
-    make_visible(false)
-
-    # The autoload can be a scene or script file.
-    add_autoload_singleton(AUTOLOAD_NAME, "res://addons/main_screen/plugin.gd")
-
+func _ready():
+    #main_screen_changed.connect(handle_main_screen_changed)
+    pass
 
 func _exit_tree():
-    remove_autoload_singleton(AUTOLOAD_NAME)
+    container.remove_child(mainscreen)
+    mainscreen.queue_free()
 
-    if MainPanel:
-        MainPanel.queue_free()
-
-
-func has_main_screen():
+func _has_main_screen():
     return true
 
-# If your plugin doesn't handle any node types, you can remove this method.
-func handles(obj):
-    #return obj is preload("res://addons/main_screen/handled_by_myself.gd")
-    return true
+func _make_visible(visible):
+    mainscreen.visible = visible
+    label.text = "mainscreen size: %s" % [mainscreen.size]
 
-func make_visible(visible):
-    if MainPanel:
-        MainPanel.visible = visible
-
-func edit(object: Object):
-    var label = Label.new()
-    label.text = object.to_string()
-    MainPanel.add_child(label)
-    
-
-func get_plugin_name():
-    return "MainScreen Plugin"
+# Implement this function if your plugin edits a specific type of object (Resource or Node). 
+# If you return true, then you will get the functions _edit() and _make_visible() called 
+# when the editor requests them. If you have declared the methods _forward_canvas_gui_input() and 
+# _forward_3d_gui_input() these will be called too.
+func _handles(object):
+    print_debug("handles MainScreen only: ", object)
+    return object is MainScreen
 
 
-func get_plugin_icon():
-    # Must return some kind of Texture for the icon.
-    return get_editor_interface().get_base_control().get_icon("Node", "EditorIcons")
+# This function is used for plugins that edit specific object types (nodes or resources). 
+# It requests the editor to edit the given object.
+# object can be null if the plugin was editing an object, but there is no longer 
+# any selected object handled by this plugin. It can be used to cleanup editing state.
+func _edit(object):
+    mainscreen.get_node("Label").text = "editing: %s" % [object]
+
+# Custom plugin name displayed in the Godot editor.
+# For main screen plugins, this appears at the top of the screen, 
+# to the right of the "2D", "3D", "Script", and "AssetLib" buttons.
+func _get_plugin_name():
+    return "MS"
+
+func _get_plugin_icon():
+    # You can use a custom icon:
+    return preload("res://addons/MyMainScreen/bullet_32.svg")
+    # Or use a built-in icon:
+    return get_editor_interface().get_base_control().get_theme_icon("Node", "EditorIcons")
 ```
 
 插件提供了多个方法，用于往 Godot IDE 主界面添加任意的控件节点，如右上角的 Toolbar 区域，指定专用
 容器，底部的 Bottom Panel 区域，又或者是停靠坞 DockSlot。并且需要在插件禁止时，调用相应的方法解除。
 虽然，可以通过节点的 get_parent() 检测节点是否附加到界面，但是并不能直接通过 remove_child() 方法
-直接移除节点，必需调用专用方法。加载场景时需要注意，使用 preload 重复加载同一资源可能导致循环加载，
+直接移除节点，必需调用专用方法。加载场景时需要注意，使用 preload 关键字重复加载同一资源可能导致循环加载，
 出错导致场景中的脚本无法被执行：
 
 ```py
@@ -10840,8 +15170,7 @@ func _on_Button3_pressed():
 ```
 
 
-
-## 🟡🟠 GDScript grammar 语法规范文档
+### 🟠🔵 GDScript grammar 语法规范文档
 - [GDScript grammar](https://docs.godotengine.org/en/stable/development/file_formats/gdscript_grammar.html)
 - [GDScript exports](https://docs.godotengine.org/en/3.5/tutorials/scripting/gdscript/gdscript_exports.html)
 - [GDScript format strings](https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/gdscript_format_string.html)
@@ -11010,8 +15339,7 @@ keyValue
         | "$" ( STRING | IDENTIFIER { '/' IDENTIFIER } );
 ```
 
-
-## 🟡🟠 GDScript 1.0 exports
+### 🟠🔵 GDScript 1.0 exports
 - [GDScript 1.0 exports](https://github.com/godotengine/godot-docs/blob/3.6/tutorials/scripting/gdscript/gdscript_exports.rst)
 - [GDScript 2.0 exports](https://github.com/godotengine/godot-docs/blob/master/tutorials/scripting/gdscript/gdscript_exports.rst)
 
@@ -11418,8 +15746,7 @@ A list of properties with similar names can be grouped.
   won't be actually used for the scripting logic, yet it must be defined anyway.
 
 
-
-## 🟡🟠 GDScript 2.0 exports
+### 🟠🔵 GDScript 2.0 exports
 - [GDScript 1.0 exports](https://github.com/godotengine/godot-docs/blob/3.6/tutorials/scripting/gdscript/gdscript_exports.rst)
 - [GDScript 2.0 exports](https://github.com/godotengine/godot-docs/blob/master/tutorials/scripting/gdscript/gdscript_exports.rst)
 
@@ -11747,7 +16074,7 @@ described in :ref:`doc_accessing_data_or_logic_from_object`.
              can work from within the editor.
 
 
-## 🟡🟠 GPU Gems 1/2/3 系列书籍目录
+## 🟡 GPU Gems 1/2/3 系列书籍目录
 - [GPU Gems 1](https://developer.nvidia.com/gpugems/gpugems/contributors)
 - [GPU Gems 1 Code](https://http.download.nvidia.com/developer/GPU_Gems/CD_Image/GPU_Gems_code.zip)
 - [GPU Gems 1 CD Content](https://http.download.nvidia.com/developer/GPU_Gems/CD_Image/Index.html)

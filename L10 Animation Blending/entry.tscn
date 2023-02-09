@@ -614,7 +614,7 @@ render_target_update_mode = 3
 [node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="CanvasLayer/ViewportContainer/Viewport" index="0"]
 frames = ExtResource( 4 )
 animation = "fly"
-frame = 1
+frame = 7
 playing = true
 
 [node name="Camera" type="Camera" parent="CanvasLayer/ViewportContainer/Viewport" index="1"]

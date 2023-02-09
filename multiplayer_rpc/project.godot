@@ -1,0 +1,32 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=4
+
+[application]
+
+config/name="Multiplayer RPC 3.x"
+run/main_scene="res://main.tscn"
+config/icon="res://icon.png"
+config/features=PoolStringArray( "4.0" )
+
+[display]
+
+window/size/width=360
+window/size/always_on_top=true
+window/dpi/allow_hidpi=true
+window/stretch/mode="canvas_items"
+window/size/viewport_width=360
+
+[dotnet]
+
+project/assembly_name="Multiplayer RPC"
+
+[mono]
+
+project/assembly_name="Multiplayer RPC"

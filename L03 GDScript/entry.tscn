@@ -12,7 +12,7 @@ LabelText = "Click to attach"
 
 [node name="MySprite" type="Sprite" parent="."]
 position = Vector2( 515, 299 )
-rotation = 29546.5
+rotation = 33022.9
 texture = ExtResource( 4 )
 script = ExtResource( 3 )
 

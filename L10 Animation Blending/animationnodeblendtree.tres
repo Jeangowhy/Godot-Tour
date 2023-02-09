@@ -125,4 +125,4 @@ nodes/StateMachine/position = Vector2( 400, 150 )
 nodes/Transition/node = SubResource( 32 )
 nodes/Transition/position = Vector2( 650, -110 )
 nodes/output/position = Vector2( 1150, -10 )
-node_connections = [ "Add2 3", 0, "Transition", "Add2 3", 1, "OneShot", "Transition", 0, "Animation 4", "Transition", 1, "Animation 6", "Transition", 2, "Animation 3", "OneShot", 0, "StateMachine", "OneShot", 1, "Animation", "output", 0, "Add2 3" ]
+node_connections = [ "output", 0, "Add2 3", "OneShot", 0, "StateMachine", "OneShot", 1, "Animation", "Transition", 0, "Animation 4", "Transition", 1, "Animation 6", "Transition", 2, "Animation 3", "Add2 3", 0, "Transition", "Add2 3", 1, "OneShot" ]

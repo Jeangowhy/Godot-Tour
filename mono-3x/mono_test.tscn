@@ -1,11 +1,9 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=3 format=2]
 
 [ext_resource path="res://Sprite_2D.gd" type="Script" id=1]
-[ext_resource path="res://MyNode2D.cs" type="Script" id=2]
 [ext_resource path="res://icon.svg" type="Texture" id=3]
 
 [node name="Node2D" type="Node2D"]
-script = ExtResource( 2 )
 
 [node name="Sprite" type="Sprite" parent="."]
 position = Vector2( 492, 273 )

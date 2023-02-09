@@ -27,10 +27,10 @@ func _ready():
 	print("basic scene ", tscn, tscn.instance())
 	print("basic script ", gd, gd.new())
 	
-	MyObject.new("argument pass to _init()")
-
 	var scene = get_tree().current_scene
 	print(self, " current_scene ", scene, " is instacne of gd? ", self is gd)
+
+	MyObject.new(1000)
 
 	print("note ", Something.new().note)
 	print("NOTE ", Something.NOTE)
@@ -96,6 +96,8 @@ func label(text):
 # Inner class
 
 class Something:
+	
+	extends MyObject.InnerClass.NestedClass
 	# Member variables
 	var note = "This is InnerClass."
 
@@ -105,3 +107,7 @@ class Something:
 	# Enums
 	enum { UNIT_NEUTRAL, UNIT_ENEMY, UNIT_ALLY}
 	enum Named {THING_1, THING_2, ANOTHER_THING = -1}
+	
+	#func _init(args).(parent_args)
+	func _init().(100):
+		print("Something Constructed!")

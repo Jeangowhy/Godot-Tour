@@ -8,6 +8,16 @@
 
 config_version=4
 
+_global_script_classes=[ {
+"base": "Node",
+"class": "MyNode2D",
+"language": "GDScript",
+"path": "res://scene.gd"
+} ]
+_global_script_class_icons={
+"MyNode2D": ""
+}
+
 [application]
 
 config/name="Multiplayer RPC 3.x"
@@ -30,3 +40,7 @@ project/assembly_name="Multiplayer RPC"
 [mono]
 
 project/assembly_name="Multiplayer RPC"
+
+[network]
+
+limits/tcp/connect_timeout_seconds=9

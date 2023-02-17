@@ -1,0 +1,14 @@
+[gd_resource type="ShaderMaterial" load_steps=4 format=2]
+
+[ext_resource path="res://terrain.shader" type="Shader" id=1]
+[ext_resource path="res://noise_normal.tres" type="Texture" id=2]
+[ext_resource path="res://noise.tres" type="Texture" id=3]
+
+[resource]
+shader = ExtResource( 1 )
+shader_param/scale = 21.149
+shader_param/multiply = 7.213
+shader_param/offset = -1.591
+shader_param/translation = Vector2( 0, 0 )
+shader_param/height_map = ExtResource( 3 )
+shader_param/normal_map = ExtResource( 2 )

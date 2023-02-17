@@ -1,0 +1,34 @@
+[gd_resource type="QuadMesh" load_steps=6 format=2]
+
+[sub_resource type="OpenSimplexNoise" id=1]
+
+[sub_resource type="NoiseTexture" id=2]
+seamless = true
+noise = SubResource( 1 )
+
+[sub_resource type="OpenSimplexNoise" id=4]
+
+[sub_resource type="NoiseTexture" id=5]
+noise = SubResource( 4 )
+
+[sub_resource type="SpatialMaterial" id=3]
+params_billboard_mode = 3
+params_grow = true
+params_grow_amount = 8.037
+params_use_alpha_scissor = true
+params_alpha_scissor_threshold = 0.98
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+albedo_texture = SubResource( 2 )
+emission_enabled = true
+emission = Color( 0.988235, 0.909804, 0.741176, 1 )
+emission_energy = 16.0
+emission_operator = 1
+emission_on_uv2 = false
+emission_texture = SubResource( 5 )
+
+[resource]
+material = SubResource( 3 )
+flip_faces = true
+size = Vector2( 0.005, 0.068 )

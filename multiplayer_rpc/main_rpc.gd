@@ -92,6 +92,7 @@ func start_server():
 
 func start_client():
 	reset_signals(PeerType.CLIENT)
+	ProjectSettings.set_setting("network/limits/tcp/connect_timeout_seconds", 9)
 	message_input.text = "Starting a new client ..."
 	var err = multiplayer_peer.create_client(HOST, PORT)
 	if OK != err:
@@ -118,6 +119,7 @@ func connected_to_server():
 func connection_failed():
 	message_input.text = "Connection failed: %s:%d" % [HOST, PORT]
 	menu.visible = true
+	multiplayer_peer.close_connection()
 	# await get_tree().create_timer(3).timeout in Godot 4.x
 	yield( get_tree().create_timer(3), "timeout")
 

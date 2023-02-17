@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://quadmesh.tres" type="QuadMesh" id=1]
+
+[sub_resource type="ParticlesMaterial" id=1]
+initial_velocity = 2.0
+
+[node name="Spatial" type="Spatial"]
+
+[node name="Particles" type="Particles" parent="."]
+use_in_baked_light = true
+emitting = false
+amount = 67
+lifetime = 2.01
+one_shot = true
+process_material = SubResource( 1 )
+draw_pass_1 = ExtResource( 1 )

@@ -50,7 +50,7 @@ remote func remote_set_position(pos):
 remote func display_message(msg):
 	message.text = str(msg)
 
-master func shake_me():
+mastersync func shake_me():
 	message.text = "Shake me!"
 
 remotesync func shake_all():
@@ -69,7 +69,10 @@ func _on_mouse_click_area_input_event(_camera, event, _position, _normal, _shape
 		BUTTON_LEFT:
 			rpc("clicked_by_player")
 		BUTTON_RIGHT:
-			if is_network_master():
+			# if is_network_master():
+			print_debug(is_network_master(), ":", get_network_master(), " == ", multiplayer.get_rpc_sender_id(), " ", get_tree().get_rpc_sender_id())
+
+			if get_network_master() == multiplayer.get_rpc_sender_id():
 				rpc("shake_me")
 		BUTTON_MIDDLE:
 			rpc("shake_all")

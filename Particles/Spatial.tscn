@@ -1,0 +1,164 @@
+[gd_scene load_steps=23 format=2]
+
+[ext_resource path="res://plane.tres" type="PlaneMesh" id=1]
+[ext_resource path="res://terrain.tres" type="Material" id=2]
+[ext_resource path="res://pointmesh.tres" type="PointMesh" id=3]
+[ext_resource path="res://Player.gd" type="Script" id=4]
+
+[sub_resource type="PhysicsMaterial" id=22]
+
+[sub_resource type="OpenSimplexNoise" id=27]
+seed = 405
+period = 119.4
+
+[sub_resource type="NoiseTexture" id=28]
+noise = SubResource( 27 )
+
+[sub_resource type="SpatialMaterial" id=29]
+params_blend_mode = 1
+albedo_color = Color( 0.486275, 0.556863, 1, 1 )
+subsurf_scatter_enabled = true
+subsurf_scatter_strength = 0.07
+subsurf_scatter_texture = SubResource( 28 )
+refraction_enabled = true
+refraction_scale = 1.0
+refraction_texture_channel = 0
+
+[sub_resource type="CubeMesh" id=26]
+material = SubResource( 29 )
+
+[sub_resource type="ConvexPolygonShape" id=25]
+points = PoolVector3Array( 1, 1, 0, 1, -1, 0, 0.995106, 1, -0.0980814, 0.995106, 1, 0.0978857, 0.995106, -1, 0.0978857, 0.995106, -1, -0.0980814, 0.980619, 1, -0.195184, 0.980619, 1, 0.194988, 0.980619, -1, 0.194988, 0.980619, -1, -0.195184, 0.95693, 1, -0.290329, 0.95693, 1, 0.290133, 0.95693, -1, 0.290133, 0.95693, -1, -0.290329, 0.923845, 1, -0.382733, 0.923845, 1, 0.382537, 0.923845, -1, 0.382537, 0.923845, -1, -0.382733, 0.881754, 1, -0.471417, 0.881754, 1, 0.471222, 0.881754, -1, 0.471222, 0.881754, -1, -0.471417, 0.831441, 1, -0.555599, 0.831441, 1, 0.555403, 0.831441, -1, 0.555403, 0.831441, -1, -0.555599, 0.772905, 1, -0.634495, 0.772905, 1, 0.634299, 0.772905, -1, 0.634299, 0.772905, -1, -0.634495, 0.70693, 1, -0.707126, 0.70693, 1, 0.70693, 0.70693, -1, 0.70693, 0.70693, -1, -0.707126, 0.634299, 1, -0.773101, 0.634299, 1, 0.772905, 0.634299, -1, 0.772905, 0.634299, -1, -0.773101, 0.555403, 1, -0.831637, 0.555403, 1, 0.831441, 0.555403, -1, 0.831441, 0.555403, -1, -0.831637, 0.471222, 1, -0.88195, 0.471222, 1, 0.881754, 0.471222, -1, 0.881754, 0.471222, -1, -0.88195, 0.382537, 1, -0.924041, 0.382537, 1, 0.923845, 0.382537, -1, 0.923845, 0.382537, -1, -0.924041, 0.290133, 1, -0.957126, 0.290133, 1, 0.95693, 0.290133, -1, 0.95693, 0.290133, -1, -0.957126, 0.194988, 1, -0.980814, 0.194988, 1, 0.980619, 0.194988, -1, 0.980619, 0.194988, -1, -0.980814, 0.0978857, 1, -0.995301, 0.0978857, 1, 0.995106, 0.0978857, -1, 0.995106, 0.0978857, -1, -0.995301, 0, 1, -1, 0, 1, 1, 0, -1, 1, 0, -1, -1, -0.0980814, 1, -0.995301, -0.0980814, 1, 0.995106, -0.0980814, -1, 0.995106, -0.0980814, -1, -0.995301, -0.195184, 1, -0.980814, -0.195184, 1, 0.980619, -0.195184, -1, 0.980619, -0.195184, -1, -0.980814, -0.290329, 1, -0.957126, -0.290329, 1, 0.95693, -0.290329, -1, 0.95693, -0.290329, -1, -0.957126, -0.382733, 1, -0.924041, -0.382733, 1, 0.923845, -0.382733, -1, 0.923845, -0.382733, -1, -0.924041, -0.471417, 1, -0.88195, -0.471417, 1, 0.881754, -0.471417, -1, 0.881754, -0.471417, -1, -0.88195, -0.555599, 1, -0.831637, -0.555599, 1, 0.831441, -0.555599, -1, 0.831441, -0.555599, -1, -0.831637, -0.634495, 1, -0.773101, -0.634495, 1, 0.772905, -0.634495, -1, 0.772905, -0.634495, -1, -0.773101, -0.707126, 1, -0.707126, -0.707126, 1, 0.70693, -0.707126, -1, 0.70693, -0.707126, -1, -0.707126, -0.773101, 1, -0.634495, -0.773101, 1, 0.634299, -0.773101, -1, 0.634299, -0.773101, -1, -0.634495, -0.831637, 1, -0.555599, -0.831637, 1, 0.555403, -0.831637, -1, 0.555403, -0.831637, -1, -0.555599, -0.88195, 1, -0.471417, -0.88195, 1, 0.471222, -0.88195, -1, 0.471222, -0.88195, -1, -0.471417, -0.924041, 1, -0.382733, -0.924041, 1, 0.382537, -0.924041, -1, 0.382537, -0.924041, -1, -0.382733, -0.957126, 1, -0.290329, -0.957126, 1, 0.290133, -0.957126, -1, 0.290133, -0.957126, -1, -0.290329, -0.980814, 1, -0.195184, -0.980814, 1, 0.194988, -0.980814, -1, 0.194988, -0.980814, -1, -0.195184, -0.995301, 1, -0.0980814, -0.995301, 1, 0.0978857, -0.995301, -1, 0.0978857, -0.995301, -1, -0.0980814, -1, 1, 0, -1, -1, 0 )
+
+[sub_resource type="PanoramaSky" id=7]
+
+[sub_resource type="Environment" id=8]
+background_mode = 2
+background_sky = SubResource( 7 )
+ambient_light_sky_contribution = 0.87
+tonemap_exposure = 0.53
+tonemap_white = 1.13
+
+[sub_resource type="CylinderMesh" id=20]
+
+[sub_resource type="SphereMesh" id=9]
+
+[sub_resource type="ConvexPolygonShape" id=5]
+points = PoolVector3Array( -10, 0, -10, -10, 0, 10, 10, 0, -10, 10, 0, 10 )
+
+[sub_resource type="PhysicsMaterial" id=23]
+
+[sub_resource type="BoxShape" id=6]
+
+[sub_resource type="Gradient" id=16]
+
+[sub_resource type="GradientTexture" id=17]
+gradient = SubResource( 16 )
+
+[sub_resource type="Gradient" id=18]
+offsets = PoolRealArray( 0.0110803, 0.0692521, 0.127424, 0.360111, 0.567867, 0.847645 )
+colors = PoolColorArray( 0.921712, 0.680273, 0.417154, 1, 0.698765, 0.4876, 1, 1, 1, 1, 1, 1, 0.452041, 0.315712, 0.865322, 1, 1, 0.176724, 0.176724, 1, 1, 0.840588, 0.277709, 1 )
+
+[sub_resource type="GradientTexture" id=19]
+gradient = SubResource( 18 )
+
+[sub_resource type="ParticlesMaterial" id=14]
+direction = Vector3( 0, 1, 0 )
+gravity = Vector3( 0, -0.15, 0 )
+initial_velocity = 1.14
+color_ramp = SubResource( 19 )
+color_initial_ramp = SubResource( 17 )
+
+[node name="Spatial" type="Spatial"]
+
+[node name="Player" type="RigidBody" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8.67695, -2.77891 )
+visible = false
+physics_material_override = SubResource( 22 )
+script = ExtResource( 4 )
+
+[node name="Camera" type="Camera" parent="Player"]
+transform = Transform( 1, 0, 0, 0, 0.874095, 0.485756, 0, -0.485756, 0.874095, 0, 1.51341, 1.9432 )
+
+[node name="MeshInstance" type="MeshInstance" parent="Player"]
+transform = Transform( 0.358557, 0, 0, 0, -1.72723e-08, -1, 0, 0.395144, -4.37114e-08, 0, 0, 0 )
+mesh = SubResource( 26 )
+skeleton = NodePath("../../jelly")
+
+[node name="CollisionShape" type="CollisionShape" parent="Player"]
+transform = Transform( 0.358557, 0, 0, 0, 1.49012e-08, -1, 0, 0.395144, 2.98023e-08, 0, 0, 0 )
+shape = SubResource( 25 )
+
+[node name="primary" type="DirectionalLight" parent="."]
+transform = Transform( 0.965259, 0.00662554, 0.261212, -0.00840352, -0.998374, 0.0563769, 0.261161, -0.0566134, -0.963634, -3.31137, 5.15251, 0 )
+light_energy = 0.31
+
+[node name="secdary" type="DirectionalLight" parent="."]
+transform = Transform( 0.988944, 0.0339409, -0.144356, 0, 0.973455, 0.228878, 0.148293, -0.226347, 0.962692, -3.31137, 5.15251, 0.00479805 )
+light_energy = 0.106
+
+[node name="OmniLight" type="OmniLight" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.21154, 0 )
+light_energy = 0.131
+light_indirect_energy = 0.0
+shadow_enabled = true
+shadow_bias = 0.012
+omni_range = 9.102
+omni_attenuation = 1.80251
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource( 8 )
+
+[node name="jelly" type="SoftBody" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 4.12673, 9.84985, -0.922198 )
+mesh = SubResource( 20 )
+skeleton = NodePath("../Player")
+
+[node name="sphere" type="MeshInstance" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.27243, 0 )
+mesh = SubResource( 9 )
+
+[node name="ground" type="StaticBody" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5591, 0 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="MeshInstance" type="MeshInstance" parent="ground"]
+mesh = ExtResource( 1 )
+skeleton = NodePath("../..")
+material/0 = ExtResource( 2 )
+
+[node name="CollisionShape" type="CollisionShape" parent="ground"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.78303, 0 )
+shape = SubResource( 5 )
+
+[node name="CSG" type="StaticBody" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.2311, 0 )
+physics_material_override = SubResource( 23 )
+
+[node name="CSGCombiner" type="CSGCombiner" parent="CSG"]
+
+[node name="CSGBox" type="CSGBox" parent="CSG/CSGCombiner"]
+
+[node name="CSGBox2" type="CSGBox" parent="CSG/CSGCombiner"]
+transform = Transform( 1, 0, 0, 0, 0.428308, 0, 0, 0, 1, 0, 0, 0 )
+operation = 2
+
+[node name="CollisionShape" type="CollisionShape" parent="CSG"]
+shape = SubResource( 6 )
+
+[node name="Particles" type="Particles" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.16058, 0 )
+emitting = false
+amount = 1981
+lifetime = 27.31
+one_shot = true
+preprocess = 0.1
+explosiveness = 0.08
+randomness = 0.61
+process_material = SubResource( 14 )
+draw_pass_1 = ExtResource( 3 )
+
+[node name="GIProbe" type="GIProbe" parent="."]
+visible = false

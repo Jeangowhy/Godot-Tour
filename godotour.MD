@@ -10050,6 +10050,11 @@ void fragment()
 - [Houdini - Vertex Animation Textures (VAT)](https://www.vfxforce.cn/archives/16033)
 - [Using VisualShaders](https://docs.godotengine.org/en/latest/tutorials/shaders/visual_shaders.html)
 - [Using compute shaders](https://docs.godotengine.org/en/latest/tutorials/shaders/compute_shaders.html)
+- [Heightmap terrain 1.6.1](https://godotengine.org/asset-library/asset/231)
+- [HeightMap terrain for Godot](https://github.com/Zylann/godot_heightmap_plugin)
+- [Heightmap terrain 地形制作](https://www.bilibili.com/video/BV1uf4y1k7LF/)
+- [HTerrain plugin](https://hterrain-plugin.readthedocs.io/en/latest/)
+- [HTerrain plugin demo project in Godot Engine 3](https://github.com/Zylann/godot_hterrain_demo)
 
 置换贴图是地形制作的基本工具，在 GPU 渲染管线上，顶点着色器是处理几何体原始信息的工具，通过修改顶点
 坐标，使用原先的平面几何体产生任何希望的效果。结合噪声纹理，根据其像素的灰度值来修改顶点的高度坐标，
@@ -10107,7 +10112,7 @@ Perspective -> Display Wireframe，这样就会将细分的边线显示出来。
 
 需要注意：
 
-- 新创建的 PlaneMesh 顶点坐标值为 [-1,1] 范围，平面中心为零点，大小为 2x2，而 UV 坐标范围总是是 [0,1]。
+- 新创建的 PlaneMesh 顶点坐标值为 [-1,1] 范围，平面中心为零点，大小为 2x2，而 UV 坐标范围总是 [0,1]。
 - Godot 中的 XYZ 三轴，红绿蓝三色对应，Y 是垂直方向，XZ 才是地平面。
 
 3D 环境中，平移、Size 等使用米制单位，1 表示 1 米，创建噪声纹理使用的是像素。可以使用三角函数去观测
@@ -10156,6 +10161,9 @@ Perspective -> Display Normal，就可以看到这个问题，面没有明暗差
 
 在噪声程序纹理工具中，可以按同样的方式生成法线贴图，即和纹理贴图一致的法线信息，Noise Texture
 面板中勾选 As Normal Map 选项即生成法线贴图。
+
+由于纹理使用的是 8-bit 颜色深度，精度不足导致“等高线现象”，可以降低 Bump Strength 属性减缓，
+更好的办法是使用 EXR、TTF、TGA 等支持 16-bit 以上的图像格式。
 
 在渲染流水线上，顶点处理和法线处理使用不同的着色器，顶点着色器一般专用于顶点处理。法线处理可以在片段
 着色器中处理。如果使用 OpenGL API，则需要加载两个着色器程序。在 Godot 中已经处理好着色器的加载，
@@ -10211,6 +10219,7 @@ void light() {
 
 在主光源光强度为 1.0 的条件下，ALBEDO 纹理会按以上算法与法线、入射光方向，衰减系数等因素下生成
 模型表面的漫射光效果，通过调整基本色输入来调整最终效果。
+
 
 
 
@@ -14759,9 +14768,6 @@ Go 语言中又称为 marshalling 和 unmarshalling。
 
 
 ### 🟠🔵 Multiplayer: Scene Replication
-- [HTerrain plugin](https://hterrain-plugin.readthedocs.io/en/latest/)
-- [HTerrain plugin demo project in Godot Engine 3](https://github.com/Zylann/godot_hterrain_demo)
-- [HeightMap terrain for Godot](https://github.com/Zylann/godot_heightmap_plugin)
 - [Voxel module for Godot](https://github.com/Zylann/godot_voxel)
 - [Mitchell Reid - MitchMakesThings](https://github.com/MitchMakesThings/Godot-Things/tree/main/Networking)
 - [Godot 4 Multiplayer - RPC 教程](https://www.bilibili.com/video/BV17P411c75s/)
@@ -17447,8 +17453,6 @@ ScriptEditor get_script_editor()
 - [Plugin Demos](https://github.com/godotengine/godot-demo-projects/tree/master/plugins)
 - [2.5D Demo Project with GDScript](https://godotengine.github.io/godot-demo-projects/misc/2.5d/)
 - [Ridiculous Coding](https://github.com/jotson/ridiculous_coding)
-- [Heightmap terrain 1.6.1](https://godotengine.org/asset-library/asset/231)
-- [Heightmap terrain 地形制作](https://www.bilibili.com/video/BV1uf4y1k7LF/)
 - [Shell Fur 0.3.0 by Arnklit](https://godotengine.org/asset-library/asset/752)
 - [Material Maker by R0dZill4](https://godotengine.org/showcase/material-maker/)
 - [Irfanview Plugins](https://www.irfanview.com/plugins.htm#UpdatedPlugins)

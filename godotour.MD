@@ -686,6 +686,420 @@ FPS 低于游戏设计时，可能会有输入延迟和卡顿。在需要快速�
 
 
 
+## 🟡 Carbon Language
+- [Carbon programming language](https://github.com/carbon-language/carbon-lang)
+- [Compiler Explorer](https://carbon.compiler-explorer.com)
+- [Bazel - Build and test tool](https://github.com/bazelbuild/bazel)
+- [The LLVM Project](https://github.com/llvm/llvm-project)
+- [Bazel vs. CMake](https://yearn.xyz/posts/tools/bazelcmake/)
+
+Google 新推出 Carbon 语言，闻要成为 C++ 的接班人，基于 LLVM 现代编译器框架开发。这么利害，那么
+就来学一下这种语言使用的默认构建工具，Bazel，这是大型项目的构建工具，快速、高效，只编译需要构建的
+文件，支持多种语言。单一可执行文件，自动下载依赖工具。可根据项目需要伸缩、扩展。
+
+C++ 引入外部依赖的方式可以大致分为两类：二进制依赖，或源码依赖。前者有 ABI 兼容问题，不支持更换平台
+或系统，所有的二进制文件都需要为不同平台重新编译；后者的缺点是，第一次构建的时候需要编译所有代码，
+比较耗时。Google 推崇第二种依赖方式，所以才会那么在乎 Bazel 的编译速度。
+
+    A rule is a function, and a target is a function call
+
+Bazel 规则（Rule）就是一个函数，BUILD 脚本文件中可以直接使用，这是 Python 脚本的简化版。内置
+规则有 genrule、cc_binary、cc_library、java_binary、py_library 等等，Target 就是调用规则，
+并且相应产生输出。
+
+规则 rule 也是函数，拥有函数的大部分特性，但相比函数，受到了更多的约束。比如 load 是函数但不是规则，
+load 用于从其他文件载入规则，load 不能用于规则中。又如 glob 是函数，用于查找与路径规则匹配的文件。
+
+[Action Graph](https://u98yad7iy.oss-cn-shanghai.aliyuncs.com/imgsbed/2021/11/05/10-27-23-bazel_out-177ed5b6632.jpg)
+
+Bazel 的执行分为三个阶段：
+
+- **Loading**，加载 Bazel 脚本文件，WORKSPACE、BUILD、bzl 文件；
+- **Analysis**，解析所有脚本并生成 Action Graph。解析过程包含外部资源下载，本地资源准备等；
+- **Execution**，执行 Action Graph 以生成目标文件；
+
+工作空间脚本是必需的，可以只有一行内容，甚至不写任何东西：
+
+    workspace(name = "myproject")
+
+动作（action）是 Bazel 中最小的执行单元，一般用于将输入文件转换为合适的输出文件，比如将 C/CPP
+文件转换为 .o 或 .a 文件。动作可以没有输入文件，但至少有一个输出文件。BUILD 脚本中一个 target
+对应一个或多个动作，Bazel 会自动将 target 解析为动作并在执行阶段执行。
+
+Action Graph 执行过程中，由动作生成的目标文件会被集中缓存。再次编译时，只有依赖文件被修改的目标
+才会被更新，这一点和 CMake 一致。Bazel 可以设置远程缓存与分布式编译环境。
+
+Bazel 编译生成的缓存文件一般保存在项目目录下以 bazel-* 为名称的目录下，所以尽量不要在项目中创建
+类似名称的文件夹，避免和缓存文件夹冲突。
+
+
+Bazel 官方代码仓库包含了文档和示范用例，整个工程包含多个 BUILD 脚本，项目工作目录顶层向子目录深入，
+例如 example/cpp 目录包含的 C++ 演示案例。这些脚本就是 Python 脚本的简化版：
+
+```py
+cc_library(
+    name = "hello-lib",
+    srcs = ["hello-lib.cc"],
+    hdrs = ["hello-lib.h"],
+)
+
+cc_binary(
+    name = "hello-world",
+    srcs = ["hello-world.cc"],
+    deps = [":hello-lib"],
+)
+
+cc_test(
+    name = "hello-success_test",
+    srcs = ["hello-world.cc"],
+    deps = [":hello-lib"],
+)
+
+cc_test(
+    name = "hello-fail_test",
+    srcs = ["hello-fail.cc"],
+    deps = [":hello-lib"],
+)
+
+filegroup(
+    name = "srcs",
+    srcs = glob(["**"]),
+    visibility = ["//examples:__pkg__"],
+)
+```
+
+Bazel 称工程中的子目录为 package，例如 example 目录下的 BUILD 脚本定义其为 public：
+
+```py
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "srcs",
+    srcs = glob(["**"]) + [
+        "//examples/android/java/bazel:srcs",
+        "//examples/cpp:srcs",
+        "//examples/gen:srcs",
+        "//examples/java-native:srcs",
+        "//examples/java-starlark:srcs",
+        "//examples/py:srcs",
+        "//examples/py_native:srcs",
+        "//examples/shell:srcs",
+        "//examples/windows/dll:srcs",
+    ],
+)
+```
+
+可以使用 query 查询工程子目录下的构建配置信息。然后，执行 build 或 test 进行构建或测试。指定构建
+目标，指定 target 是 **BUILD** 配置的各种库、程序目标的 name 属性内容。可以包含完整的项目目录路径，
+以斜杠开头，路径后跟冒号接 target 名称。如果在 target 的所在目录，也可以省略路径信息：
+
+```sh
+> git clone --depth=1 git@github.com:bazelbuild/bazel.git
+Cloning into 'bazelbuild'...
+> cd bazelbuild
+> bazel query //:*
+> bazel query //examples/cpp:*
+//examples/cpp:BUILD
+//examples/cpp:README.md
+//examples/cpp:hello-lib
+//examples/cpp:hello-lib.cc
+//examples/cpp:hello-lib.h
+//examples/cpp:hello-success_test
+//examples/cpp:hello-world
+# ...
+Loading: 0 packages loaded
+
+> cd bazelbuild\examples\cpp
+> bazel test hello-success_test
+> bazel build //examples/cpp:hello-world
+> bazel build hello-world
+INFO: Analyzed target //examples/cpp:hello-world (0 packages loaded, 0 targets configured).
+INFO: Found 1 target...
+Target //examples/cpp:hello-world up-to-date:
+  bazel-bin/examples/cpp/hello-world.exe
+INFO: Elapsed time: 0.194s, Critical Path: 0.01s
+```
+
+Carbon 语言当前的实现称为 Explorer，其主要目的是作为语言的明确规范，官方提供在线体验网站，它是
+基于 LLVM 现代编译器框架开发的一个前端编译器。
+
+作为该目标的一个扩展，Explorer 还可以用作原型设计和验证语言更改的平台。因此，它优先于展示直接可读
+的代码，其次是性能、诊断质量和其他常规实现。换言之，它的目标受众是从事 Carbon 设计的人，而不是任何
+Carbon 编程终端用户。
+
+按以下操作从源代码编译：
+
+```shell
+# Install bazelisk using Homebrew.
+# On macOS: 
+$ brew install bazelisk
+# On Windows: 
+$ choco install bazelisk
+
+# Install Clang/LLVM using Homebrew.
+# Many Clang/LLVM releases aren't built with options we rely on.
+$ brew install llvm
+$ export PATH="$(brew --prefix llvm)/bin:${PATH}"
+
+# Download Carbon's code.
+$ git clone https://github.com/carbon-language/carbon-lang
+$ cd carbon-lang
+
+# Build and run the explorer.
+$ bazel run //explorer -- ./explorer/testdata/print/format_only.carbon
+```
+
+最后编译时通过了，也生成了 explorer，但是执行时，未能通过 Sanizer 内存安全检查：
+
+```sh
+$ bazel run //explorer
+INFO: Invocation ID: 694957b9-95bf-4177-91c9-ca53e9e3ea23
+INFO: Analyzed target //explorer:explorer (0 packages loaded, 0 targets configured).
+INFO: Found 1 target...
+Target //explorer:explorer up-to-date:
+  bazel-bin/explorer/explorer
+INFO: Elapsed time: 0.400s, Critical Path: 0.01s
+INFO: 1 process: 1 internal.
+INFO: Build completed successfully, 1 total action
+INFO: Running command line: bazel-bin/explorer/explorer
+==2609==ERROR: AddressSanitizer failed to allocate 0x0 (0) bytes of SetAlternateSignalStack (error code: 22)
+# https://github.com/carbon-language/carbon-lang/issues/2236
+
+> clang --version
+Homebrew clang version 15.0.7
+Target: x86_64-unknown-linux-gnu
+Thread model: posix
+InstalledDir: /home/jeango/homebrew/bin
+
+> g++ --version
+g++ (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0
+
+> g++-12 --version
+g++-12 (Homebrew GCC 12.2.0) 12.2.0
+
+> lli --version
+Homebrew LLVM version 15.0.7
+  Optimized build.
+  Default target: x86_64-unknown-linux-gnu
+  Host CPU: skylake
+> lld --version
+lld is a generic driver.
+Invoke ld.lld (Unix), ld64.lld (macOS), lld-link (Windows), wasm-ld (WebAssembly) instead
+> ld.lld --version
+Homebrew LLD 15.0.7 (compatible with GNU linkers)
+```
+
+
+
+Bazel 有点自作聪明的操作，每次运行总是查询更新版本，体验实难心言说，可以指定版本禁止自动更新。
+
+    echo "USE_BAZEL_VERSION=4.1.0" >> ~/.bazeliskrc
+
+    export HOMEBREW_NO_AUTO_UPDATE=true
+
+Homebrew 可以使用 brew update --verbose 查看卡在那里，可能跟软件源有关，brew --repo 可以
+查询到本地仓库的目录。
+
+Homebrew 是统一管理 macOS 中应用的最佳方法之一，而且大量优秀的应用都可以在 Homebrew 中找到。
+如果说 Mac App Store 是一家大超市，Homebrew 就是一间家酿啤酒精品小铺——如它名字所代表的那样。
+
+Explorer 项目的构建脚本中包含 "@llvm-project//llvm:Support" 配置，需要使用 LLVM 编译工具。
+本地已经安装 LLVM 编译器的情况下，Bazel 还会根据配置文件下载和配置 llvm-project。这可能由于网络
+不畅通而不能下载到依赖工具，从而导致编译失败。需要手动解决，安装 LLVM Project 到提示的目录下：
+
+```sh
+INFO: Invocation ID: 49f54d0b-6efd-4a80-8d84-3d523d3bc34b
+Analyzing: target //explorer:explorer (0 packages loaded, 0 targets configured)
+    Fetching repository @llvm-project; starting 9s
+    INFO: Repository llvm-project instantiated at:
+      C:/carbon/WORKSPACE:132:15: in <toplevel>
+    Repository rule llvm_configure defined at:
+      C:/_bazel/llvm-raw/utils/bazel/configure.bzl:84:33: in <toplevel>
+    ERROR: An error occurred during the fetch of repository 'llvm-project':
+```
+
+llvm-raw 目录下存放的是下载好的 llvm-project 仓库原始文件，使用它时会复制到需要的位置使用。
+获取 LLVM 工具的过程中，会使用到 llvm-project-overlay 创建目录链接，将原始文件链接到工作目录。
+目前稳定版 Bazel 6.0.0，如果使用 Nightly 版本，可能导致以上错误。
+
+可以尝试深度清理缓存文件：
+
+    bazel clean --expunge
+
+输出的错误信息显示，在 llvm-project-overlay 链接目录时遇到有目录冲突，可以是 Windows 平台下
+兼容问题没处理好，对 llvm-raw/utils/bazel/overlay_directories.py 做一下小手术，添加目录
+存在与否的条件判断，避免对已经存在的目录做链接：
+
+```py,ignore
+    # ERROR: C:/carbon/explorer/BUILD:33:10: //explorer:explorer depends on 
+    # @llvm-project//llvm:Support in repository @llvm-project which failed to fetch. 
+    # no such package '@llvm-project//llvm': Failed to execute overlay script: 
+    # 'C:/MinGW/bin/python3.exe C:/_bazel/llvm-raw/utils/bazel/overlay_directories.py
+    #  --src C:/_bazel_ocean/llvm-raw
+    #  --overlay C:/_bazel_ocean/llvm-raw/utils/bazel/llvm-project-overlay
+    #  --target .'
+    def _symlink_abs(from_path, to_path):
+      if not os.path.exists(to_path):
+        print("to_path %s not exits" % to_path)
+        os.symlink(os.path.abspath(from_path), os.path.abspath(to_path))
+
+    def main(args):
+        # ...
+        if rel_root != "." and not io.path.exists(rel_root):
+          os.mkdir(os.path.join(args.target, rel_root))
+```
+
+但还是不行，目前 Windows 系统上体验 Carbon 只能进入 WSL 系统。
+
+- [Building on Windows](https://github.com/carbon-language/carbon-lang/issues/298)
+- [Carbon on Windows WSL](https://cristianopizzamiglio.com/2022/08/14/carbon-wsl.html)
+- [C++ Standard Libraries](https://docs.brew.sh/C++-Standard-Libraries)
+- [So I tried Carbon... Aryan Garg](https://aryan401.hashnode.dev/carbon)
+
+```sh
+    # Install Homebrew https://brew.sh
+    # it is a free and open-source software package management system that 
+    # simplifies the installation of software on Apple’s operating system, 
+    # macOS and Linux.
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    # or:
+    mkdir homebrew && curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip 1 -C homebrew
+    # or:
+    git clone https://github.com/Homebrew/brew homebrew
+    eval "$(homebrew/bin/brew shellenv)"
+    brew update --force --quiet
+    chmod -R go-w "$(brew --prefix)/share/zsh"
+
+    # Then, add Homebrew to your PATH variable by entering the two commands below 
+    # (change username in the first command):
+    echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /home/username/.profile
+    /home/linuxbrew/.linuxbrew/bin/brew shellenv >> .profile
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    eval "$(more .profile)"
+
+    # Install build tools:
+    # sudo apt-get install build-essential clang
+    brew install gcc llvm
+    sudo apt install zlib1g-dev
+    export PATH="$(brew --prefix llvm)/bin:${PATH}"
+```
+
+注意安装基础编译工具套件或 clang 编译器，Brew 需要用它来编译 glibc 等基础库：
+
+```sh
+    ==> Fetching glibc
+    Warning: Building glibc from source as the bottle needs:
+    - HOMEBREW_CELLAR: /home/linuxbrew/.linuxbrew/Cellar (yours is /home/jeango/homebrew/Cellar)
+    - HOMEBREW_PREFIX: /home/linuxbrew/.linuxbrew (yours is /home/jeango/homebrew)
+
+    Error: The following formulae cannot be installed from bottles and must be
+    built from source.
+      glibc and xz
+    Install Clang or run `brew install gcc`.
+
+    # carbon\bazel\cc_toolchains\clang_cc_toolchain_config.bzl
+    error: unknown target CPU 'x86-64-v2'
+    clang++: error: invalid linker name in argument '-fuse-ld=lld'
+    ld.lld: error: unable to find library -lc++
+    ld.lld: error: unable to find library -l:libunwind.a
+```
+
+GCC 10.9 开始基础运行库命名为 libc++，早期的版本则默认为 libstdc，可以按需要安装指定版本。
+
+    brew install gcc@7
+    brew install --cc=gcc-7 <formula>
+
+总之，安装过程非常不顺利，还是官方说的那样，如果可以使用 Rust，那就不必考虑 Carbon！
+这个项目由谷歌内部 C++ 和开发工具组开启，因为 C++ 标准委员会无法在 C++ ABI 上达成共识。
+目标是不用重写谷歌内部巨大的 C++ 代码，同时逐步提高安全和执行效率。资源上，最多是主管级的支持。
+大公司里一个小组放出一个天马行空的开源项目很常见，Google 开源玩具 demo 也是老传统。
+
+演化论有个“生态位”的概念，即在一个稳定的环境下，一个生态位一旦被先来者抢占，那后来者是没有机会的，
+这个先来者就会一直占着这个生态位，直到环境发生变化。而软件工业中的 C++ 就是这样的一个地位。
+
+自操作系统诞生以来，编写内存安全的代码一直是一个比较困难的问题，另一个问题则是保证线程安全。
+2004 年以来，微软安全响应中心（MSRC）已对所有报告过的微软安全漏洞进行了分类，据统计数据，
+所有微软年度补丁中约有 70% 是针对内存安全漏洞的修复程序。
+
+- https://github.com/google/sanitizers
+- https://gcc.gnu.org/onlinedocs/gcc-11.3.0/gcc/Option-Index.html
+- https://developers.redhat.com/blog/2021/05/05/memory-error-checking-in-c-and-c-comparing-sanitizers-and-valgrind
+- [Definitions and One Definition Rule (ODR)](https://en.cppreference.com/w/cpp/language/definition)
+- [Constraints and concepts (since C++20)](https://en.cppreference.com/w/cpp/language/constraints)
+- [C++ compiler support](https://en.cppreference.com/w/cpp/compiler_support)
+
+Sanitizers 是谷歌发起的开源内存安全检查工具，项目本是 LLVM 项目的一部分，GNU GCC 编译器也集成了。
+GCC 4.8 版本开始支持地址、线程 Sanitizer，GCC 4.9 版本开始支持 Leak Sanitizer 和 UB Sanitizer，
+这些都是查找隐藏 Bug 的利器。通过编译器参数启用，如 -fsanitize=address 使用地址检查器。
+
+- AddressSanitizer 检查地址相关问题，包括释放后使用、重复释放、堆溢出、栈溢出等等问题。
+- LeakSanitizer 检查内存泄漏问题。
+- ThreadSanitizer 检查线程数据竞争和死锁问题。
+- MemorySanitizer 检查使用未初始化内存问题。
+- Undefied Behavior Sanitizer 未定义行为问题。
+
+Address Sanitize 支持功能：
+
+01. Use after free (dangling pointer dereference)  使用悬浮指针
+02. Heap buffer overflow    堆缓冲区溢出
+03. Stack buffer overflow   栈缓冲区溢出
+04. Global buffer overflow  全局缓冲区溢出
+05. Use after return        通过返回值访问局部变量的内存
+06. Use after scope         访问已经释放的局部变量的内存
+07. Initialization order bugs   使用未初始化的内存
+08. Memory leaks            内存泄漏
+
+C++20 是有史以来最大的 C++ 版本更新，但是不知什么原因它又没有完全完工，是疫情版完成了后续的工作，
+C++23 “Pandemic Edition” is complete。要使用最新的功能，需要 GCC 或 CLang 13 这样的版本。
+
+C++20 引入了一个新概念，真的是概念，它的名字就叫 `concept`，其实是一个语法糖，和 Java 语言的
+泛型约束等价。本质模板参数约束条件，是一个 bool 值条件。
+
+    template < template-parameter-list >
+    concept  concept-name = constraint-expression;
+
+其中，constraint-expression 是一个可以被 eval 为 bool 的表达式或者编译期函数。使用定义好的
+concept 时，constraint-expression 会根据上面 template-parameter-list 传入的类型，
+执行编译期计算，判断使用该 concept 的模板定义是否满足。如果不满足，则编译期会给定一个具有明确语义
+的错误，即这个 concept 没有匹配成功。 注意到，上述匹配的行为都是在编译期完成的，因此 concept
+是 zero-cost 表达式。
+
+Multiple declarations, Only one definition。
+
+对于编译器来说，任何一个翻译单元中，只允许对任何变量、函数、类类型、枚举类型、`concept` 或模板进行
+一个定义。其中一些可能有多个声明，但是定义只允许一个，这就是 ODR 单一定义规则。
+
+在整个程序中，包括标准库和用户定义库，ODR 规则使用的 non-inline 函数或变量只需要出现一个定义。
+编译器不需要诊断这种违反，但违反它的程序的行为是未定义的，即 ODR Violation。
+
+遵循 ODR 是构建良好 C++ 程序的基础。编写 C++ 程序时，代码写在文件中，然而对于 ODR 原则来说，
+文件之间的边界并不很重要，真正重要的是编译单元，Translation Units。本质上来说，一个编译单元
+是对程序员提交给编译器的文件执行预处理后的结果，即一个源文件经过预处理后，产生一个目标文件。
+参考 C++ template:the complete guide。
+
+预处理器按照条件编译命令，#if，#ifdef 等等，去除掉未被选中的代码块，去除注释，递归地插入
+"#include" 指令所引用的文件，并将宏展开。
+
+
+Valgrind 可以检测非常多的内存错误，但相对于 Sanitizer，对程序性能影响更大。
+
+以下测试程序一般编译通过并正常运行，但是使用内存检查工具后，就可以发现潜在的越界问题：
+
+```C++
+$ cat >overrun.c <<'EOF'
+#include <stdlib.h>
+int main() {
+  char *p = malloc(16);
+  p[24] = 1; // buffer overrun, p has only 16 bytes
+  free(p);   // free(): invalid pointer
+  return 0;
+}
+EOF
+$ clang -o overrun overrun.c -Wall -g -fsanitize=address
+$ valgrind ./overrun
+```
+
+
 ## 🟡 MT Downloader
 - [Requests: HTTP for Humans](https://requests.readthedocs.io/en/latest/)
 
@@ -1265,10 +1679,13 @@ pub fn gdextension(meta: TokenStream, input: TokenStream) -> TokenStream {
 - [GLES2 and GDNative, progress report #5](https://godotengine.org/article/gles2-and-gdnative-progress-report-5/)
 - [GLES2 and GDNative, progress report #4](https://godotengine.org/article/gles2-and-gdnative-progress-report-4/)
 - [Waht is GDNative](https://docs.godotengine.org/en/stable/tutorials/scripting/gdnative/what_is_gdnative.html)
+- [What is GDExtension?](https://docs.godotengine.org/en/latest/tutorials/scripting/gdextension/what_is_gdextension.html)
 - [GDNative C Example](https://docs.godotengine.org/en/3.1/tutorials/plugins/gdnative/gdnative-c-example.html)
 - [GDNative C++ Example](https://docs.godotengine.org/en/3.1/tutorials/plugins/gdnative/gdnative-cpp-example.html)
 - [Function like Macros](https://gcc.gnu.org/onlinedocs/cpp/Function-like-Macros.html)
 - [Common Engine Methods & Macros](https://docs.godotengine.org/en/stable/development/cpp/common_engine_methods_and_macros.html)
+- [Mono .NET framework](https://www.mono-project.com/download/stable/)
+- [Mono Basics](https://www.mono-project.com/docs/getting-started/mono-basics/)
 - [Compiling with Mono](https://docs.godotengine.org/en/latest/contributing/development/compiling/compiling_with_mono.html)
 - [Compiling for Windows](https://docs.godotengine.org/en/latest/contributing/development/compiling/compiling_for_windows.html)
 - [Best practices for engine contributors](https://docs.godotengine.org/en/latest/contributing/development/best_practices_for_engine_contributors.html)
@@ -1277,8 +1694,7 @@ pub fn gdextension(meta: TokenStream, input: TokenStream) -> TokenStream {
 - godot-3.5.1-stable\modules\gdnative\gdnative.h
 - godot\core\extension\gdextension_interface.h
 
-
-Engine development - Best practices for engine contributors
+Godot Engine development - Best practices for engine contributors
 
 #1: The problem always comes first
 #2: To solve the problem, it has to exist in the first place
@@ -1430,7 +1846,7 @@ Function-like Macros 像函数一样，但是其格式更严格，宏名后面�
 
 以下是宏函数的几种示范，及其对应的展开内容：
 
-```C++
+```C++,ignore
 #define lang_init()  c_init()
 // lang_init()
 //      → c_init()
@@ -1467,18 +1883,18 @@ extern void foo(void);
 
 ANSI 标准还说明了五个预定义的宏名，它们分别可以获取源代码文件名、当前行号，日期时间等等： 
 
-```c
-__LINE__ /* %d */
-__FILE__ /* %s */
-__DATE__ /* %s */
-__TIME__ /* %s */
-__FUNCTION__  or __func__
+```c,ignore
+    __LINE__ /* %d */
+    __FILE__ /* %s */
+    __DATE__ /* %s */
+    __TIME__ /* %s */
+    __FUNCTION__  or __func__
 ```
 
 
 Godot 4.0 RC 1 版本代码中使用了更丰富的宏编程，可以减少代码量，但一定程序度上给代码阅读增加难度：
 
-```C++
+```C++,ignore
     // godot\core\object\object.h:344
     // _gdvirtual__poll_call<false>(__VA_ARGS__)
     #define GDVIRTUAL_CALL(m_name, ...) _gdvirtual_##m_name##_call<false>(__VA_ARGS__)
@@ -1546,7 +1962,7 @@ MultiplayerAPI 头文件中会使用 Python 脚本生成的 GDVIRTUAL0C、 GDVIR
 12，对应类型参数最多有 12 个。另外，加上 m_ret 和 m_name 两个参数，最多有 14 个宏参数，对应的
 虚函数生成宏就是 `GDVIRTUAL12R` 和 `GDVIRTUAL12RC`。
 
-```C++
+```C++,ignore
     #define GDVIRTUAL0RC(m_ret,  m_name ) \
     StringName _gdvirtual_##m_name##_sn = #m_name;\
     mutable bool _gdvirtual_##m_name##_initialized = false;\
@@ -1593,7 +2009,7 @@ PackedInt32Array _get_peer_ids() virtual const
 
 这些方法在父类 MultiplayerAPI 中全都是定义为纯虚函数：
 
-```C++
+```C++,ignore
     // godot\scene\main\multiplayer_api.h:37
     class MultiplayerAPI : public RefCounted {
         GDCLASS(MultiplayerAPI, RefCounted);
@@ -1631,9 +2047,9 @@ PackedInt32Array _get_peer_ids() virtual const
 - [Godot.NET.Sdk](https://www.nuget.org/packages/Godot.NET.Sdk/#versions-body-tab)
 - [Mono SDK](https://www.mono-project.com/download/stable/#download-lin)
 - [.NET SDK](https://dotnet.microsoft.com/download)
-- [Visual Studio Code](https://code.visualstudio.com/)
 - [C# support on Android](https://godotengine.org/article/csharp-android-support/)
 - [Godot 3.5.1 Mono](https://downloads.tuxfamily.org/godotengine/3.5.1/mono/)
+- [What's new in C# for Godot 4.0](https://godotengine.org/article/whats-new-in-csharp-for-godot-4-0/)
 - [CustomType for Godot 3.x](https://github.com/Jeangowhy/Godot-Tour/tree/main/mono-3x/addons/CustomType)
 - [CustomType for Godot 4.x](https://github.com/Jeangowhy/Godot-Tour/tree/4.x/mono-4x/addons/CustomType)
 - godot-docs\tutorials\scripting\c_sharp\c_sharp_basics.rst
@@ -1679,6 +2095,17 @@ Godot 有两套语言支持构建：
     * OS: Arch Linux
     * Official Godot 3.1 release
 
+Godot 4 RC6 临时将 Mono 改为集成 .NET 6。
+
+
+### 🟠🔵 VScode Settings
+- [Visual Studio Code](https://code.visualstudio.com/)
+- [Using GCC with MinGW](https://code.visualstudio.com/docs/cpp/config-mingw)
+- [Debug C++ in Visual Studio Code](https://code.visualstudio.com/docs/cpp/cpp-debug)
+- [Configure C/C++ debugging](https://code.visualstudio.com/docs/cpp/launch-json-reference)
+- [launch.json - VS Code Debugers Launch](https://code.visualstudio.com/docs/editor/debugging)
+- [tasks.json - Integrate with External Tools via Tasks](https://code.visualstudio.com/docs/editor/tasks)
+
 Godot 3.2.3 开始，不需安装 Mono SDK，除非需要从源代码构建 Godot，但是 .NET SDK 还是要安装。
 注意，使用的 Godot 要与 SDK 的版本比特位一致，建议使用 64-bit 的版本。由于 Godot 只提供了 C#
 的最小支持，可以考虑使用外部编辑器，如 Visual Studio Code，以提供更完善的自动完成、调试等功能。
@@ -1700,6 +2127,7 @@ Godot 目前支持以下作用外部编辑器，可以通过 Editor → Editor S
 - [C#](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csharp)
 - [Mono Debug](https://marketplace.visualstudio.com/items?itemName=ms-vscode.mono-debug)
 - [C# Tools for Godot](https://marketplace.visualstudio.com/items?itemName=neikeq.godot-csharp-vscode)
+- [C/C++ for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools)
 
 C# Tools for Godot 扩展支持 Godot 3.2.2 以上版本，可以提供以下功能：
 
@@ -1711,7 +2139,7 @@ C# Tools for Godot 扩展支持 Godot 3.2.2 以上版本，可以提供以下功
 
 配置 VSCdoe 以实现 Godot 工程的运行：
 
-- 执行菜单 Run → **Add Configuration...**  → **C# Godot**
+- 按菜单执行 Run → **Add Configuration...**  → **C# Godot**
 - 编辑配置文件 ``tasks.json`` 和 ``launch.json``，使用 executable 和 Command 指向正确的 Godot 可执行文件。
 
 完成以上配置后，就可以直接在 VScode 中运行 Godot 项目：
@@ -1756,7 +2184,7 @@ NuGet.org（由托管 NuGet 包的 Microsoft 提供的免费服务）是公共 N
   "tasks": [
     {
       "label": "build",
-      "command": "Godot_v4.0-beta16_mono_win64.exe", //"<insert-godot-executable-path-here>",
+      "command": "Godot_v4.0-stable_win64.exe", //"<insert-godot-executable-path-here>",
       "type": "process",
       "args": [
         "--build-solutions",
@@ -1773,6 +2201,253 @@ NuGet.org（由托管 NuGet 包的 Microsoft 提供的免费服务）是公共 N
 
 如果添加运行配置时，没有提供 **C# Godot** 配置，请检查以上三个扩展是否完成安装，并且处于启用状态。
 配置好开发环境，就可以在 Godot 给节点附加脚本时，在 Attach Script 对话框中选择 C# 语言。
+
+
+调试器配置，`launch.json` 设置如何启动调试程序，配置实体中必要的参数有以下 3 个:
+
+01. **type** - 设置调试器类型，根据已安装的调试器设置，如：
+    - **node** VSCode 内置的 Node debugger
+    - **python** Python debugger
+    - **cppdbg** GDB or LLDB debugger
+    - **cppvsdbg** Visual Studio Windows debugger
+02. **request** - 调试执行类型，目前只支持 launch 和 attach 两种。
+03. **name** - 调试菜单中显示标题。
+
+根据被调试程序使用的编译器不同，在不同系统上可以使用的调试器如下：
+
+1. Linux: GDB
+2. macOS: LLDB or GDB
+3. Windows: the Visual Studio Windows Debugger or GDB (using Cygwin or MinGW)
+
+调试 Cygwin 或 MinGW 编译的程序时，可以设置 Machine Interface ("MI") 调试引擎，这是根据
+Core Interfaces 实现的调试器接口，设置 **MIMode** 属性为 gdb 或 lldb。
+在 **miDebuggerPath** 指定调试器路径，但是这种方式中断难，不能在程序运行时中断。另外，要使用
+GDBSever 进行远程调试，需要在 **miDebuggerServerAddress** 指定服务器地址。
+
+使用 cppvsdbg 调试 GCC 编译器生成的程序，可能会遇到程序中断设置无效，或者可以中断，但是程序
+运行时无源代码关联。cppvsdbg 和 Clang 搭配使用却非常好。
+
+在 DEBUG CONSOLE 窗口中是可以看到 gdb 运行是正常的，也可以通过 list 指令查询到关联源代码。
+一个临时解决方法（变通）就是手动将代码复制到：
+
+    Thread 1 "const" hit Breakpoint 1, main () at c:\demo\const.cpp:22
+    22      float c = 3.14;
+
+使用 cppvsdbg 等调试器时，可以在 **console** 设置要使用的终端类型：
+
+- `integratedTerminal`：VS Code 的集成终端
+- `internalConsole`：内部控制台
+- `externalTerminal`：外部的系统终端
+- `newExternalWindow`：新创建的系统终端，对于 GUI 程序就会忽略控制台 I/O。
+
+一般使用 VSCode 集成控制台，integratedTerminal 比其它两个好在：不会弹出外部窗口，不会因为
+内部窗口运行结束而看不到控制台输出，集成控制台会记录所有打印信息。
+
+加载调试程序时的其它可用选项：
+
+01. **presentation** - 控制配置实体如何在命令面板中分组、排序，显示或隐藏 (group, order, hidden)。
+02. **preLaunchTask** - 调试前执行 tasks.json 的任务，默认任务是 ${defaultBuildTask}。
+03. **postDebugTask** - 调试会话结束后执行 tasks.json 的任务，注意要和任务标签 **label** 一致。
+04. **internalConsoleOptions** - 调试器控制台面板的显示状态设置，默认会在调试时自动切换显示。
+05. **debugServer** - 此参数给扩展开发者使用，以允许连接到指定端口而不是启动调试适配器。
+06. **serverReadyAction** - 调试 Web 服务器时设置以自动在浏览器中打开指定的 URL。
+
+调试器启动两种方式中，launch 表示直接和应用一起启动，attach 表示将调试器附加到已经启动的进程上。
+设置好调试器，还可以通过 preLaunchTask 和 postDebugTask 这样的配置去调用 Tasks 配置中任务。
+任务就是一个动作，如编译程序，或者清理缓存文件等等，都可以配置为一个 Task。
+
+调试控制控制台会自动隐藏，重新打开需要使用 Debug: Select Debug Console 命令。
+
+调试器本质上也是一个程序，和自己用 C++ 编写的程序没有不同，差异只是在功能上，即调试器具有调试
+其它程序的功能，调试器需要去运行被调试的程序以获得程序控制流主动权。
+
+在调试 Web 服务器时，可以使用 serverReadyAction 参数指定一个自动打开浏览器的方式，比如以下
+配置，就会在外部浏览器中打开指定的 URL 地址。这个动作需要在程序中输出可以按 pattern 格式匹配
+的内容到调试器控制台，编辑器匹配到控制台内容后再在浏览器中打开匹配到的地址。uriFormat 则是指示
+如果构造出相应的 URL 地址：
+
+```json
+    // tasks.jsonconfiguration
+    {
+      "label": "build demo web server",
+      "type": "shell",
+      "command": "go build demo.go",
+      "problemMatcher": [
+        "$go"
+      ]
+    }
+
+    // luanch.json configuration
+    {
+      "type": "cppvsdbg",
+      "request": "launch",
+      "name": "Launch Web Server",
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "build demo web server",
+      "program": "${workspaceFolder}/demo.exe",
+      "internalConsoleOptions": "neverOpen",
+      "serverReadyAction":{
+        // "name": "Web Server Launched",
+        "action": "openExternally", // "debugWithChrome", "startDebugging",
+        "pattern": "listening on port ([0-9]+)",
+        "uriFormat": "http://localhost:%s",
+        "killOnServerStop": false
+      }
+    },
+```
+
+以下是配套演示用的 Go 语言程序：
+
+```golang
+    package main
+
+    import (
+        "net/http"
+        "fmt"
+        "log"
+        "os"
+    )
+
+    func main () {
+        http.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
+            fmt.Fprint(writer, "Hello World")
+        })
+        http.HandleFunc("/bye", func(writer http.ResponseWriter, request *http.Request) {
+            defer writer.(http.Flusher).Flush()
+            fmt.Fprint(writer, "See you then")
+            os.Exit(0)
+        })
+        println("Now listening on: https://localhost:8080")
+        log.Fatal(http.ListenAndServe(":8080", nil))
+    }
+```
+
+根据不同调试器需要设置其它不同的参数，一般可以设置要调试的程序或脚本，参数参考如下：
+
+- **program** - 被调试的程序或文件路径。
+- **args** - 传入被调试程序的参数。
+- **env** - 环境变量设置，可以使用 null 来 "undefine" 一个环境变量。
+- **envFile** - 指定一个 dotenv 环境变量配置文件。
+- **cwd** - 设置程序运行时的工作目录路径，以方便定义可能使用到的依赖。
+- **port** - 设置调试器要附着的端口。
+- **stopOnEntry** - 设置是否在入口处中断程序的执行，false or true。
+
+另外，VSCode 作为一个跨平台开发工具，可以根据不同的平台在配置实体中使用以下配置项目：
+
+1. **window**：为 Window 平台单独配置的项目；
+2. **linux**：为 Linux 平台单独配置的项目；
+3. **osx**：为 Mac OS 平台单独配置的项目；
+
+
+以下是 tasks.json 配置实体使用的参数：
+
+01. **label**: 任务标签，会显示在命令面板上。
+02. **type**: 任务类型，如 shell 或者 process，前者执行命令行工具，后者执行一个程序。
+03. **command**: 任务实际执行的命令，如果按 shell 方式，就是执行 cmd.exe /d /c "command"。
+04. **windows**: Any Windows specific properties. Will be used instead of the default properties when the command is executed on the Windows operating system.
+05. **group**: 任务分组归类，比如 "kind": "build" 或 ”test" 等等，设置默认任务 "isDefault": true。
+06. **presentation**: Defines how the task output is handled in the user interface. In this example, the Integrated Terminal showing the output is always revealed and a new terminal is created on every task run.
+07. **options**: Override the defaults for cwd (current working directory), env (environment variables), or shell (default shell). Options can be set per task but also globally or per platform. Environment variables configured here can only be referenced from within your task script or process and will not be resolved if they are part of your args, command, or other task attributes.
+08. **runOptions**: Defines when and how a task is run.
+09. **problemMatcher**: 任务输出内容的处理方式，与代码关联起来，如 $gcc，$go，$tsc 等等。
+
+配置文件中常用的变量：
+
+01. `${workspaceFolder}`：在 VS Code 中打开的项目文件夹路径
+02. `${file}`：当前开打开（激活）的文件
+03. `${relativeFile}`：文件的相对路径，相对于 ${workspaceFolder} 
+04. `${fileBasename}`：当前打开文件的名称
+05. `${fileBasenameNoExtension}`：当前打开文件的名称，不带扩展名
+06. `${fileExtname}`：当前打开文件的扩展名
+07. `${fileDirname}`：当前打开文件的文件夹名称
+08. `${workspaceFolderBasename}` - 项目所在的目录名称
+09. `${fileWorkspaceFolder}` - 当前打开的文件的工作区文件夹
+10. `${relativeFileDirname}` - 当前打开的文件的目录名，相对于 workspaceFolder
+11. `${cwd}` - 任务运行器启动时的当前工作目录
+12. `${lineNumber}` - 当前选中的行号在活动文件中
+13. `${selectedText}` - 活动文件中当前选定的文本
+14. `${execPath}` - 运行VS Code可执行文件的路径
+15. `${defaultBuildTask}` - 默认构建任务的名称
+17. `${pathSeparator}` - 目录分隔符号，在 macOS 或 Linux 系统为 /，Windows 上为 \
+
+
+以下是 VSCode C++ 项目的配置参考，使用 Clang + cppvsdbg 和 GCC + cppdbg 两种搭配：
+
+```json
+    // tasks.jsonconfiguration
+    {
+      "label": "C++20: g++ build active file",
+      "type": "shell",
+      "command": "C:\\mingw-w64\\x86_64-12.2.0-release-win32-seh-ucrt-rt_v10-rev2\\bin\\g++.exe",
+      "args": [
+        "g++", "-std=c++20",
+        "-g",  "${file}",
+        "-o",  "${workspaceFolder}\\bin\\${fileBasenameNoExtension}.exe",
+      ],
+      "linux": {
+        "command": "g++-12"
+      },
+      "options": {
+        "cwd": "${fileDirname}"
+      },
+      "problemMatcher": [ "$gcc" ],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      }
+    },
+    {
+      "label": "C++20: clang++ build active file",
+      "type": "shell",
+      "command": "clang++",
+      "args": [
+        "-std=c++20",
+        // "-stdlib=libc++",
+        "-fdiagnostics-color=always",
+        "-g", "${file}",
+        "-o", "${workspaceFolder}\\bin\\${fileBasenameNoExtension}.exe",
+      ],
+      "problemMatcher": [ "$gcc" ],
+      "group": "build"
+    },
+
+
+    // luanch.json configuration
+    {
+      "name": "Launch VSDBG (Clang++)",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/bin/${fileBasenameNoExtension}.exe",
+      "args": [],
+      // "stopAtEntry": true,
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "preLaunchTask": "C++20: clang++ build active file",
+    },
+    {
+      "name": "Launch GDB (g++)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/bin/${fileBasenameNoExtension}.exe",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "preLaunchTask": "C++20: g++ build active file",
+      "MIMode": "gdb",
+      "miDebuggerPath": "gdb.exe",
+      // "miDebuggerServerAddress": "serveraddress:port",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ]
+    },
+```
+
+### 🟠🔵 GDScript vs. CSharp
 
 Node 节点类扩展代码示例：
 
@@ -2730,7 +3405,7 @@ LSP 2.x Messages overview 注意箭头表示消息流向，右侧为 Client ➡�
 Godot 也实现了 LSP Client 服务，新旧版本默认服务端口分别是 6005 和 6008。这些配置都可以通过
 EditorSettings 进行设置：
 
-```C++
+```C++,ignore
 // Godot 3.5
 GDScriptLanguageServer::GDScriptLanguageServer() {
     thread_running = false;
@@ -3458,9 +4133,35 @@ Godot 自带的图形监视面板收集以下几个重要的 3D 场景绘制的�
 - For debug export templates: ``target=release_debug use_lto=yes``
 - For release export templates: ``tools=no target=release debug_symbols=yes``
 
+```sh
+> scons platform=list
+scons: Reading SConscript files ...
+The following platforms are available:
+
+        android
+        windows
+
+Please run SCons again and select a valid platform: platform=<string>
+
+# Custom modules
+scons custom_modules="../modules,/abs/path/to/modules,~/src/godot_modules"
+# Bits
+# - `32`: Build binaries for 32-bit platforms.
+# - `64`: Build binaries for 64-bit platforms.
+# - `default`: Build for the architecture that matches the host platform.
+scons platform=<platform> bits=default/32/64
+```
+
 默认情况下，导出模板中已经删除调试符号，对于导出模板 ``debug_symbols=yes`` 是必需的。
 
 不要使用编译器的 ``strip`` 命令，它会清理调试符号，这样编译的程序并不能有效地进行性能分析。
+
+默认情况下，SCons 会存储编译生成文件的 md5，再次执行编译时，如果 md5 没变，则不需要 rebuild。
+脚本中使用 Decider('timestamp-newer') 可以指定为时间比较，默认为 MD5-timestamp。
+Scons 用户手册 6.1.5 说明了如何处理依赖文件变更。
+
+另外，还可以使用 fast_unsafe=yes 加速编译过程，或者使用 -j 8 这样指定线程数。
+
 
 Godot 4.x 受到 Windows 10 配置影响，在开发过程中，调试程序遇到首次启动慢的情况，因为开发中每次
 启动都是一个新程序，需要配置，即每次启动都是首次运行，所以特别慢，旧版本中不存在这样的问题。
@@ -4023,7 +4724,7 @@ func _unhandled_key_input(event):
 
 输入映射可以通过 `ProjectSettings` 保存到工程文件内，或者通过 I/O 写入用户配置文件：
 
-```C++
+```C++,ignore
 Error ProjectSettings::save() {
     Error error = save_custom(get_resource_path().plus_file("project.godot"));
     if (error == OK) {
@@ -4484,6 +5185,39 @@ func _input(event):
 - [Using Containers](https://docs.godotengine.org/en/3.5/tutorials/ui/gui_containers.html)
 - [Introduction to GUI skinning](https://docs.godotengine.org/en/3.5/tutorials/ui/gui_skinning.html)
 - [Bitmap Font Generator](https://www.angelcode.com/products/bmfont/)
+
+3D 视图快捷键：
+
+-  To snap to grid, press `Ctrl` while moving, scaling or rotating.
+-  Focus selected object, press `F`.
+-  Focus origin, press `O`.
+-  Toggle local or global space, press `T`.
+-  `Q` Select mode.
+-  `W` Move mode.
+-  `E` Scale mode.
+-  `R` Rotate mode.
+-  `Ctrl-Alt-M` Align transform with view.
+-  `Ctrl-Alt-F` Align rotation with view.
+-  `Shift-F` Toggle free look.`Alt` speed slow. `Ctrl` speed up. Right click escape.
+    -  `W` Free look forwards
+    -  `S` Free look backwards
+    -  `A` Free look left
+    -  `D` Free look right
+    -  `Q` Free look up
+-  `Ctrl-UP` `Ctrl-Down` 调整节点在场景树的位置。
+-  `Ctrl-UP` `Ctrl-Down` 调整节点在场景树的位置。
+
+Godot 4 可以像 Blender 那样通过快捷键执行平移、缩放、旋转操作，编辑器配置**Spatial Editor**
+搜索 Begin 关键字，即可以出来以下三项操作，并且后续按相就键可以锁定 X、Y、Z 轴，只是不能输入数值：
+
+-  Begin Move Transformation，设置和 Blender 一样 `G`；
+-  Begin Scale Transformation，设置和 Blender 一样 `S`；
+-  Begin Roation Transformation，设置和 Blender 一样 `R`；
+
+
+
+
+
 
 官方提供了一个 Control Gallery 示范工程，用于演示各种控件、布局容器的使用，2D 控件支持主题设置，
 定制控件外观非常方便。2D 对象使用 Anchors 模型进行图形的比例、多分辨率处理：
@@ -6159,7 +6893,7 @@ similarity transformations、spiral similarities 和 translation 等类别的组
 
 以下是 3D 节点与变换矩阵相关的属性默认值，以及变换矩阵的默认值：
 
-```c
+```c,ignore
 // Node3D
       Vector3 translation           [default: Vector3( 0, 0, 0 )]
       Vector3 rotation_degrees      [default: Vector3( 0, 0, 0 )]
@@ -6475,9 +7209,11 @@ Godot 提供 CSG 节点支持显式几何的构造，父类 `CSGShape` 派生以
     - CSGTorus
 
 CSG 合并节点下添加任意基本几何体，然后在其属性面板中选择所要使用的 CSG 运算方式，联合、相交、相减。
-目前 Godot 3.x 或 4.0 都没有为 CSG 实现碰撞形状的生成工具，只有 MeshInstance3D 才有此功能。
-即使是 Mesh 提供的碰撞体生成工具，它也不会处理几何体的绽放，会将绽放属性直接复制到生成的碰撞体中。
-而 Godot 又不能像 Blender 那样，可以应用几何体的仿射变换操作。
+目前 Godot 3.x 或 4.0 都没有为 CSG 实现碰撞形状的生成工具，但通过 CSGShape - Use Collision
+可以启用内置的碰撞形状，并且作为一个 static body。
+
+MeshInstance3D 菜单中自带有碰撞形状生成功能，但是 Mesh 提供的碰撞体生成工具，不会处理几何体的缩放，
+会将绽放属性直接复制到生成的碰撞体中。而 Godot 又不能像 Blender 那样，可以应用几何体的仿射变换操作。
 
 
 
@@ -7030,6 +7766,7 @@ Godot 3.5 中使用 Depth 属性表示视差贴图。
 
 ### 🟠🔵 Procedural geometry 几何体处理
 - [Procedural geometry](https://docs.godotengine.org/en/latest/tutorials/3d/procedural_geometry/index.html)
+- [Prototyping levels with CSG](https://docs.godotengine.org/en/3.5/tutorials/3d/csg_tools.html)
 - [3D Voxel Demo](https://godotengine.org/asset-library/asset/676)
 - https://docs.godotengine.org/en/latest/tutorials/3d/procedural_geometry/arraymesh.html
 
@@ -9518,7 +10255,7 @@ void fragment() {
 在 OpenGL 对纹理进行混合处理时，Alph 值就会按混合方程式进行处理。
 
 Godot 在绘制透明图像时，透明会区也会一并处理，这对于大尺寸的图像来说并不是很好的做法，通过转换带
-透明纹理的 Sprite 为 MeshInatance2D，可以路过大量透明区的渲染。例如，以下这棵带透明区的树，
+透明纹理的 Sprite 为 MeshInatance2D，可以避免大量透明区的渲染。例如，以下这棵带透明区的树，
 在场景中选中 Sprite，在视图中的工具栏执行 "Convert to 2D Mesh" 即可以进行转换，另一种生成 2D 
 网格的方法是通过 OBJ 导入。
 
@@ -10039,6 +10776,21 @@ void fragment()
 还可以有另一种思路：法线与视角间的夹角。视线与其法线的夹角更接近于垂直，就更可能被认定为边缘的部分。
 
 
+### 🟠🔵 Glass Broken 破碎的玻璃
+- [Standard Material 3D and ORM Material 3D](https://docs.godotengine.org/en/latest/tutorials/3d/standard_material_3d.html)
+- [Blender ESCN exporter](https://docs.godotengine.org/en/3.5/tutorials/assets_pipeline/escn_exporter/index.html)
+- [Godot Blender Exporter](https://github.com/godotengine/godot-blender-exporter)
+- [Better collada plugin for Blender](https://github.com/HungryProton/collada-exporter-2.8)
+
+折射 Refraction 是透明材质的基本属性，Godot 着色器启用折射后，它将取代 alpha 混合，此时标志位
+Flags - Transparent 将无法使用 Albedo 颜色中的透明通道。
+
+Godot 折射处理将尝试从正在渲染的对象后面获取信息，这允许以与现实生活中的折射类似的方式扭曲透明度。
+
+除了以上两种材质设置，Parameters - Blend Mode 设置 Mix 之外的混合模式也会有类似透明的效果。
+
+
+
 ### 🟠🔵 Displacemnet & Terrain 转换贴图与地形
 - [Your 1st 3D shader](https://docs.godotengine.org/en/latest/tutorials/shaders/your_first_shader/your_first_3d_shader.html)
 - [Your 2nd 3D shader](https://docs.godotengine.org/en/latest/tutorials/shaders/your_first_shader/your_second_3d_shader.html)
@@ -10055,6 +10807,17 @@ void fragment()
 - [Heightmap terrain 地形制作](https://www.bilibili.com/video/BV1uf4y1k7LF/)
 - [HTerrain plugin](https://hterrain-plugin.readthedocs.io/en/latest/)
 - [HTerrain plugin demo project in Godot Engine 3](https://github.com/Zylann/godot_hterrain_demo)
+- [Voxel Tools for Godot](https://github.com/Zylann/godot_voxel)
+- [Voxel Tools docs](https://voxel-tools.readthedocs.io/en/latest/)
+- [Game Demos for Voxel Tools for Godot](https://github.com/Zylann/voxelgame)
+- [Solar System Game Demo](https://github.com/Zylann/solar_system_demo)
+- [Tree generator plugin for Godot 3.2.4](https://github.com/Zylann/godot_tree_generator_plugin)
+- https://github.com/TheGodojo/Massive-Terrain-LOD-And-Stitching-COMPLETE
+- https://github.com/TheGodojo/Instant-Massive-Infinite-Terrain-Clipmap-Collisions-COMPLETE
+- [Godot 4 着色器地形实时生成：LOD和网格拼接](https://www.bilibili.com/video/BV1iR4y1f76Q)
+- https://github.com/Chevifier/Inifinte-Terrain-Generation
+- https://github.com/clayjohn/godot-volumetric-cloud-demo
+- https://godotengine.org/article/emulating-double-precision-gpu-render-large-worlds/
 
 置换贴图是地形制作的基本工具，在 GPU 渲染管线上，顶点着色器是处理几何体原始信息的工具，通过修改顶点
 坐标，使用原先的平面几何体产生任何希望的效果。结合噪声纹理，根据其像素的灰度值来修改顶点的高度坐标，
@@ -10666,7 +11429,6 @@ func _on_AnimationPlayer_animation_finished(anim_name):
 - [Third Person Shooter demo](https://github.com/godotengine/tps-demo)
 - [Retargeting 3D Skeletons](https://docs.godotengine.org/en/latest/tutorials/assets_pipeline/retargeting_3d_skeletons.html)
 - [Animation Retargeting in Godot 4.0](https://godotengine.org/article/animation-retargeting-in-godot-4-0)
-- [Better collada plugin for Blender](https://github.com/HungryProton/collada-exporter-2.8)
 - [09.高级动画技术：动画树、IK和表情动画 | GAMES104-现代游戏引擎：从入门到实践](https://www.bilibili.com/video/BV1pY411F7pA)
 - https://threejs.org/examples/#webgl_animation_skinning_additive_blending
 - [spine-godot Runtime](http://esotericsoftware.com/spine-godot)
@@ -13835,7 +14597,7 @@ ENet 协议定义了 12 条指令，每条指令都相应定义了其数据结�
 - Send Unsequenced 指令发送不需要分片的 Unsequenced，用相应的 unsequencedGroup 标记序号。
 - Send Fragment 指令用于发送所有需要分片的数据包，通过 flag 标记 reliable 和 unreliable 等类型。
 
-```C++
+```C++,ignore
     typedef enum _ENetProtocolCommand
     {
        ENET_PROTOCOL_COMMAND_NONE               = 0,
@@ -13936,7 +14698,7 @@ ENet 定义了四种事件，使用 I/O 事件轮询模型，封装在 Networked
 所有已连接的 peers 发送通告。将新加入 peer 通告给已有的 peers，反过来又将已有的 peers 通告给
 新加入的 peer，这种双向的操作体现了对等网的基本特征：
 
-```C++
+```C++,ignore
     // godot\modules\enet\networked_multiplayer_enet.h
     void NetworkedMultiplayerENet::poll() {
         // ...
@@ -14039,7 +14801,7 @@ NetworkedMultiplayerPeer 中定义的 get_unique_id() 方法是一个纯虚函�
 协议来实现，例如 NetworkedMultiplayerENet 的实现中，就使用 1 代表服务器。而创建服务器时，就根据
 时钟加用户目录、数据指针地址等生成一个 ID，使用的算法是 Hash Djb 2：
 
-```C++
+```C++,ignore
     // godot\core\io\networked_multiplayer_peer.h
 
     virtual int get_unique_id() const = 0;
@@ -14108,7 +14870,7 @@ ENet 接收到的数据会保存到 **incoming_packets**，其中就包含 sende
 其中的 RAW 命令是更低层的数据接收处理，会触发 **network_peer_packet** 信号，让用户有机会参与。
 
 
-```C++
+```C++,ignore
     // godot\modules\multiplayer\scene_multiplayer.h
     // godot-3.5.1-stable\core\io\multiplayer_api.h:113
     enum NetworkCommands {
@@ -14156,7 +14918,7 @@ RPC 执行到 `_process_rpc()` 或者 `_process_rset()` 就要进行鉴权，如
 则不给予执行，还要检测数据包是否有问题等等，并提示错误信息。`_can_call_mode()` 方法验证 RPC
 配置与节点设置是否对应：
 
-```C++
+```C++,ignore
 void MultiplayerAPI::_process_packet(int p_from, const uint8_t *p_packet, int p_packet_len) {
     // ...
     uint8_t packet_type = p_packet[0];
@@ -14304,7 +15066,7 @@ ScreenTree 获取发送方 peer ID 的方法直接包装调用 MultiplayerAPI �
 ScreenTree 包装 MultiplayerAPI，还再包装 NetworkPeer，因为只是获取当月前主机的 ID，所以返回的
 值部是创建 ENetPeer 时生成的值：
 
-```C++
+```C++,ignore
     // void MultiplayerAPI::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_rpc_sender_id"), &MultiplayerAPI::get_rpc_sender_id);
 
@@ -14392,7 +15154,7 @@ $gd4m = "$base\Godot_v4.0-rc1_mono_win64\Godot_v4.0-rc1_mono_win64.exe"
 
 以上这些问题都指向节点路径缓存，在接收端触发的问题行为。
 
-```C++
+```C++,ignore
     // godot\modules\multiplayer\scene_multiplayer.h
     // godot-3.5.1-stable\core\io\multiplayer_api.h:113
     enum NetworkCommands {
@@ -14446,7 +15208,7 @@ Godot 3.5 使用了节点路径缓存，发送方和接收方分开两个 HashMa
 缓存数据。如果是指定新的 NetworkPeer，还会连接默认的信号处理方法。MultiplayerAPI 构造和解构时
 都会清理缓存数据。
 
-```C++
+```C++,ignore
     //path sent caches
     struct PathSentCache {
         Map<int, bool> confirmed_peers;
@@ -14768,12 +15530,12 @@ Go 语言中又称为 marshalling 和 unmarshalling。
 
 
 ### 🟠🔵 Multiplayer: Scene Replication
-- [Voxel module for Godot](https://github.com/Zylann/godot_voxel)
 - [Mitchell Reid - MitchMakesThings](https://github.com/MitchMakesThings/Godot-Things/tree/main/Networking)
 - [Godot 4 Multiplayer - RPC 教程](https://www.bilibili.com/video/BV17P411c75s/)
 - [Godot 4 Multiplayer - RPC](https://github.com/TheGodojo/Godot-4-Networking-Demonstration-Complete)
 - [Godot 4 Multiplayer - Spawner/Synchronizer 教程](https://www.bilibili.com/video/BV1VY411o793/)
 - [Godot 4 Multiplayer - Spawner/Synchronizer](https://github.com/TheGodojo/Multiplayer-Nodes-Complete)
+- [Multiplayer in Godot 4.0: Scene Replication](https://godotengine.org/article/multiplayer-in-godot-4-0-scene-replication/)
 - [Multiplayer in Godot 4.0: Scene Replication (part 1)](https://godotengine.org/article/multiplayer-changes-godot-4-0-report-4/)
 - [Add a multiplayer interface and visual nodes for SceneTree replication](https://github.com/godotengine/godot-proposals/issues/3459)
 - [Visual Nodes for multiplayer scene replication](https://github.com/godotengine/godot-proposals/issues/3359)
@@ -16122,7 +16884,7 @@ Godot 4.x C# 基础类更名为 `Godot.GodotObject`，旧版本 `Godot.Object` �
 可以使用  ClassDB.instance("Object") 来实例化基础类。只有 Godot 引擎内部定义的类型才需要使用
 new() 方法进行实例化，像 Vector 这类基础数据结构不需要。
 
-```C++
+```C++,ignore
 GDScriptNativeClass::GDScriptNativeClass(const StringName &p_name) {
     name = p_name;
 }
@@ -16150,7 +16912,7 @@ Object *GDScriptNativeClass::instance() {
 
 ClassDB 类型注册中心相关 API，在 ClassInfo 定义了 creation_func 来引用构造器：
 
-```C++
+```C++,ignore
 static HashMap<StringName, ClassInfo> classes;
 static HashMap<StringName, StringName> resource_base_extensions;
 static HashMap<StringName, StringName> compat_classes;
@@ -16193,7 +16955,7 @@ bool ClassDB::can_instance(const StringName &p_class) {
 
 可能是出于 Godot 4 开发者的个人喜好，实例化的相关方法名称更改为 instantiate，这是一个纯动词：
 
-```C++
+```C++,ignore
 Variant instantiate(class: StringName) const
 bool can_instantiate(class: StringName) const
 ```
@@ -16255,7 +17017,7 @@ Godot 定义了一个 Variant 变体类型，可以称之为数据类型之母�
 
 Variant 定义了相当多的与各种数据类型相关的方法，但数据成员不多：
 
-```C++
+```C++,ignore
     // Variant takes 20 bytes when real_t is float, and 36 if double
     // it only allocates extra memory for aabb/matrix.
 
@@ -16323,7 +17085,7 @@ Godot 通知回调实现了引擎中最基本节点处理、渲染流程事件�
 
 在 C++ 底层，属性导出通过 `PropertyInfo` 结体体实现：
 
-```C++
+```C++,ignore
 // PropertyInfo(type, name, hint, hint_string, usage_flags)
 // For example:
 PropertyInfo(Variant::INT, "amount", PROPERTY_HINT_RANGE, "0,49,1", PROPERTY_USAGE_EDITOR)
@@ -16332,7 +17094,7 @@ PropertyInfo(Variant::INT, "amount", PROPERTY_HINT_RANGE, "0,49,1", PROPERTY_USA
 另外，还有更底层的属性绑定方法，它们在 GDScript 中使用下划线前缀表示，它们不是虚函数，子类继承
 覆盖后，在上层子依然有效，可以被多级调用，DO NOT make them virtual：
 
-```C++
+```C++,ignore
 protected:
      void _get_property_list(List<PropertyInfo> *r_props) const;      // return list of properties
      bool _get(const StringName &p_property, Variant &r_value) const; // return true if property was found
@@ -16342,7 +17104,7 @@ protected:
 
 Godot Object 的 API 分类参考，在源代码的 `Object::_bind_methods()` 中注册：
 
-```py
+```py,ignore
 Variant _get(property: String) virtual
   Array _get_property_list() virtual
    bool _set(property: String, value: Variant) virtual

@@ -17,6 +17,8 @@
 - [Godot Demo Projects](https://github.com/godotengine/godot-demo-projects)
 - [Godot 3 Recipes](https://kidscancode.org/godot_recipes/3.x/)
 
+本仓库配套教程位于 [Godot Tour](godotour.MD)，但此文档不再更新，更新内容迁移到了 [OpenDocs](https://github.com/Jeangowhy/opendocs/tree/main/godot.md)。
+
 Digital Content Creation (DCC) 数字内容创作工具是最现代代的生产力工具，包括但不仅限于 2D/3D、
 音频/视频剪辑合成、动态/互动内容创作、图像编辑等等。
 

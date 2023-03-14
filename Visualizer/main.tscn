@@ -1,0 +1,45 @@
+[gd_scene load_steps=7 format=3 uid="uid://dx45a2p3bpv2i"]
+
+[ext_resource type="AudioStream" uid="uid://ciylbcep3qr2p" path="res://true-pitch-l2.ogg" id="1_7ydqd"]
+[ext_resource type="Script" path="res://visualizer.gd" id="1_l5yqd"]
+[ext_resource type="Texture2D" uid="uid://cf8442bnx56ws" path="res://circle_of_fifths_colors.png" id="2_0lqwu"]
+[ext_resource type="PackedScene" uid="uid://hfikw52k1cc3" path="res://subtitle.tscn" id="4_5t4ab"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_h46ge"]
+frequency = 0.002
+fractal_type = 3
+fractal_gain = 0.721
+fractal_ping_pong_strength = 5.941
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_i61ct"]
+width = 128
+height = 128
+in_3d_space = true
+seamless = true
+noise = SubResource("FastNoiseLite_h46ge")
+
+[node name="visualizer" type="Node2D"]
+script = ExtResource("1_l5yqd")
+
+[node name="bg" type="TextureRect" parent="."]
+self_modulate = Color(0.247059, 0.156863, 0.0509804, 0.682353)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 1920.0
+offset_bottom = 1080.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("NoiseTexture2D_i61ct")
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("1_7ydqd")
+autoplay = true
+
+[node name="CircleOfFifthsColors" type="Sprite2D" parent="."]
+position = Vector2(973, 509)
+texture = ExtResource("2_0lqwu")
+
+[node name="subtitle" parent="." instance=ExtResource("4_5t4ab")]
+visible = false
+position = Vector2(0, 869)

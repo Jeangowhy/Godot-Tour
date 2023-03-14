@@ -1,0 +1,51 @@
+[gd_scene load_steps=5 format=3 uid="uid://bct3jui8bsq3d"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dok5o"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_vlj5x"]
+material = SubResource("ShaderMaterial_dok5o")
+size = Vector2(20, 20)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_gkpba"]
+points = PackedVector3Array(0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5)
+
+[sub_resource type="BoxMesh" id="BoxMesh_omx5n"]
+
+[node name="heightmap" type="Node3D"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("PlaneMesh_vlj5x")
+
+[node name="RigidBody3D" type="RigidBody3D" parent="."]
+transform = Transform3D(0.269944, -0.611361, -0.743887, -0.391228, 0.636281, -0.664896, 0.879813, 0.470514, -0.0674212, 0, 1.04253, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="RigidBody3D"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0)
+shape = SubResource("ConvexPolygonShape3D_gkpba")
+
+[node name="CSGCombiner3D" type="CSGCombiner3D" parent="RigidBody3D"]
+
+[node name="for_collision_shape" type="MeshInstance3D" parent="RigidBody3D/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 0.23084, 0, 0, 0, 1, 0, -0.389347, 0)
+visible = false
+mesh = SubResource("BoxMesh_omx5n")
+skeleton = NodePath("../../..")
+
+[node name="for_collision_shape2" type="MeshInstance3D" parent="RigidBody3D/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 0.23084, 0, 0, 0, 1, 0, 0.37512, 0)
+visible = false
+mesh = SubResource("BoxMesh_omx5n")
+skeleton = NodePath("../../..")
+
+[node name="for_collision_shape3" type="MeshInstance3D" parent="RigidBody3D/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, -1.00903e-08, 1, 0, -0.23084, -4.37114e-08, 0, -0.000925064, 0.387152)
+visible = false
+mesh = SubResource("BoxMesh_omx5n")
+skeleton = NodePath("../../..")
+
+[node name="CSGBox3D" type="CSGBox3D" parent="RigidBody3D/CSGCombiner3D"]
+
+[node name="CSGBox3D2" type="CSGBox3D" parent="RigidBody3D/CSGCombiner3D"]
+transform = Transform3D(1, -2.98023e-08, 0, 2.98023e-08, 1, -2.98023e-08, 2.98023e-08, 0, 1, 0, 0, -0.217208)
+operation = 2
+size = Vector3(1, 0.557776, 1)

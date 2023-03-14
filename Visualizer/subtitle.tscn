@@ -1,0 +1,48 @@
+[gd_scene load_steps=2 format=3 uid="uid://hfikw52k1cc3"]
+
+[ext_resource type="Script" path="res://subtitle.gd" id="1_2bwng"]
+
+[node name="subtitle" type="Node2D"]
+script = ExtResource("1_2bwng")
+
+[node name="RichTextLabel" type="RichTextLabel" parent="."]
+offset_top = -1.0
+offset_right = 1917.0
+offset_bottom = 1923.0
+theme_override_font_sizes/normal_font_size = 39
+bbcode_enabled = true
+text = "[center]
+1 
+00:00:09,070 --> 00:00:12,080
+Answer is [color=yellow]A4[/color]
+
+2 
+00:00:18,070 --> 00:00:21,080
+Answer is [color=yellow]F4[/color]
+
+3 
+00:00:28,070 --> 00:00:32,080
+Answer is [color=yellow]C4[/color]
+
+4 
+00:00:38,070 --> 00:00:41,080
+Answer is [color=yellow]B4[/color]
+
+5 
+00:00:48,070 --> 00:00:51,080
+Answer is [color=yellow]G4[/color]
+
+6 
+00:00:58,070 --> 00:01:01,080
+Answer is [color=yellow]E4[/color]
+
+7 
+00:01:08,070 --> 00:01:11,080
+Answer is [color=yellow]C5[/color]
+
+8 
+00:01:17,070 --> 00:01:21,080
+Answer is [color=yellow]D4[/color]
+"
+fit_content = true
+scroll_active = false

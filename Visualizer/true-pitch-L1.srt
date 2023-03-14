@@ -1,0 +1,31 @@
+1 
+00:00:09,070 --> 00:00:12,080
+Answer is <font color="yellow">A4</font>
+
+2 
+00:00:18,070 --> 00:00:21,080
+Answer is <font color="yellow">F4</font>
+
+3 
+00:00:28,070 --> 00:00:32,080
+Answer is <font color="yellow">C4</font>
+
+4 
+00:00:38,070 --> 00:00:41,080
+Answer is <font color="yellow">B4</font>
+
+5 
+00:00:48,070 --> 00:00:51,080
+Answer is <font color="yellow">G4</font>
+
+6 
+00:00:58,070 --> 00:01:01,080
+Answer is <font color="yellow">E4</font>
+
+7 
+00:01:08,070 --> 00:01:11,080
+Answer is <font color="yellow">C5</font>
+
+8 
+00:01:17,070 --> 00:01:21,080
+Answer is <font color="yellow">D4</font>
